@@ -46,6 +46,18 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      animation: {
+        "spin-slow": "spin 20s linear infinite",
+        "blob": "blob 10s infinite",
+      },
+      keyframes: {
+        blob: {
+          "0%": { transform: "translate(0px, 0px) scale(1)", opacity: "0.3" },
+          "33%": { transform: "translate(30px, -50px) scale(1.2)", opacity: "0.6" },
+          "66%": { transform: "translate(-20px, 20px) scale(0.9)", opacity: "0.4" },
+          "100%": { transform: "translate(0px, 0px) scale(1)", opacity: "0.3" },
+        },
+      },
     },
   },
   plugins: [],

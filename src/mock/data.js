@@ -8,8 +8,8 @@ export const NAV_ITEMS = [
   { key: "tasks", name: "任务", icon: "ListTodo" },
   { key: "results", name: "结果", icon: "BarChart3" },
   { key: "explain", name: "解释", icon: "ScanSearch" },
-  { key: "deliver", name: "交付", icon: "Rocket" },
-  { key: "compare", name: "对比证明", icon: "ShieldCheck" },
+  // { key: "deliver", name: "交付", icon: "Rocket" },
+  { key: "compare", name: "对比", icon: "ShieldCheck" },
 ];
 
 export const SCENES = [

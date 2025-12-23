@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect } from "react";
+import { Select, Tag } from "@arco-design/web-react";
 import {
   Card,
   CardContent,
@@ -41,6 +42,13 @@ import {
   CartesianGrid,
   BarChart,
   Bar,
+  Legend,
+  Cell,
+  LabelList,
+  ScatterChart,
+  Scatter,
+  ZAxis,
+  ReferenceLine,
 } from "recharts";
 
 // 注意：本页面所有数据均为 Mock，仅用于演示“平台形态/页面结构/可视化证据链”。
@@ -49,267 +57,661 @@ const NAV = [
   { key: "datasets", name: "数据集导入", icon: Database },
   { key: "health", name: "数据质量评估", icon: Stethoscope },
   { key: "clean", name: "清洗方案", icon: Wand2 },
-  { key: "features", name: "特征工厂", icon: Sparkles },
   { key: "tasks", name: "任务", icon: ListTodo },
   { key: "results", name: "结果", icon: BarChart3 },
   { key: "explain", name: "解释", icon: ScanSearch },
-  { key: "deliver", name: "交付", icon: Rocket },
-  { key: "compare", name: "对比证明", icon: ShieldCheck },
+  // { key: "deliver", name: "交付", icon: Rocket },
+  { key: "compare", name: "对比", icon: ShieldCheck },
 ];
 
 const SCENES = [
   {
-    id: "gov_incident",
-    name: "城市应急工单：超时风险 + 处置时长 + 派单建议",
-    tag: "ToG",
-  },
-  {
-    id: "mfg_yield",
-    name: "制造产线：良率预测 + 停机风险 + 根因解释",
+    id: "sd_price",
+    name: "山东省日前电价预测",
     tag: "ToB",
   },
   {
-    id: "crm_churn",
-    name: "客户经营：流失预测 + 干预策略（反事实）",
+    id: "sd_high_price_clf",
+    name: "山东省搏高价分类预测",
+    tag: "ToB",
+  },
+  {
+    id: "sx_price",
+    name: "山西省日前电价预测",
+    tag: "ToB",
+  },
+  {
+    id: "hebei_price",
+    name: "河北省日前电价预测",
+    tag: "ToB",
+  },
+  {
+    id: "henan_price",
+    name: "河南省日前电价预测",
+    tag: "ToB",
+  },
+  {
+    id: "hubei_price",
+    name: "湖北省日前电价预测",
+    tag: "ToB",
+  },
+  {
+    id: "hunan_price",
+    name: "湖南省日前电价预测",
     tag: "ToB",
   },
 ];
 
 const MOCK_DATASETS = [
   {
-    id: "incident_wide_v1",
-    name: "incident_wide.csv",
+    id: "test_+5_v1",
+    sceneId: "sd_price",
+    name: "test_+5_V1-待去重待补全.numbers",
     version: "v1（含脏数据）",
-    rows: 200000,
-    cols: 92,
-    timeRange: "2025-10-01 ~ 2025-12-15",
-    owner: "指挥中心",
-    qualityScore: 68,
+    rows: 15340,
+    cols: 17,
+    timeRange: "2025-08-01 ~ 2026-01-01",
+    owner: "市场部",
+    qualityScore: 62,
   },
   {
-    id: "incident_wide_v2",
-    name: "incident_wide.csv",
+    id: "test_+5_v2",
+    sceneId: "sd_price",
+    name: "test_+5_V2-清洗后.csv",
     version: "v2（清洗后）",
-    rows: 196842,
-    cols: 92,
-    timeRange: "2025-10-01 ~ 2025-12-15",
-    owner: "指挥中心",
-    qualityScore: 86,
+    rows: 15300,
+    cols: 17,
+    timeRange: "2025-08-01 ~ 2026-01-01",
+    owner: "市场部",
+    qualityScore: 88,
+  },
+  {
+    id: "test_clf_v1",
+    sceneId: "sd_high_price_clf",
+    name: "test_分类_V1.csv",
+    version: "v1（含脏数据）",
+    rows: 749,
+    cols: 17,
+    timeRange: "2025-08-01 ~ 2025-09-01",
+    owner: "市场部",
+    qualityScore: 58,
   },
 ];
 
 const MOCK_SCHEMA = [
-  { k: "incident_id", t: "ID", desc: "工单主键" },
-  { k: "report_time", t: "时间", desc: "报案/接入时间" },
-  { k: "region_id", t: "类别", desc: "区域编码" },
-  { k: "event_type_code", t: "类别", desc: "事件类型" },
-  { k: "severity", t: "数值", desc: "严重等级 1-5" },
-  { k: "distance_km", t: "数值", desc: "到场距离（公里）" },
-  { k: "active_units", t: "数值", desc: "当前可用力量" },
-  { k: "queue_len", t: "数值", desc: "排队长度" },
-  { k: "resolve_minutes", t: "目标Y（回归）", desc: "处置时长（分钟）" },
-  { k: "is_overdue_30m", t: "目标Y（分类）", desc: "是否超时（30分钟）" },
+  { k: "Time", t: "时间", desc: "时间戳" },
+  { k: "非市场化核电总加_日前", t: "数值", desc: "非市场化核电" },
+  { k: "竞价空间_日前", t: "数值", desc: "竞价空间" },
+  { k: "风力发电_日前", t: "数值", desc: "风电" },
+  { k: "联络线计划_日前", t: "数值", desc: "外送计划" },
+  { k: "光伏发电_日前", t: "数值", desc: "光伏" },
+  { k: "新能源总加_日前", t: "数值", desc: "新能源总和" },
+  { k: "省调负荷_日前", t: "数值", desc: "省调负荷" },
+  { k: "全网负荷_日前", t: "数值", desc: "全网负荷" },
+  { k: "现货出清电价-日前_D-2", t: "数值", desc: "D-2日前电价" },
+  { k: "现货出清电价-实时_D-2", t: "数值", desc: "D-2实时电价" },
+  { k: "实时-日前偏差值_D-2", t: "数值", desc: "D-2价差" },
+  { k: "label", t: "目标Y（回归）", desc: "电价预测" },
+  { k: "实时-日前偏差值_D-2_label", t: "数值", desc: "D-2价差标签" },
+  { k: "实时-日前偏差值_D-3_label", t: "数值", desc: "D-3价差标签" },
+  { k: "现货出清电价-日前_D-3", t: "数值", desc: "D-3日前电价" },
+  { k: "现货出清电价-实时_D-3", t: "数值", desc: "D-3实时电价" }
+];
+
+const MOCK_SCHEMA_CLF = [
+  { k: "Time", t: "时间", desc: "时间戳" },
+  { k: "非市场化核电总加_日前", t: "数值", desc: "非市场化核电" },
+  { k: "竞价空间_日前", t: "数值", desc: "竞价空间" },
+  { k: "风力发电_日前", t: "数值", desc: "风电" },
+  { k: "联络线计划_日前", t: "数值", desc: "外送计划" },
+  { k: "光伏发电_日前", t: "数值", desc: "光伏" },
+  { k: "新能源总加_日前", t: "数值", desc: "新能源总和" },
+  { k: "省调负荷_日前", t: "数值", desc: "省调负荷" },
+  { k: "全网负荷_日前", t: "数值", desc: "全网负荷" },
+  { k: "现货出清电价-日前_D-2", t: "数值", desc: "D-2日前电价" },
+  { k: "现货出清电价-实时_D-2", t: "数值", desc: "D-2实时电价" },
+  { k: "实时-日前偏差值_D-2", t: "数值", desc: "D-2价差" },
+  { k: "label", t: "分类目标", desc: "高电价分类" },
+  { k: "实时-日前偏差值_D-2_label", t: "数值", desc: "D-2价差标签" },
+  { k: "实时-日前偏差值_D-3_label", t: "数值", desc: "D-3价差标签" },
+  { k: "现货出清电价-日前_D-3", t: "数值", desc: "D-3日前电价" },
+  { k: "现货出清电价-实时_D-3", t: "数值", desc: "D-3实时电价" },
+];
+
+const MOCK_ROWS_CLF = Array.from({ length: 31 * 24 }, (_, i) => {
+  const dayOffset = Math.floor(i / 24);
+  const hour = i % 24;
+  const date = new Date("2025/11/16");
+  date.setDate(date.getDate() + dayOffset);
+  
+  // Pattern based on user specific dates
+  // High: 11-18, 19, 20, 24, 25, 26, 28, 29, 12-04, 05, 07, 11, 12, 14, 15
+  // Others: 0
+  const dailyPattern = [
+    null, // 11-16
+    0, // 11-17
+    1, // 11-18
+    1, // 11-19
+    1, // 11-20
+    0, // 11-21
+    0, // 11-22
+    0, // 11-23
+    1, // 11-24
+    1, // 11-25
+    1, // 11-26
+    0, // 11-27
+    1, // 11-28
+    1, // 11-29
+    0, // 11-30
+    0, // 12-01
+    0, // 12-02
+    0, // 12-03
+    1, // 12-04
+    1, // 12-05
+    0, // 12-06
+    1, // 12-07
+    0, // 12-08
+    0, // 12-09
+    0, // 12-10
+    1, // 12-11
+    1, // 12-12
+    0, // 12-13
+    1, // 12-14
+    1, // 12-15
+    0, // 12-16
+  ];
+  
+  // Safety check for pattern index
+  const patternIndex = dayOffset % dailyPattern.length;
+  const patternVal = dailyPattern[patternIndex];
+  
+  const isHighDay = patternVal === 1;
+  const isNullDay = patternVal === null || patternVal === undefined;
+
+  // Logic to determine if it's high price based on hour (mimicking CSV)
+  // High price hours: 2-6, 15-18. Only applies if it's a High Price Day.
+  const isHighHour = !isNullDay && isHighDay && ((hour >= 2 && hour <= 6) || (hour >= 15 && hour <= 18));
+  const label = isNullDay ? "null" : (isHighHour ? "1" : "0");
+
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  const timeStr = `${date.getFullYear()}/${month}/${day} ${hour.toString().padStart(2, '0')}:00`;
+
+  // Default random data generation
+  return {
+    Time: timeStr,
+    "非市场化核电总加_日前": (1620 + Math.random() * 10).toFixed(0),
+    "竞价空间_日前": (30000 + Math.random() * 30000).toFixed(2),
+    "风力发电_日前": (2000 + Math.random() * 4000).toFixed(2),
+    "联络线计划_日前": (20000 + Math.random() * 8000).toFixed(2),
+    "光伏发电_日前": hour > 6 && hour < 18 ? (5000 + Math.random() * 10000).toFixed(2) : "0",
+    "新能源总加_日前": (8000 + Math.random() * 10000).toFixed(2),
+    "省调负荷_日前": (70000 + Math.random() * 20000).toFixed(2),
+    "全网负荷_日前": (80000 + Math.random() * 30000).toFixed(2),
+    "现货出清电价-日前_D-2": (300 + Math.random() * 200).toFixed(2),
+    "现货出清电价-实时_D-2": (300 + Math.random() * 200).toFixed(2),
+    "实时-日前偏差值_D-2": (Math.random() * 100 - 50).toFixed(2),
+    label: label,
+    "实时-日前偏差值_D-2_label": label,
+    "实时-日前偏差值_D-3_label": Math.random() > 0.5 ? "1" : "0",
+    "现货出清电价-日前_D-3": (300 + Math.random() * 200).toFixed(2),
+    "现货出清电价-实时_D-3": (300 + Math.random() * 200).toFixed(2),
+  };
+});
+
+const MOCK_PREVIEW_ROWS_CLF_V1 = [
+  {
+      Time: "2025/8/1 00:00",
+      "非市场化核电总加_日前": "",
+      "竞价空间_日前": "53203.885",
+      "风力发电_日前": "5011.7275",
+      "联络线计划_日前": "20427.25",
+      "光伏发电_日前": "0",
+      "新能源总加_日前": "5011.7275",
+      "省调负荷_日前": "80263.8625",
+      "全网负荷_日前": "86613.8825",
+      "现货出清电价-日前_D-2": "403.5",
+      "现货出清电价-实时_D-2": "424.66",
+      "实时-日前偏差值_D-2": "21.16",
+      label: "0",
+      "实时-日前偏差值_D-2_label": "1",
+      "实时-日前偏差值_D-3_label": "1",
+      "现货出清电价-日前_D-3": "406.21",
+      "现货出清电价-实时_D-3": "417.02"
+  },
+  {
+      Time: "2025/8/1 01:00",
+      "非市场化核电总加_日前": "1621",
+      "竞价空间_日前": "53395.1975",
+      "风力发电_日前": "4460.07",
+      "联络线计划_日前": "20522.25",
+      "光伏发电_日前": "0",
+      "新能源总加_日前": "",
+      "省调负荷_日前": "79998.5175",
+      "全网负荷_日前": "86348.54000000001",
+      "现货出清电价-日前_D-2": "414.4",
+      "现货出清电价-实时_D-2": "431.09",
+      "实时-日前偏差值_D-2": "16.69",
+      label: "0",
+      "实时-日前偏差值_D-2_label": "1",
+      "实时-日前偏差值_D-3_label": "0",
+      "现货出清电价-日前_D-3": "414.52",
+      "现货出清电价-实时_D-3": "411.48"
+  },
+  {
+      Time: "2025/8/1 02:00",
+      "非市场化核电总加_日前": "1621",
+      "竞价空间_日前": "50437.715000000004",
+      "风力发电_日前": "4122.835",
+      "联络线计划_日前": "20738.5",
+      "光伏发电_日前": "0",
+      "新能源总加_日前": "4122.835",
+      "省调负荷_日前": "76920.05",
+      "全网负荷_日前": "83270.07",
+      "现货出清电价-日前_D-2": "400.6",
+      "现货出清电价-实时_D-2": "407.37",
+      "实时-日前偏差值_D-2": "6.77",
+      label: "1",
+      "实时-日前偏差值_D-2_label": "1",
+      "实时-日前偏差值_D-3_label": "1",
+      "现货出清电价-日前_D-3": "396.3",
+      "现货出清电价-实时_D-3": "400.48"
+  },
+  {
+      Time: "2025/8/1 02:00",
+      "非市场化核电总加_日前": "1621",
+      "竞价空间_日前": "50437.715000000004",
+      "风力发电_日前": "4122.835",
+      "联络线计划_日前": "20738.5",
+      "光伏发电_日前": "0",
+      "新能源总加_日前": "4122.835",
+      "省调负荷_日前": "76920.05",
+      "全网负荷_日前": "83270.07",
+      "现货出清电价-日前_D-2": "400.6",
+      "现货出清电价-实时_D-2": "407.37",
+      "实时-日前偏差值_D-2": "6.77",
+      label: "1",
+      "实时-日前偏差值_D-2_label": "1",
+      "实时-日前偏差值_D-3_label": "1",
+      "现货出清电价-日前_D-3": "396.3",
+      "现货出清电价-实时_D-3": "400.48"
+  },
+  {
+      Time: "2025/8/1 03:00",
+      "非市场化核电总加_日前": "1621",
+      "竞价空间_日前": "",
+      "风力发电_日前": "3980.1625",
+      "联络线计划_日前": "20658.75",
+      "光伏发电_日前": "0",
+      "新能源总加_日前": "3980.1625",
+      "省调负荷_日前": "74993.04000000001",
+      "全网负荷_日前": "81343.0675",
+      "现货出清电价-日前_D-2": "389.05",
+      "现货出清电价-实时_D-2": "392.83",
+      "实时-日前偏差值_D-2": "3.78",
+      label: "1",
+      "实时-日前偏差值_D-2_label": "1",
+      "实时-日前偏差值_D-3_label": "1",
+      "现货出清电价-日前_D-3": "380.42",
+      "现货出清电价-实时_D-3": "392.13"
+  },
+  {
+      Time: "2025/8/1 04:00",
+      "非市场化核电总加_日前": "1621",
+      "竞价空间_日前": "47934.735",
+      "风力发电_日前": "3978.3375",
+      "联络线计划_日前": "20784.25",
+      "光伏发电_日前": "7.45",
+      "新能源总加_日前": "3985.7875",
+      "省调负荷_日前": "",
+      "全网负荷_日前": "80686.1325",
+      "现货出清电价-日前_D-2": "384.61",
+      "现货出清电价-实时_D-2": "387.03",
+      "实时-日前偏差值_D-2": "2.42",
+      label: "1",
+      "实时-日前偏差值_D-2_label": "1",
+      "实时-日前偏差值_D-3_label": "1",
+      "现货出清电价-日前_D-3": "375.14",
+      "现货出清电价-实时_D-3": "381.88"
+  },
+  {
+      Time: "2025/8/1 05:00",
+      "非市场化核电总加_日前": "",
+      "竞价空间_日前": "47211.455",
+      "风力发电_日前": "",
+      "联络线计划_日前": "21663.5",
+      "光伏发电_日前": "402.92499999999995",
+      "新能源总加_日前": "4417.35",
+      "省调负荷_日前": "74913.305",
+      "全网负荷_日前": "81894.16",
+      "现货出清电价-日前_D-2": "374.01",
+      "现货出清电价-实时_D-2": "377.89",
+      "实时-日前偏差值_D-2": "3.88",
+      label: "1",
+      "实时-日前偏差值_D-2_label": "1",
+      "实时-日前偏差值_D-3_label": "0",
+      "现货出清电价-日前_D-3": "381.56",
+      "现货出清电价-实时_D-3": "379.62"
+  },
+  {
+      Time: "2025/8/1 06:00",
+      "非市场化核电总加_日前": "1621",
+      "竞价空间_日前": "42958.845",
+      "风力发电_日前": "3991.175",
+      "联络线计划_日前": "22795.25",
+      "光伏发电_日前": "2348.4825",
+      "新能源总加_日前": "6339.6575",
+      "省调负荷_日前": "73714.7525",
+      "全网负荷_日前": "83636.8625",
+      "现货出清电价-日前_D-2": "334.39",
+      "现货出清电价-实时_D-2": "334.12",
+      "实时-日前偏差值_D-2": "-0.27",
+      label: "1",
+      "实时-日前偏差值_D-2_label": "0",
+      "实时-日前偏差值_D-3_label": "0",
+      "现货出清电价-日前_D-3": "344",
+      "现货出清电价-实时_D-3": "333"
+  },
+  {
+      Time: "2025/8/1 06:00",
+      "非市场化核电总加_日前": "1621",
+      "竞价空间_日前": "42958.845",
+      "风力发电_日前": "3991.175",
+      "联络线计划_日前": "22795.25",
+      "光伏发电_日前": "2348.4825",
+      "新能源总加_日前": "6339.6575",
+      "省调负荷_日前": "73714.7525",
+      "全网负荷_日前": "83636.8625",
+      "现货出清电价-日前_D-2": "334.39",
+      "现货出清电价-实时_D-2": "334.12",
+      "实时-日前偏差值_D-2": "-0.27",
+      label: "1",
+      "实时-日前偏差值_D-2_label": "0",
+      "实时-日前偏差值_D-3_label": "0",
+      "现货出清电价-日前_D-3": "344",
+      "现货出清电价-实时_D-3": "333"
+  },
+  {
+      Time: "2025/8/1 07:00",
+      "非市场化核电总加_日前": "1621",
+      "竞价空间_日前": "38885.0225",
+      "风力发电_日前": "3930.8900000000003",
+      "联络线计划_日前": "24184.25",
+      "光伏发电_日前": "5625.3525",
+      "新能源总加_日前": "9556.2425",
+      "省调负荷_日前": "74246.515",
+      "全网负荷_日前": "",
+      "现货出清电价-日前_D-2": "258.79",
+      "现货出清电价-实时_D-2": "233.11",
+      "实时-日前偏差值_D-2": "-25.68",
+      label: "0",
+      "实时-日前偏差值_D-2_label": "0",
+      "实时-日前偏差值_D-3_label": "0",
+      "现货出清电价-日前_D-3": "303.82",
+      "现货出清电价-实时_D-3": "271.31"
+  }
 ];
 
 // v1 / v2 的体检数据：只用于展示点击后的“可见变化”
 const HEALTH_V1 = {
   summary: [
-    { name: "缺失率", value: 7.8, unit: "%", hint: "distance_km / arrive_minutes" },
-    { name: "异常值", value: 1.4, unit: "%", hint: "resolve_minutes=0 或 >600" },
-    { name: "重复率", value: 0.9, unit: "%", hint: "同一 incident_id 重复" },
-    { name: "口径不一致", value: 12, unit: "项", hint: "A01/a01/TRAFFIC_ACC" },
+    { name: "缺失率", value: 5.2, unit: "%", hint: "光伏发电_日前 / 风力发电_日前" },
+    { name: "异常值", value: 2.1, unit: "%", hint: "全网负荷_日前<0 或 竞价空间_日前>100000" },
+    { name: "重复率", value: 1.5, unit: "%", hint: "同一 Time 重复" },
+    { name: "口径不一致", value: 4, unit: "项", hint: "MW/kW 单位混用" },
   ],
   drift: [
-    { day: "11/20", psi: 0.03 },
-    { day: "11/27", psi: 0.06 },
-    { day: "12/04", psi: 0.11 },
-    { day: "12/11", psi: 0.18 },
-    { day: "12/15", psi: 0.22 },
+    { day: "05/01", psi: 0.04 },
+    { day: "05/08", psi: 0.07 },
+    { day: "05/15", psi: 0.12 },
+    { day: "05/22", psi: 0.19 },
+    { day: "05/29", psi: 0.25 },
   ],
   missingHeat: {
     fields: [
-      "distance_km",
-      "arrive_minutes",
-      "event_type_code",
-      "active_units",
-      "queue_len",
-      "resolve_minutes",
+      "风力发电_日前",
+      "光伏发电_日前",
+      "全网负荷_日前",
+      "联络线计划_日前",
+      "竞价空间_日前",
+      "现货出清电价-日前_D-2",
     ],
-    groups: ["R01", "R02", "R03", "R04", "R05", "R06"],
+    groups: ["G1", "G2", "G3", "G4", "G5", "G6"],
     matrix: [
-      [0.05, 0.07, 0.12, 0.03, 0.08, 0.18],
-      [0.02, 0.05, 0.09, 0.02, 0.04, 0.11],
-      [0.10, 0.13, 0.21, 0.07, 0.14, 0.26],
-      [0.01, 0.02, 0.04, 0.01, 0.02, 0.05],
-      [0.03, 0.06, 0.08, 0.03, 0.07, 0.09],
-      [0.00, 0.01, 0.02, 0.00, 0.01, 0.03],
+      [0.08, 0.10, 0.05, 0.02, 0.06, 0.12],
+      [0.03, 0.06, 0.04, 0.01, 0.03, 0.08],
+      [0.12, 0.15, 0.09, 0.05, 0.11, 0.20],
+      [0.01, 0.02, 0.01, 0.00, 0.01, 0.03],
+      [0.04, 0.07, 0.03, 0.02, 0.05, 0.09],
+      [0.00, 0.01, 0.00, 0.00, 0.01, 0.02],
     ],
   },
   inconsistencies: [
     {
       id: "INC-001",
-      field: "event_type_code",
-      examples: ["A01", "a01", "TRAFFIC_ACC", "交通事故"],
-      impact: "同类事件统计口径不一致，导致分组误差放大",
+      field: "单位",
+      examples: ["MW", "kW", "兆瓦"],
+      impact: "功率单位不统一，数值差异1000倍",
     },
     {
       id: "INC-002",
-      field: "source",
-      examples: ["110", "Hotline", "热线"],
-      impact: "渠道维度无法对齐，影响队列/派单策略",
+      field: "Time",
+      examples: ["2023/1/1", "2023-01-01"],
+      impact: "时间格式不统一，影响时序对齐",
     },
   ],
 };
 
+const HEALTH_CLF = {
+  summary: [
+    { name: "缺失率", value: 5.2, unit: "%", hint: "光伏发电_日前 / 风力发电_日前" },
+    { name: "异常值", value: 2.1, unit: "%", hint: "全网负荷_日前<0 或 竞价空间_日前>100000" },
+    { name: "重复率", value: 1.5, unit: "%", hint: "同一 Time 重复" },
+    { name: "口径不一致", value: 4, unit: "项", hint: "MW/kW 单位混用" },
+  ],
+  drift: HEALTH_V1.drift,
+  missingHeat: HEALTH_V1.missingHeat,
+  inconsistencies: HEALTH_V1.inconsistencies,
+};
+
 const HEALTH_V2 = {
   summary: [
-    { name: "缺失率", value: 0.6, unit: "%", hint: "缺失已填补/补采集" },
-    { name: "异常值", value: 0.3, unit: "%", hint: "异常截断/修正" },
-    { name: "重复率", value: 0.0, unit: "%", hint: "主键去重完成" },
-    { name: "口径不一致", value: 2, unit: "项", hint: "码表映射已覆盖大部分" },
+    { name: "缺失率", value: 0.0, unit: "%", hint: "已使用线性插值填补" },
+    { name: "异常值", value: 0.1, unit: "%", hint: "已修正极值" },
+    { name: "重复率", value: 0.0, unit: "%", hint: "去重完成" },
+    { name: "口径不一致", value: 0, unit: "项", hint: "统一归一化" },
   ],
   drift: [
-    { day: "11/20", psi: 0.02 },
-    { day: "11/27", psi: 0.04 },
-    { day: "12/04", psi: 0.08 },
-    { day: "12/11", psi: 0.12 },
-    { day: "12/15", psi: 0.15 },
+    { day: "05/01", psi: 0.01 },
+    { day: "05/08", psi: 0.02 },
+    { day: "05/15", psi: 0.05 },
+    { day: "05/22", psi: 0.08 },
+    { day: "05/29", psi: 0.10 },
   ],
   missingHeat: {
     fields: HEALTH_V1.missingHeat.fields,
     groups: HEALTH_V1.missingHeat.groups,
-    matrix: HEALTH_V1.missingHeat.matrix.map((row) => row.map((v) => Math.max(0, v - 0.07))),
+    matrix: HEALTH_V1.missingHeat.matrix.map((row) => row.map((v) => Math.max(0, v - 0.1))),
   },
-  inconsistencies: HEALTH_V1.inconsistencies,
+  inconsistencies: [],
 };
 
 const MOCK_CLEAN_RULES = [
   {
     id: "R-001",
-    name: "口径映射：event_type_code 统一到标准码表",
+    name: "单位换算：统一功率单位为 MW",
     type: "映射",
-    before: "A01/a01/TRAFFIC_ACC/交通事故",
-    after: "A01",
+    before: "kW/MW 混杂",
+    after: "全量 MW",
     risk: "低",
   },
   {
     id: "R-002",
-    name: "缺失填补：distance_km 用分区中位数 + 天气修正",
+    name: "缺失填补：光伏发电_日前 线性插值",
     type: "填补",
-    before: "缺失 7.8%",
-    after: "缺失 0.3%",
+    before: "缺失 5.2%",
+    after: "缺失 0.0%",
     risk: "中",
   },
   {
     id: "R-003",
-    name: "异常截断：resolve_minutes 限制到 [5, 600]",
+    name: "异常处理：负荷 < 0 修正为 0",
     type: "异常",
-    before: "异常 1.4%",
-    after: "异常 0.2%",
+    before: "异常 2.1%",
+    after: "异常 0.1%",
     risk: "中",
   },
   {
     id: "R-004",
-    name: "重复合并：同 incident_id 保留最新 close_time",
+    name: "去重：基于 Time 字段保留最新",
     type: "去重",
-    before: "重复 0.9%",
+    before: "重复 1.5%",
     after: "重复 0.0%",
     risk: "低",
   },
 ];
 
 const MOCK_FEATURES_BASE = [
-  { name: "queue_len", importance: 0.22, stability: 0.88, relation: "正相关（队列越长越容易超时）" },
-  { name: "active_units", importance: 0.18, stability: 0.81, relation: "负相关（力量越多越不超时）" },
-  { name: "distance_km", importance: 0.14, stability: 0.74, relation: "正相关（距离越远越易超时）" },
-  { name: "severity", importance: 0.12, stability: 0.79, relation: "正相关（严重度越高越易超时）" },
-  { name: "weather", importance: 0.09, stability: 0.66, relation: "恶劣天气提高到场/处置时长" },
-  { name: "history_7d_incidents", importance: 0.07, stability: 0.71, relation: "正相关（热点区域更拥堵）" },
+  { name: "全网负荷_日前", importance: 0.35, stability: 0.92, relation: "正相关（负荷高电价高）" },
+  { name: "新能源总加_日前", importance: 0.28, stability: 0.85, relation: "负相关（新能源多电价低）" },
+  { name: "现货出清电价-日前_D-2", importance: 0.15, stability: 0.78, relation: "正相关（历史电价趋势）" },
+  { name: "竞价空间_日前", importance: 0.12, stability: 0.82, relation: "负相关（空间大竞争激烈）" },
+  { name: "联络线计划_日前", importance: 0.06, stability: 0.70, relation: "正相关（外送增加推高电价）" },
+  { name: "非市场化核电总加_日前", importance: 0.04, stability: 0.95, relation: "负相关（基荷稳定）" },
 ];
 
 const MOCK_RUNS_BASE = [
   {
     id: "run-A",
-    taskName: "超时风险分类",
-    taskType: "分类",
-    target: "is_overdue_30m",
+    taskName: "日前电价预测_XGB",
+    taskType: "回归",
+    target: "label",
     status: "已完成",
-    durationSec: 18,
-    metrics: { AUC: 0.91, F1: 0.78 },
-    version: "data:v2 · seed:42 · mode:快",
+    durationSec: 45,
+    metrics: { RMSE: 15.2, MAPE: 0.08 },
+    version: "data:v2 · seed:42 · mode:精",
   },
   {
     id: "run-B",
-    taskName: "处置时长预测",
+    taskName: "日前电价预测_LGBM",
     taskType: "回归",
-    target: "resolve_minutes",
+    target: "label",
     status: "已完成",
-    durationSec: 21,
-    metrics: { RMSE: 18.4, MAPE: 0.13 },
+    durationSec: 32,
+    metrics: { RMSE: 16.5, MAPE: 0.09 },
     version: "data:v2 · seed:42 · mode:快",
   },
   {
     id: "run-C",
-    taskName: "到场时长缺失填补",
+    taskName: "缺失值填补_RF",
     taskType: "填补",
-    target: "arrive_minutes",
+    target: "光伏发电_日前",
     status: "已完成",
-    durationSec: 9,
-    metrics: { MAE: 3.9, R2: 0.86 },
-    version: "data:v2 · seed:42 · mode:快",
+    durationSec: 28,
+    metrics: { MAE: 5.4, R2: 0.92 },
+    version: "data:v1 · seed:42 · mode:快",
   },
 ];
 
+const MOCK_PREVIEW_STATS = {
+  "Time": { unique: 744, missing: "0.0%" },
+  "非市场化核电总加_日前": { unique: 32, missing: "0.0%" },
+  "竞价空间_日前": { unique: 742, missing: "0.3%" },
+  "风力发电_日前": { unique: 742, missing: "0.4%" },
+  "联络线计划_日前": { unique: 331, missing: "0.0%" },
+  "光伏发电_日前": { unique: 495, missing: "0.1%" },
+  "新能源总加_日前": { unique: 742, missing: "0.3%" },
+  "省调负荷_日前": { unique: 744, missing: "0.0%" },
+  "全网负荷_日前": { unique: 717, missing: "3.2%" },
+  "现货出清电价-日前_D-2": { unique: 735, missing: "0.0%" },
+  "现货出清电价-实时_D-2": { unique: 736, missing: "0.0%" },
+  "实时-日前偏差值_D-2": { unique: 715, missing: "0.0%" },
+  "label": { unique: 2, missing: "0.0%" },
+  "实时-日前偏差值_D-2_label": { unique: 2, missing: "0.0%" },
+  "实时-日前偏差值_D-3_label": { unique: 2, missing: "0.0%" },
+  "现货出清电价-日前_D-3": { unique: 737, missing: "0.0%" },
+  "现货出清电价-实时_D-3": { unique: 734, missing: "0.0%" }
+};
+
+const MOCK_PREVIEW_ROWS = [
+  { "Time": "2025-08-01 00:00", "非市场化核电总加_日前": 1621.0, "竞价空间_日前": 53203.89, "风力发电_日前": 5011.73, "联络线计划_日前": 20427.25, "光伏发电_日前": 0.0, "新能源总加_日前": 5011.73, "省调负荷_日前": 80263.86, "全网负荷_日前": 86613.88, "现货出清电价-日前_D-2": 403.5, "现货出清电价-实时_D-2": 424.66, "实时-日前偏差值_D-2": 21.16, "label": 0, "实时-日前偏差值_D-2_label": 1, "实时-日前偏差值_D-3_label": 1.0, "现货出清电价-日前_D-3": 406.21, "现货出清电价-实时_D-3": 417.02 },
+  { "Time": "2025-08-01 01:00", "非市场化核电总加_日前": 1621.0, "竞价空间_日前": 53395.20, "风力发电_日前": 4460.07, "联络线计划_日前": 20522.25, "光伏发电_日前": 0.0, "新能源总加_日前": 4460.07, "省调负荷_日前": 79998.52, "全网负荷_日前": 86348.54, "现货出清电价-日前_D-2": 414.4, "现货出清电价-实时_D-2": 431.09, "实时-日前偏差值_D-2": 16.69, "label": 0, "实时-日前偏差值_D-2_label": 1, "实时-日前偏差值_D-3_label": 0.0, "现货出清电价-日前_D-3": 414.52, "现货出清电价-实时_D-3": 411.48 },
+  { "Time": "2025-08-01 02:00", "非市场化核电总加_日前": 1621.0, "竞价空间_日前": 50437.72, "风力发电_日前": "NaN", "联络线计划_日前": 20738.50, "光伏发电_日前": 0.0, "新能源总加_日前": "NaN", "省调负荷_日前": 76920.05, "全网负荷_日前": 83270.07, "现货出清电价-日前_D-2": 400.6, "现货出清电价-实时_D-2": 407.37, "实时-日前偏差值_D-2": 6.77, "label": 1, "实时-日前偏差值_D-2_label": 1, "实时-日前偏差值_D-3_label": 1.0, "现货出清电价-日前_D-3": 396.3, "现货出清电价-实时_D-3": 400.48 },
+  { "Time": "2025-08-01 03:00", "非市场化核电总加_日前": 1621.0, "竞价空间_日前": 48733.13, "风力发电_日前": 3980.16, "联络线计划_日前": 20658.75, "光伏发电_日前": 0.0, "新能源总加_日前": 3980.16, "省调负荷_日前": 74993.04, "全网负荷_日前": 81343.07, "现货出清电价-日前_D-2": 389.05, "现货出清电价-实时_D-2": 392.83, "实时-日前偏差值_D-2": 3.78, "label": 1, "实时-日前偏差值_D-2_label": 1, "实时-日前偏差值_D-3_label": 1.0, "现货出清电价-日前_D-3": 380.42, "现货出清电价-实时_D-3": 392.13 },
+  { "Time": "2025-08-01 04:00", "非市场化核电总加_日前": 1621.0, "竞价空间_日前": "NaN", "风力发电_日前": 3978.34, "联络线计划_日前": 20784.25, "光伏发电_日前": 7.45, "新能源总加_日前": 3985.79, "省调负荷_日前": 74325.77, "全网负荷_日前": 80686.13, "现货出清电价-日前_D-2": 384.61, "现货出清电价-实时_D-2": 387.03, "实时-日前偏差值_D-2": 2.42, "label": 1, "实时-日前偏差值_D-2_label": 1, "实时-日前偏差值_D-3_label": 1.0, "现货出清电价-日前_D-3": 375.14, "现货出清电价-实时_D-3": 381.88 },
+  { "Time": "2025-08-01 05:00", "非市场化核电总加_日前": 1621.0, "竞价空间_日前": 47211.46, "风力发电_日前": 4014.43, "联络线计划_日前": "NaN", "光伏发电_日前": 402.92, "新能源总加_日前": 4417.35, "省调负荷_日前": 74913.31, "全网负荷_日前": 81894.16, "现货出清电价-日前_D-2": 374.01, "现货出清电价-实时_D-2": 377.89, "实时-日前偏差值_D-2": 3.88, "label": 1, "实时-日前偏差值_D-2_label": 1, "实时-日前偏差值_D-3_label": 0.0, "现货出清电价-日前_D-3": 381.56, "现货出清电价-实时_D-3": 379.62 },
+  { "Time": "2025-08-01 06:00", "非市场化核电总加_日前": 1621.0, "竞价空间_日前": 42958.85, "风力发电_日前": 3991.18, "联络线计划_日前": 22795.25, "光伏发电_日前": 2348.48, "新能源总加_日前": 6339.66, "省调负荷_日前": 73714.75, "全网负荷_日前": 83636.86, "现货出清电价-日前_D-2": 334.39, "现货出清电价-实时_D-2": 334.12, "实时-日前偏差值_D-2": -0.27, "label": 1, "实时-日前偏差值_D-2_label": 0, "实时-日前偏差值_D-3_label": 0.0, "现货出清电价-日前_D-3": 344.0, "现货出清电价-实时_D-3": 333.0 },
+  { "Time": "2025-08-01 07:00", "非市场化核电总加_日前": 1621.0, "竞价空间_日前": 38885.02, "风力发电_日前": "NaN", "联络线计划_日前": 24184.25, "光伏发电_日前": 5625.35, "新能源总加_日前": "NaN", "省调负荷_日前": 74246.52, "全网负荷_日前": 89337.36, "现货出清电价-日前_D-2": 258.79, "现货出清电价-实时_D-2": 233.11, "实时-日前偏差值_D-2": -25.68, "label": 0, "实时-日前偏差值_D-2_label": 0, "实时-日前偏差值_D-3_label": 0.0, "现货出清电价-日前_D-3": 303.82, "现货出清电价-实时_D-3": 271.31 },
+  { "Time": "2025-08-01 08:00", "非市场化核电总加_日前": 1621.0, "竞价空间_日前": 36436.63, "风力发电_日前": 4031.55, "联络线计划_日前": 27113.00, "光伏发电_日前": 9219.23, "新能源总加_日前": 13250.77, "省调负荷_日前": 78421.40, "全网负荷_日前": 99211.68, "现货出清电价-日前_D-2": 155.76, "现货出清电价-实时_D-2": 133.78, "实时-日前偏差值_D-2": -21.98, "label": 1, "实时-日前偏差值_D-2_label": 0, "实时-日前偏差值_D-3_label": 0.0, "现货出清电价-日前_D-3": 282.08, "现货出清电价-实时_D-3": 216.36 },
+  { "Time": "2025-08-01 09:00", "非市场化核电总加_日前": 1621.0, "竞价空间_日前": 33976.67, "风力发电_日前": 4347.66, "联络线计划_日前": 28220.75, "光伏发电_日前": 12157.95, "新能源总加_日前": 16505.60, "省调负荷_日前": 80324.02, "全网负荷_日前": 102211.68, "现货出清电价-日前_D-2": 155.76, "现货出清电价-实时_D-2": 133.78, "实时-日前偏差值_D-2": -21.98, "label": 1, "实时-日前偏差值_D-2_label": 0, "实时-日前偏差值_D-3_label": 0.0, "现货出清电价-日前_D-3": 282.08, "现货出清电价-实时_D-3": 216.36 },
+];
+
+const MOCK_PREVIEW_ROWS_V2 = [
+  { "Time": "2025-08-01 00:00", "非市场化核电总加_日前": 1621.0, "竞价空间_日前": 53203.89, "风力发电_日前": 5011.73, "联络线计划_日前": 20427.25, "光伏发电_日前": 0.0, "新能源总加_日前": 5011.73, "省调负荷_日前": 80263.86, "全网负荷_日前": 86613.88, "现货出清电价-日前_D-2": 403.5, "现货出清电价-实时_D-2": 424.66, "实时-日前偏差值_D-2": 21.16, "label": 0, "实时-日前偏差值_D-2_label": 1, "实时-日前偏差值_D-3_label": 1.0, "现货出清电价-日前_D-3": 406.21, "现货出清电价-实时_D-3": 417.02 },
+  { "Time": "2025-08-01 01:00", "非市场化核电总加_日前": 1621.0, "竞价空间_日前": 53395.20, "风力发电_日前": 4460.07, "联络线计划_日前": 20522.25, "光伏发电_日前": 0.0, "新能源总加_日前": 4460.07, "省调负荷_日前": 79998.52, "全网负荷_日前": 86348.54, "现货出清电价-日前_D-2": 414.4, "现货出清电价-实时_D-2": 431.09, "实时-日前偏差值_D-2": 16.69, "label": 0, "实时-日前偏差值_D-2_label": 1, "实时-日前偏差值_D-3_label": 0.0, "现货出清电价-日前_D-3": 414.52, "现货出清电价-实时_D-3": 411.48 },
+  { "Time": "2025-08-01 02:00", "非市场化核电总加_日前": 1621.0, "竞价空间_日前": 50437.72, "风力发电_日前": 4220.12, "联络线计划_日前": 20738.50, "光伏发电_日前": 0.0, "新能源总加_日前": 4220.12, "省调负荷_日前": 76920.05, "全网负荷_日前": 83270.07, "现货出清电价-日前_D-2": 400.6, "现货出清电价-实时_D-2": 407.37, "实时-日前偏差值_D-2": 6.77, "label": 1, "实时-日前偏差值_D-2_label": 1, "实时-日前偏差值_D-3_label": 1.0, "现货出清电价-日前_D-3": 396.3, "现货出清电价-实时_D-3": 400.48 },
+  { "Time": "2025-08-01 03:00", "非市场化核电总加_日前": 1621.0, "竞价空间_日前": 48733.13, "风力发电_日前": 3980.16, "联络线计划_日前": 20658.75, "光伏发电_日前": 0.0, "新能源总加_日前": 3980.16, "省调负荷_日前": 74993.04, "全网负荷_日前": 81343.07, "现货出清电价-日前_D-2": 389.05, "现货出清电价-实时_D-2": 392.83, "实时-日前偏差值_D-2": 3.78, "label": 1, "实时-日前偏差值_D-2_label": 1, "实时-日前偏差值_D-3_label": 1.0, "现货出清电价-日前_D-3": 380.42, "现货出清电价-实时_D-3": 392.13 },
+  { "Time": "2025-08-01 04:00", "非市场化核电总加_日前": 1621.0, "竞价空间_日前": 47972.30, "风力发电_日前": 3978.34, "联络线计划_日前": 20784.25, "光伏发电_日前": 7.45, "新能源总加_日前": 3985.79, "省调负荷_日前": 74325.77, "全网负荷_日前": 80686.13, "现货出清电价-日前_D-2": 384.61, "现货出清电价-实时_D-2": 387.03, "实时-日前偏差值_D-2": 2.42, "label": 1, "实时-日前偏差值_D-2_label": 1, "实时-日前偏差值_D-3_label": 1.0, "现货出清电价-日前_D-3": 375.14, "现货出清电价-实时_D-3": 381.88 },
+  { "Time": "2025-08-01 05:00", "非市场化核电总加_日前": 1621.0, "竞价空间_日前": 47211.46, "风力发电_日前": 4014.43, "联络线计划_日前": 21790.00, "光伏发电_日前": 402.92, "新能源总加_日前": 4417.35, "省调负荷_日前": 74913.31, "全网负荷_日前": 81894.16, "现货出清电价-日前_D-2": 374.01, "现货出清电价-实时_D-2": 377.89, "实时-日前偏差值_D-2": 3.88, "label": 1, "实时-日前偏差值_D-2_label": 1, "实时-日前偏差值_D-3_label": 0.0, "现货出清电价-日前_D-3": 381.56, "现货出清电价-实时_D-3": 379.62 },
+  { "Time": "2025-08-01 06:00", "非市场化核电总加_日前": 1621.0, "竞价空间_日前": 42958.85, "风力发电_日前": 3991.18, "联络线计划_日前": 22795.25, "光伏发电_日前": 2348.48, "新能源总加_日前": 6339.66, "省调负荷_日前": 73714.75, "全网负荷_日前": 83636.86, "现货出清电价-日前_D-2": 334.39, "现货出清电价-实时_D-2": 334.12, "实时-日前偏差值_D-2": -0.27, "label": 1, "实时-日前偏差值_D-2_label": 0, "实时-日前偏差值_D-3_label": 0.0, "现货出清电价-日前_D-3": 344.0, "现货出清电价-实时_D-3": 333.0 },
+  { "Time": "2025-08-01 07:00", "非市场化核电总加_日前": 1621.0, "竞价空间_日前": 38885.02, "风力发电_日前": 4011.37, "联络线计划_日前": 24184.25, "光伏发电_日前": 5625.35, "新能源总加_日前": 9636.72, "省调负荷_日前": 74246.52, "全网负荷_日前": 89337.36, "现货出清电价-日前_D-2": 258.79, "现货出清电价-实时_D-2": 233.11, "实时-日前偏差值_D-2": -25.68, "label": 0, "实时-日前偏差值_D-2_label": 0, "实时-日前偏差值_D-3_label": 0.0, "现货出清电价-日前_D-3": 303.82, "现货出清电价-实时_D-3": 271.31 },
+  { "Time": "2025-08-01 08:00", "非市场化核电总加_日前": 1621.0, "竞价空间_日前": 36436.63, "风力发电_日前": 4031.55, "联络线计划_日前": 27113.00, "光伏发电_日前": 9219.23, "新能源总加_日前": 13250.77, "省调负荷_日前": 78421.40, "全网负荷_日前": 99211.68, "现货出清电价-日前_D-2": 155.76, "现货出清电价-实时_D-2": 133.78, "实时-日前偏差值_D-2": -21.98, "label": 1, "实时-日前偏差值_D-2_label": 0, "实时-日前偏差值_D-3_label": 0.0, "现货出清电价-日前_D-3": 282.08, "现货出清电价-实时_D-3": 216.36 },
+  { "Time": "2025-08-01 09:00", "非市场化核电总加_日前": 1621.0, "竞价空间_日前": 33976.67, "风力发电_日前": 4347.66, "联络线计划_日前": 28220.75, "光伏发电_日前": 12157.95, "新能源总加_日前": 16505.60, "省调负荷_日前": 80324.02, "全网负荷_日前": 102211.68, "现货出清电价-日前_D-2": 155.76, "现货出清电价-实时_D-2": 133.78, "实时-日前偏差值_D-2": -21.98, "label": 1, "实时-日前偏差值_D-2_label": 0, "实时-日前偏差值_D-3_label": 0.0, "现货出清电价-日前_D-3": 282.08, "现货出清电价-实时_D-3": 216.36 },
+];
+
+const MOCK_PRICE_PREDICTION = Array.from({ length: 30 }, (_, i) => {
+  const date = new Date();
+  date.setDate(date.getDate() + i + 1);
+  const base = 350 + Math.sin(i / 5) * 50;
+  const random = (Math.random() - 0.5) * 30;
+  return {
+    date: `${date.getMonth() + 1}/${date.getDate()}`,
+    actual: null, // Future data has no actual
+    pred: Math.round(base + random),
+    upper: Math.round(base + random + 20),
+    lower: Math.round(base + random - 20),
+  };
+});
+
 const MOCK_GROUP_ERROR = {
-  rows: ["R01", "R02", "R03", "R04", "R05", "R06"],
-  cols: ["A01", "A03", "B12", "B99"],
+  rows: ["负荷_低", "负荷_中", "负荷_高", "风电_大", "光伏_大", "极端天气"],
+  cols: ["MAPE", "RMSE", "MAE", "R2"],
   matrix: [
-    [0.18, 0.12, 0.14, 0.29],
-    [0.15, 0.11, 0.16, 0.32],
-    [0.22, 0.18, 0.19, 0.41],
-    [0.09, 0.08, 0.10, 0.21],
-    [0.25, 0.19, 0.24, 0.45],
-    [0.12, 0.10, 0.11, 0.28],
+    [0.02, 12.5, 8.2, 0.95],
+    [0.03, 15.1, 10.4, 0.92],
+    [0.05, 22.8, 18.1, 0.88],
+    [0.08, 35.2, 28.5, 0.81],
+    [0.06, 28.4, 22.3, 0.85],
+    [0.12, 45.6, 38.9, 0.76],
   ],
 };
 
 const MOCK_CONFIDENCE = [
-  { bin: "0-0.1", count: 2200 },
-  { bin: "0.1-0.2", count: 5100 },
-  { bin: "0.2-0.3", count: 8600 },
-  { bin: "0.3-0.4", count: 12900 },
-  { bin: "0.4-0.5", count: 16800 },
-  { bin: "0.5-0.6", count: 15200 },
-  { bin: "0.6-0.7", count: 10100 },
-  { bin: "0.7-0.8", count: 6400 },
-  { bin: "0.8-0.9", count: 3100 },
-  { bin: "0.9-1.0", count: 900 },
+  { bin: "-100~-50", count: 120 },
+  { bin: "-50~-20", count: 850 },
+  { bin: "-20~-10", count: 2100 },
+  { bin: "-10~0", count: 4500 },
+  { bin: "0~10", count: 4800 },
+  { bin: "10~20", count: 2300 },
+  { bin: "20~50", count: 900 },
+  { bin: "50~100", count: 150 },
 ];
 
 const MOCK_THRESHOLD = [
-  { th: 0.1, benefit: 12, precision: 0.42, recall: 0.91 },
-  { th: 0.2, benefit: 18, precision: 0.51, recall: 0.84 },
-  { th: 0.3, benefit: 24, precision: 0.58, recall: 0.76 },
-  { th: 0.4, benefit: 29, precision: 0.65, recall: 0.66 },
-  { th: 0.5, benefit: 31, precision: 0.70, recall: 0.58 },
-  { th: 0.6, benefit: 30, precision: 0.74, recall: 0.49 },
-  { th: 0.7, benefit: 27, precision: 0.78, recall: 0.39 },
+  { th: 10, benefit: 120000, precision: 0.42, recall: 0.95 },
+  { th: 20, benefit: 180000, precision: 0.51, recall: 0.88 },
+  { th: 30, benefit: 240000, precision: 0.58, recall: 0.79 },
+  { th: 40, benefit: 290000, precision: 0.65, recall: 0.68 },
+  { th: 50, benefit: 310000, precision: 0.70, recall: 0.55 },
+  { th: 60, benefit: 300000, precision: 0.74, recall: 0.42 },
+  { th: 70, benefit: 270000, precision: 0.78, recall: 0.31 },
 ];
 
 const MOCK_COMPARE = [
   {
-    name: "XGBoost",
-    time: "训练+调参：2-6小时（视规模）",
-    metric: "AUC≈0.90（需迭代）",
-    explain: "可做 SHAP，但需额外工程拼装",
-    repro: "依赖代码与环境，产品侧不一定固化",
-    delivery: "需二次封装服务/监控/告警",
-    badge: "训练/参数驱动",
-  },
-  {
     name: "AutoGluon",
     time: "训练+集成：30-120分钟（视预算）",
-    metric: "AUC≈0.91（训练预算敏感）",
+    metric: "MAPE≈3.5%（训练预算敏感）",
     explain: "取决于底座模型/解释组件",
     repro: "需固化训练配置与版本",
     delivery: "需工程化落地",
@@ -327,7 +729,7 @@ const MOCK_COMPARE = [
   {
     name: "LimiX",
     time: "推理：秒~分钟级（模式可切换）",
-    metric: "AUC≈0.91 + 分组误差/阈值收益一屏看完",
+    metric: "MAPE≈3.2% + 分组误差/阈值收益一屏看完",
     explain: "全局/分群/单案/反事实固定结构",
     repro: "Run 固化数据版本/种子/配置快照",
     delivery: "报告+API+订阅告警一键交付",
@@ -335,6 +737,136 @@ const MOCK_COMPARE = [
     highlight: true,
   },
 ];
+
+const MOCK_MODEL_COMPARISON = Array.from({ length: 30 }, (_, i) => {
+  // Generate dates from September 1st to September 30th
+  const date = new Date(2023, 8, i + 1); 
+  const dateStr = `${date.getMonth() + 1}/${date.getDate()}`;
+  const dayOfWeek = date.getDay(); // 0 is Sunday, 6 is Saturday
+  
+  // Weekly seasonality: lower prices on weekends (Sat=6, Sun=0)
+  const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+  const weekendDip = isWeekend ? -80 : 0;
+  
+  // Monthly trend: slowly rising
+  const trend = Math.sin(i / 5) * 30;
+  
+  // Base Price ~380 元/MWh
+  // Random fluctuation for "real-world" feel
+  const basePrice = 380 + trend + weekendDip + (Math.random() - 0.5) * 60;
+  
+  // Ensure price is positive
+  const truth = Math.max(100, Math.round(basePrice));
+  
+  return {
+    date: dateStr,
+    truth: truth,
+    limix: Math.round(truth + (Math.random() - 0.5) * 20), // LimiX: High accuracy
+    autogluon: Math.round(truth * 1.05 + (isWeekend ? 50 : -20) + (Math.random() - 0.5) * 60), // AutoGluon: Bias on weekends
+    llm: Math.round(truth * 0.8 + 100 + (Math.random() - 0.5) * 80), // LLM: High variance
+  };
+});
+
+const MOCK_CLF_COMPARISON_POINTS = Array.from({ length: 30 }, (_, i) => {
+  const date = new Date(2025, 10, 16 + i);
+  // Normalize date to timestamp
+  const timestamp = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+  
+  // Truth pattern
+  const pattern = [null,0,1,1,1,0,0,0,1,1,1,0,1,1,0,0,0,0,1,1,0,1,0,0,0,1,1,0,1,1];
+  const truth = pattern[i % pattern.length];
+  
+  // LimiX: Matches truth almost perfectly
+  // Introduce 1 error
+  const limix = (i === 15) ? (truth === 1 ? 0 : 1) : truth;
+  
+  // AutoGluon: Some errors
+  // Error at index 5, 12, 20
+  let ag = truth;
+  if ([5, 12, 20, 25].includes(i)) ag = truth === 1 ? 0 : 1;
+  
+  // LLM: More errors
+  // Error at 3, 7, 10, 15, 18, 22, 28
+  let llm = truth;
+  if ([3, 7, 10, 15, 18, 22, 28].includes(i)) llm = truth === 1 ? 0 : 1;
+
+  // Handle nulls (if truth is null, all should be null for that day to keep consistent empty column)
+  if (truth === null) {
+      return {
+          timestamp,
+          truth: null,
+          limix: null,
+          autogluon: null,
+          llm: null
+      };
+  }
+
+  // We need flat structure for ScatterPlot with categories
+  // But we can just use 3 series
+  return {
+    timestamp,
+    truth,
+    limix,
+    autogluon: ag,
+    llm
+  };
+});
+
+const MOCK_ROC_DATA = [
+  { fpr: 0, tpr: 0 },
+  { fpr: 0.02, tpr: 0.03 },
+  { fpr: 0.05, tpr: 0.08 },
+  { fpr: 0.1, tpr: 0.12 },
+  { fpr: 0.15, tpr: 0.18 },
+  { fpr: 0.2, tpr: 0.25 },
+  { fpr: 0.25, tpr: 0.30 },
+  { fpr: 0.3, tpr: 0.35 },
+  { fpr: 0.35, tpr: 0.38 },
+  { fpr: 0.4, tpr: 0.48 },
+  { fpr: 0.42, tpr: 0.55 },
+  { fpr: 0.45, tpr: 0.60 },
+  { fpr: 0.48, tpr: 0.63 },
+  { fpr: 0.5, tpr: 0.65 },
+  { fpr: 0.55, tpr: 0.72 },
+  { fpr: 0.6, tpr: 0.78 },
+  { fpr: 0.65, tpr: 0.79 },
+  { fpr: 0.7, tpr: 0.82 },
+  { fpr: 0.75, tpr: 0.88 },
+  { fpr: 0.8, tpr: 0.92 },
+  { fpr: 0.85, tpr: 0.94 },
+  { fpr: 0.9, tpr: 0.96 },
+  { fpr: 0.95, tpr: 0.98 },
+  { fpr: 1, tpr: 1 },
+].map(p => ({ ...p, random: p.fpr }));
+
+const MOCK_PR_DATA = [
+  { recall: 0, precision: 1.0 },
+  { recall: 0.005, precision: 0.60 },
+  { recall: 0.01, precision: 0.75 },
+  { recall: 0.02, precision: 0.65 },
+  { recall: 0.03, precision: 0.78 },
+  { recall: 0.04, precision: 0.55 },
+  { recall: 0.05, precision: 0.58 },
+  { recall: 0.06, precision: 0.55 },
+  { recall: 0.08, precision: 0.56 },
+  { recall: 0.10, precision: 0.59 },
+  { recall: 0.12, precision: 0.50 },
+  { recall: 0.13, precision: 0.42 },
+  { recall: 0.15, precision: 0.41 },
+  { recall: 0.18, precision: 0.43 },
+  { recall: 0.2, precision: 0.42 },
+  { recall: 0.25, precision: 0.41 },
+  { recall: 0.3, precision: 0.40 },
+  { recall: 0.35, precision: 0.40 },
+  { recall: 0.4, precision: 0.41 },
+  { recall: 0.5, precision: 0.42 },
+  { recall: 0.6, precision: 0.43 },
+  { recall: 0.7, precision: 0.42 },
+  { recall: 0.75, precision: 0.41 },
+  { recall: 0.8, precision: 0.39 },
+  { recall: 0.9, precision: 0.38 },
+  { recall: 1.0, precision: 0.36 },
+].map(p => ({ ...p, baseline: 0.356 }));
 
 function cn(...args) {
   return args.filter(Boolean).join(" ");
@@ -355,6 +887,163 @@ function nowTimeStr() {
   const d = new Date();
   const pad = (x) => String(x).padStart(2, "0");
   return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+
+const MOCK_INFLUENCE_FACTORS = [
+  "非市场化核电总加_日前",
+  "竞价空间_日前",
+  "风力发电_日前",
+  "联络线计划_日前",
+  "光伏发电_日前",
+  "新能源总加_日前",
+  "省调负荷_日前",
+  "全网负荷_日前",
+  "现货出清电价-日前_D-2",
+  "现货出清电价-实时_D-2",
+  "实时-日前偏差值_D-2",
+  "实时-日前偏差值_p-2_label",
+  "实时-日前偏差值_p-3_label",
+  "现货出清电价-日前_D-3",
+  "现货出清电价-实时_D-3"
+];
+
+const MOCK_INFLUENCE_SCORES = [
+  { name: "现货出清电价-实时_D-3", value: 75.6 },
+  { name: "现货出清电价-日前_D-3", value: 44.8 },
+  { name: "实时-日前偏差值_D-3_label", value: 105.1 },
+  { name: "实时-日前偏差值_D-2_label", value: 125.9 },
+  { name: "实时-日前偏差值_D-2", value: 19.8 },
+  { name: "现货出清电价-实时_D-2", value: 83.8 },
+  { name: "现货出清电价-日前_D-2", value: 0.1 },
+  { name: "全网负荷_日前", value: 27.9 },
+  { name: "省调负荷_日前", value: -144.0 },
+  { name: "新能源总加_日前", value: -74.5 },
+  { name: "光伏发电_日前", value: 47.3 },
+  { name: "联络线计划_日前", value: -81.8 },
+  { name: "风力发电_日前", value: -61.1 },
+  { name: "竞价空间_日前", value: -49.8 },
+  { name: "非市场化核电总加_日前", value: 82.4 }
+];
+
+const MOCK_HEATMAP_DATES = Array.from({ length: 31 }, (_, i) => {
+  const d = i + 1;
+  return `2025-08-${d < 10 ? '0' + d : d}`;
+});
+
+// Simulate the vertical bands seen in the image
+// 0: Red, 1: Blue/Mix, 2: Blue/Mix, 3: Blue/Mix, 4: Red/Mix, 5: Red, 6: Blue, 7: Blue, 8: Mix, 9: Mix, 10: Red, 11: Red, 12: Red, 13: Mix, 14: Mix, 15: Red
+const MOCK_HEATMAP_MATRIX = MOCK_HEATMAP_DATES.map((date, rIndex) => {
+  return MOCK_INFLUENCE_FACTORS.map((factor, cIndex) => {
+    // Base pattern based on column index to create vertical bands
+    let base = 0;
+    const noise = (Math.random() - 0.5) * 1.0; // Random noise -0.5 to 0.5
+    
+    if (cIndex === 0) base = 1.5; // Strong Red
+    else if (cIndex === 1) base = -0.5;
+    else if (cIndex === 2) base = -0.8;
+    else if (cIndex === 3) base = -0.3;
+    else if (cIndex === 4) base = 0.5;
+    else if (cIndex === 5) base = 1.2; // Strong Red
+    else if (cIndex === 6) base = -1.5; // Strong Blue
+    else if (cIndex === 7) base = -1.2; // Strong Blue
+    else if (cIndex === 8) base = 0.2;
+    else if (cIndex === 9) base = -0.2;
+    else if (cIndex === 10) base = 1.6; // Strong Red
+    else if (cIndex === 11) base = 1.4; // Strong Red
+    else if (cIndex === 12) base = 1.3; // Strong Red
+    else if (cIndex === 13) base = 0.4;
+    else if (cIndex === 14) base = 0.3;
+    else if (cIndex === 15) base = 1.5; // Strong Red
+    else base = (Math.random() - 0.5) * 2;
+
+    // Add some row-based variation (some days are hotter/colder)
+    const timeTrend = Math.sin(rIndex / 5) * 0.5; 
+    
+    return Math.max(-2, Math.min(2, base + noise + timeTrend));
+  });
+});
+
+function DivergingHeatGrid({ rows, cols, matrix }) {
+  // Helper to get color from value -2 to 2
+  const getColor = (v) => {
+    // -2 (Blue #0d47a1) -> 0 (White #ffffff) -> 2 (Red #b71c1c)
+    if (v < 0) {
+      // Blue scale
+      const ratio = Math.min(1, Math.abs(v) / 2);
+      // Interpolate white to blue
+      // White: 255, 255, 255
+      // Blue: 13, 71, 161
+      const r = Math.round(255 + (13 - 255) * ratio);
+      const g = Math.round(255 + (71 - 255) * ratio);
+      const b = Math.round(255 + (161 - 255) * ratio);
+      return `rgb(${r}, ${g}, ${b})`;
+    } else {
+      // Red scale
+      const ratio = Math.min(1, v / 2);
+      // Interpolate white to red
+      // White: 255, 255, 255
+      // Red: 183, 28, 28
+      const r = Math.round(255 + (183 - 255) * ratio);
+      const g = Math.round(255 + (28 - 255) * ratio);
+      const b = Math.round(255 + (28 - 255) * ratio);
+      return `rgb(${r}, ${g}, ${b})`;
+    }
+  };
+
+  return (
+    <div className="w-full relative">
+      <div className="flex items-start">
+        {/* Main Heatmap Area */}
+        <div className="flex-1">
+          <div className="w-full pr-4">
+            <div className="grid" style={{ gridTemplateColumns: `80px repeat(${cols.length}, 1fr)` }}>
+              {/* Data Rows */}
+              {rows.map((r, i) => (
+                <React.Fragment key={r}>
+                  {/* Y-axis Label */}
+                  <div className="text-[10px] h-3 flex items-center justify-end pr-2 text-muted-foreground font-mono leading-none">
+                    {r}
+                  </div>
+                  {/* Cells */}
+                  {cols.map((c, j) => {
+                    const v = matrix[i]?.[j] ?? 0;
+                    return (
+                      <div 
+                        key={`${r}-${c}`} 
+                        className="h-3 w-full"
+                        style={{ backgroundColor: getColor(v) }}
+                        title={`${r} / ${c}: ${v.toFixed(2)}`}
+                      />
+                    );
+                  })}
+                </React.Fragment>
+              ))}
+
+              {/* Footer Row (X-axis Labels) */}
+              <div className="text-[10px] text-muted-foreground font-bold flex items-start pt-2 justify-end pr-2"></div>
+              {cols.map((c) => (
+                <div key={c} className="h-24 flex items-start justify-center pt-2 overflow-visible relative">
+                   <div className="absolute top-2 left-1/2 text-[9px] text-muted-foreground whitespace-nowrap origin-top-left rotate-45 w-4">
+                     {c}
+                   </div>
+                </div>
+              ))}
+            </div>
+            <div className="text-center text-sm font-bold pl-[80px]">影响因子</div>
+          </div>
+        </div>
+
+        {/* Color Scale Legend */}
+        <div className="w-16 flex flex-col items-center ml-0 sticky right-0 top-0 pt-0">
+           <div className="text-[10px] font-bold mb-1">2.0</div>
+           <div className="w-4 h-64 rounded-full" style={{
+             background: 'linear-gradient(to bottom, #b71c1c, #ffffff, #0d47a1)'
+           }}></div>
+           <div className="text-[10px] font-bold mt-1">-2.0</div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function HeatGrid({ rows, cols, matrix, minLabel = "低", maxLabel = "高" }) {
@@ -402,7 +1091,7 @@ function HeatGrid({ rows, cols, matrix, minLabel = "低", maxLabel = "高" }) {
 
 function MetricPill({ label, value, unit, hint }) {
   return (
-    <Card className="rounded-2xl">
+    <Card className="rounded-2xl border-slate-200/60 shadow-sm bg-white/50 hover:shadow-md hover:border-blue-200 hover:bg-white transition-all duration-300">
       <CardHeader className="pb-2">
         <CardDescription className="text-xs">{label}</CardDescription>
         <CardTitle className="text-2xl">
@@ -459,61 +1148,96 @@ function VerticalStepper({ step }) {
   );
 }
 
-function TopBar({ sceneId, setSceneId, quickMode, setQuickMode, datasetId, setDatasetId }) {
+function TopBar({ sceneId, setSceneId, quickMode, setQuickMode, datasetId, setDatasetId, datasets }) {
   const scene = SCENES.find((s) => s.id === sceneId);
-  const dataset = MOCK_DATASETS.find((d) => d.id === datasetId);
+
+  // 过滤当前场景下的数据集
+  const filteredDatasets = useMemo(() => {
+    return datasets.filter(d => d.sceneId === sceneId);
+  }, [sceneId, datasets]);
+
+  const dataset = datasets.find((d) => d.id === datasetId);
+
+  // 切换场景时，自动选中第一个数据集
+  useEffect(() => {
+    if (filteredDatasets.length > 0) {
+      const currentInFiltered = filteredDatasets.find(d => d.id === datasetId);
+      if (!currentInFiltered) {
+        setDatasetId(filteredDatasets[0].id);
+      }
+    } else {
+      setDatasetId(null);
+    }
+  }, [sceneId, filteredDatasets, datasetId, setDatasetId]);
 
   return (
-    <div className="sticky top-0 z-20 bg-background/80 backdrop-blur border-b">
+    <div className="z-20 bg-white/80 backdrop-blur-md border-b border-slate-200/60 sticky top-0 shadow-sm supports-[backdrop-filter]:bg-white/60">
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-2xl bg-muted flex items-center justify-center">
-            <Layers className="h-5 w-5" />
+          <div className="h-10 w-10 flex items-center justify-center">
+            <img src="/logo.png?v=3" alt="LimiX Logo" className="h-10 w-10 object-contain" />
           </div>
           <div>
-            <div className="text-base font-semibold">LimiX 流水线演示</div>
-            <div className="text-xs text-muted-foreground">平台形态：从数据到决策的流水线（可视化证据链）</div>
+            <div className="text-base font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700">LimiX 流水线演示</div>
+            <div className="text-xs text-slate-500 font-medium">平台形态：从数据到决策的流水线（可视化证据链）</div>
           </div>
         </div>
 
         <div className="flex items-center gap-3 flex-wrap justify-end">
-          <Card className="rounded-2xl">
-            <CardContent className="p-3 flex items-center gap-2">
-              <Badge variant="secondary" className="rounded-xl">
-                场景
-              </Badge>
-              <select className="text-sm bg-transparent outline-none" value={sceneId} onChange={(e) => setSceneId(e.target.value)}>
-                {SCENES.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name}
-                  </option>
-                ))}
-              </select>
-              <Badge className="rounded-xl" variant="outline">
-                {scene?.tag}
-              </Badge>
-            </CardContent>
-          </Card>
+          {/* 场景选择 */}
+          <div className="flex items-center bg-white border border-slate-200 rounded-xl px-2 py-1 shadow-sm hover:border-blue-400 hover:shadow-md transition-all duration-300 group">
+            <div className="bg-slate-100 text-slate-500 text-xs px-2 py-1 rounded-lg mr-1 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
+              场景
+            </div>
+            <Select
+              value={sceneId}
+              onChange={setSceneId}
+              bordered={false}
+              triggerProps={{
+                autoAlignPopupWidth: false,
+                autoAlignPopupMinWidth: true,
+                position: "bl",
+              }}
+              style={{ width: 220, color: '#334155', fontWeight: 500 }}
+            >
+              {SCENES.map((s) => (
+                <Select.Option key={s.id} value={s.id}>
+                  {s.name}
+                </Select.Option>
+              ))}
+            </Select>
+            <div className="ml-1">
+               <Tag color="arcoblue" size="small" className="rounded-md">{scene?.tag}</Tag>
+            </div>
+          </div>
 
-          <Card className="rounded-2xl">
-            <CardContent className="p-3 flex items-center gap-2">
-              <Badge variant="secondary" className="rounded-xl">
-                数据版本
-              </Badge>
-              <select className="text-sm bg-transparent outline-none" value={datasetId} onChange={(e) => setDatasetId(e.target.value)}>
-                {MOCK_DATASETS.map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {d.name} · {d.version}
-                  </option>
-                ))}
-              </select>
-              <Badge className="rounded-xl" variant="outline">
-                体检分 {dataset?.qualityScore}
-              </Badge>
-            </CardContent>
-          </Card>
-
-
+          {/* 数据版本选择 */}
+          <div className="flex items-center bg-white border border-slate-200 rounded-xl px-2 py-1 shadow-sm hover:border-blue-400 hover:shadow-md transition-all duration-300 group">
+            <div className="bg-slate-100 text-slate-500 text-xs px-2 py-1 rounded-lg mr-1 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
+              数据版本
+            </div>
+             <Select
+              value={datasetId}
+              onChange={setDatasetId}
+              bordered={false}
+              disabled={filteredDatasets.length === 0}
+              triggerProps={{
+                autoAlignPopupWidth: false,
+                autoAlignPopupMinWidth: true,
+                position: "bl",
+              }}
+              style={{ width: 280, color: '#334155', fontWeight: 500 }}
+            >
+              {filteredDatasets.map((d) => (
+                <Select.Option key={d.id} value={d.id}>
+                  {d.name} · {d.version}
+                </Select.Option>
+              ))}
+            </Select>
+            <div className="ml-1">
+              <Tag color="green" size="small" className="rounded-md">体检分 {dataset?.qualityScore}</Tag>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -522,60 +1246,55 @@ function TopBar({ sceneId, setSceneId, quickMode, setQuickMode, datasetId, setDa
 
 function SideNav({ active, setActive }) {
   return (
-    <div className="w-full md:w-64 shrink-0">
-      <div className="md:sticky md:top-[90px] max-h-[calc(100vh-100px)] overflow-y-auto">
-        <Card className="rounded-2xl">
-          <CardHeader>
-            <CardTitle className="text-base">演示导航</CardTitle>
-            <CardDescription className="text-xs">每一屏都要给“证据”</CardDescription>
+    <div className="w-full md:w-64 shrink-0 md:h-full">
+      <div className="h-full overflow-y-auto pb-4">
+        <Card className="rounded-2xl border-blue-100/50 shadow-xl shadow-blue-500/5 bg-white/80 backdrop-blur-sm overflow-hidden transition-all duration-500 hover:shadow-blue-500/10">
+          <CardHeader className="pb-3 border-b border-blue-50/50 bg-gradient-to-r from-blue-50/30 to-transparent">
+            <CardTitle className="text-base flex items-center gap-2">
+              <span className="w-1 h-4 bg-blue-600 rounded-full shadow-[0_0_8px_rgba(37,99,235,0.5)]"></span>
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-slate-800 to-slate-600">演示导航</span>
+            </CardTitle>
           </CardHeader>
-          <CardContent className="p-2">
-            <div className="grid gap-1">
-              {NAV.map((n, index) => {
-                const Icon = n.icon;
-                const on = n.key === active;
-                return (
-                  <button
-                    key={n.key}
-                    onClick={() => {
-                      setActive(n.key);
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    }}
+          <CardContent className="p-3 space-y-1">
+            {NAV.map((n, index) => {
+              const Icon = n.icon;
+              const on = n.key === active;
+              return (
+                <button
+                  key={n.key}
+                  onClick={() => {
+                    setActive(n.key);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  className={cn(
+                    "group relative w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm text-left transition-all duration-300 border",
+                    on
+                      ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-transparent shadow-lg shadow-blue-500/30 scale-[1.02] z-10"
+                      : "bg-transparent text-slate-600 border-transparent hover:bg-blue-50/50 hover:text-blue-700 hover:pl-4"
+                  )}
+                >
+                  {on && (
+                    <div className="absolute inset-0 rounded-xl bg-white/10 opacity-0 group-hover:opacity-20 transition-opacity" />
+                  )}
+
+                  <div
                     className={cn(
-                      "flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-left border",
-                      on ? "bg-primary text-primary-foreground" : "hover:bg-muted"
+                      "flex items-center justify-center w-6 h-6 rounded-lg text-[10px] font-bold border transition-all duration-300",
+                      on
+                        ? "border-white/20 bg-white/20 text-white shadow-inner backdrop-blur-sm"
+                        : "border-slate-200 bg-slate-50 text-slate-500 group-hover:border-blue-200 group-hover:text-blue-600 group-hover:bg-white"
                     )}
                   >
-                    <div className={cn(
-                        "flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold border shrink-0",
-                        on ? "border-primary-foreground/30 bg-primary-foreground/20 text-primary-foreground" : "border-muted-foreground/30 bg-muted text-muted-foreground"
-                    )}>
-                        {index + 1}
-                    </div>
-                    <Icon className="h-4 w-4 shrink-0" />
-                    <span className="flex-1">{n.name}</span>
-                    {n.key === "compare" && (
-                      <Badge className="rounded-xl" variant={on ? "secondary" : "outline"}>
-                        必看
-                      </Badge>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
+                    {index + 1}
+                  </div>
+                  <Icon className={cn("h-4 w-4 shrink-0 transition-colors duration-300", on ? "text-white" : "text-slate-400 group-hover:text-blue-600")} />
+                  <span className="flex-1 font-medium tracking-wide">{n.name}</span>
+                </button>
+              );
+            })}
+            
 
-            <Separator className="my-3" />
 
-            <div className="text-xs text-muted-foreground leading-relaxed">
-              <div className="flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                <span>目标：把“模型”讲成“产品流水线”</span>
-              </div>
-              <div className="mt-2 flex items-center gap-2">
-                <Code className="h-4 w-4" />
-                <span>所有数据/指标均为 Mock，可替换为真实 Run 入库结果</span>
-              </div>
-            </div>
           </CardContent>
         </Card>
       </div>
@@ -588,7 +1307,7 @@ function SectionTitle({ icon: Icon, title, desc, right }) {
     <div className="flex items-start justify-between gap-3">
       <div className="flex items-start gap-2">
         {Icon ? (
-          <div className="mt-1 h-9 w-9 rounded-2xl bg-muted flex items-center justify-center">
+          <div className="mt-1 h-9 w-9 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 shadow-sm border border-blue-100">
             <Icon className="h-5 w-5" />
           </div>
         ) : null}
@@ -637,7 +1356,7 @@ function Modal({ open, title, children, onClose }) {
             <div className="flex items-start justify-between gap-2">
               <div>
                 <CardTitle className="text-base">{title}</CardTitle>
-                <CardDescription className="text-xs">Mock 弹窗：演示点击后的“可见反馈”</CardDescription>
+                <CardDescription className="text-xs"></CardDescription>
               </div>
               <Button variant="outline" className="rounded-2xl" onClick={onClose}>
                 关闭
@@ -651,29 +1370,47 @@ function Modal({ open, title, children, onClose }) {
   );
 }
 
-function DatasetsPanel({ datasetId, setDatasetId, notify, openModal }) {
-  const dataset = MOCK_DATASETS.find((d) => d.id === datasetId);
+function DatasetsPanel({ datasetId, setDatasetId, notify, openModal, datasets, setDatasets, sceneId }) {
+  const dataset = datasets.find((d) => d.id === datasetId);
+  const isClf = sceneId === "sd_high_price_clf";
+  const activeSchema = isClf ? MOCK_SCHEMA_CLF : MOCK_SCHEMA;
 
   return (
     <div className="space-y-4">
       <SectionTitle
         icon={Database}
         title="数据集（导入）"
-        desc="把数据变成资产：版本、字段、范围、责任人"
+        desc="把数据变成资产"
         right={
           <div className="flex items-center gap-2">
             <Button
               className="rounded-2xl"
               onClick={() =>
                 openModal(
-                  "上传 CSV（Mock）",
+                  "上传 CSV",
                   <div className="space-y-3">
                     <div className="text-sm">这里演示“上传动作有反馈”。真实实现可对接对象存储/数据湖。</div>
                     <div className="p-3 rounded-2xl bg-muted text-xs">
-                      已模拟上传：incident_wide.csv（200K 行 / 92 列） → 生成数据版本 data:v1
+                      已模拟上传：custom_upload.csv（15K 行 / 17 列） → 生成数据版本 v1
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button className="rounded-2xl" onClick={() => notify("上传完成", "已生成 data:v1（Mock）")}>确认</Button>
+                      <Button className="rounded-2xl" onClick={() => {
+                        const newId = `custom_${Date.now()}_v1`;
+                        const newDataset = {
+                            id: newId,
+                            sceneId: sceneId,
+                            name: `custom_upload_${newId.slice(-4)}.csv`,
+                            version: "v1（初始）",
+                            rows: Math.floor(Math.random() * 5000) + 10000,
+                            cols: 17,
+                            timeRange: "2025-08-01 ~ 2026-01-01",
+                            owner: "当前用户",
+                            qualityScore: Math.floor(Math.random() * 40) + 40,
+                        };
+                        setDatasets(prev => [...prev, newDataset]);
+                        setDatasetId(newId);
+                        notify("上传完成", `已上传 ${newDataset.name} 并自动选中`);
+                      }}>确认</Button>
                       <Button variant="outline" className="rounded-2xl" onClick={() => notify("已取消", "未做更改")}>取消</Button>
                     </div>
                   </div>
@@ -715,7 +1452,6 @@ function DatasetsPanel({ datasetId, setDatasetId, notify, openModal }) {
             <CardContent className="p-4">
               <div className="text-xs text-muted-foreground">数据集</div>
               <div className="mt-1 font-semibold">{dataset?.name} · {dataset?.version}</div>
-              <div className="mt-2 text-xs text-muted-foreground">责任方：{dataset?.owner}</div>
             </CardContent>
           </Card>
           <Card className="rounded-2xl">
@@ -743,7 +1479,7 @@ function DatasetsPanel({ datasetId, setDatasetId, notify, openModal }) {
       <Card className="rounded-2xl">
         <CardHeader>
           <CardTitle className="text-base">字段字典（节选）</CardTitle>
-          <CardDescription className="text-xs">领导看得懂：每个字段是“能做什么决策”</CardDescription>
+          <CardDescription className="text-xs">看懂每个字段“能做什么决策”</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-auto">
@@ -756,13 +1492,11 @@ function DatasetsPanel({ datasetId, setDatasetId, notify, openModal }) {
                 </tr>
               </thead>
               <tbody>
-                {MOCK_SCHEMA.map((s) => (
+                {activeSchema.map((s) => (
                   <tr key={s.k} className="border-t">
                     <td className="py-2 font-mono">{s.k}</td>
-                    <td className="py-2">
-                      <Badge variant="outline" className="rounded-xl">
-                        {s.t}
-                      </Badge>
+                    <td className="py-2 text-muted-foreground">
+                      {s.t}
                     </td>
                     <td className="py-2 text-muted-foreground">{s.desc}</td>
                   </tr>
@@ -773,32 +1507,27 @@ function DatasetsPanel({ datasetId, setDatasetId, notify, openModal }) {
         </CardContent>
       </Card>
 
-      <Card className="rounded-2xl">
-        <CardHeader>
-          <CardTitle className="text-base">演示小技巧（导演提示）</CardTitle>
-          <CardDescription className="text-xs">把“导入”变成“可交付链路的第一步”</CardDescription>
-        </CardHeader>
-        <CardContent className="text-sm leading-relaxed">
-          <ul className="list-disc pl-5 space-y-1">
-            <li>先选 v1（带脏数据）→ 进入【数据体检】让问题可视化。</li>
-            <li>再一键生成清洗规则 → 预览变更 → 应用后生成 v2（体检分提升）。</li>
-            <li>每一屏右上角都能用“对比证明墙”收口：同数据同口径，谁更省事、谁更稳。</li>
-          </ul>
-        </CardContent>
-      </Card>
+
     </div>
   );
 }
 
 function HealthPanel({ datasetId, notify, openModal, setActive }) {
-  const base = datasetId === "incident_wide_v2" ? HEALTH_V2 : HEALTH_V1;
+  const isV2 = datasetId === "test_+5_v2" || (datasetId && datasetId.endsWith("v2"));
+  const isClf = datasetId && datasetId.startsWith("test_clf");
+  const base = isV2 ? HEALTH_V2 : (isClf ? HEALTH_CLF : HEALTH_V1);
   const [health, setHealth] = useState(base);
   const [running, setRunning] = useState(false);
   const [lastRunAt, setLastRunAt] = useState(null);
   const [resolved, setResolved] = useState(() => new Set());
 
+  const activeSchema = isClf ? MOCK_SCHEMA_CLF : MOCK_SCHEMA;
+  const activeRows = isClf ? MOCK_PREVIEW_ROWS_CLF_V1 : (isV2 ? MOCK_PREVIEW_ROWS_V2.slice(0, 10) : MOCK_PREVIEW_ROWS.slice(0, 10));
+
   useEffect(() => {
-    setHealth(datasetId === "incident_wide_v2" ? HEALTH_V2 : HEALTH_V1);
+    const isV2 = datasetId === "test_+5_v2" || (datasetId && datasetId.endsWith("v2"));
+    const isClf = datasetId && datasetId.startsWith("test_clf");
+    setHealth(isV2 ? HEALTH_V2 : (isClf ? HEALTH_CLF : HEALTH_V1));
     setResolved(new Set());
     setLastRunAt(null);
   }, [datasetId]);
@@ -866,7 +1595,7 @@ function HealthPanel({ datasetId, notify, openModal, setActive }) {
                   "体检报告（Mock）",
                   <div className="space-y-3">
                     <div className="text-sm">这份报告要回答两句话：数据哪里烂？烂到什么程度？</div>
-                    <div className="grid md:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 gap-3">
                       <div className="p-3 rounded-2xl bg-muted text-sm">
                         <div className="text-xs text-muted-foreground">本次体检时间</div>
                         <div className="mt-1 font-semibold">{lastRunAt ? lastRunAt : "尚未运行"}</div>
@@ -891,8 +1620,8 @@ function HealthPanel({ datasetId, notify, openModal, setActive }) {
       />
 
       <div className="flex items-center gap-2">
-        <Badge className="rounded-xl" variant={datasetId === "incident_wide_v2" ? "secondary" : "outline"}>
-          当前数据：{datasetId === "incident_wide_v2" ? "v2（清洗后）" : "v1（含脏数据）"}
+        <Badge className="rounded-xl" variant={isV2 ? "secondary" : "outline"}>
+          当前数据：{isV2 ? "v2（清洗后）" : "v1（含脏数据）"}
         </Badge>
         <Badge className="rounded-xl" variant="outline">
           最近体检：{lastRunAt ? lastRunAt : "未运行"}
@@ -907,12 +1636,66 @@ function HealthPanel({ datasetId, notify, openModal, setActive }) {
 
       <Card className="rounded-2xl">
         <CardHeader>
-          <CardTitle className="text-base">缺失热力图（字段 × 区域）</CardTitle>
-          <CardDescription className="text-xs">回答问题：哪个区/哪个字段最不靠谱？下一步：生成填补或补采集建议。</CardDescription>
+          <CardTitle className="text-base">数据表预览（前 10 行）</CardTitle>
+          <CardDescription className="text-xs">回答问题：数据长什么样？缺失值在哪里？</CardDescription>
         </CardHeader>
         <CardContent>
-          <HeatGrid rows={health.missingHeat.fields} cols={health.missingHeat.groups} matrix={health.missingHeat.matrix} minLabel="缺失少" maxLabel="缺失多" />
-          <div className="mt-3 flex items-center gap-2">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm border-collapse">
+              <thead>
+                <tr>
+                  <th className="p-2 text-left min-w-[60px] font-medium text-muted-foreground bg-muted/30 first:rounded-tl-xl first:rounded-bl-xl">序号</th>
+                  {activeSchema.slice(0, 10).map((col) => {
+                    const stats = MOCK_PREVIEW_STATS[col.k] || { unique: "-", missing: "0%" };
+                    const missingRate = parseFloat(stats.missing);
+                    const hasMissing = missingRate > 0;
+                    return (
+                      <th key={col.k} className="p-2 text-left min-w-[140px] align-bottom bg-muted/30 last:rounded-tr-xl last:rounded-br-xl">
+                        <div className="flex flex-col gap-2 pb-1">
+                          <div className="flex gap-1 flex-wrap">
+                            {hasMissing && (
+                              <Badge 
+                                variant="destructive" 
+                                className="rounded-md px-1 py-0 text-[10px] h-5"
+                              >
+                                缺失: {stats.missing}
+                              </Badge>
+                            )}
+                            <Badge variant="secondary" className="rounded-md px-1 py-0 text-[10px] h-5 bg-orange-100 text-orange-700 hover:bg-orange-100 border-orange-200 border">
+                              唯一值: {stats.unique}
+                            </Badge>
+                          </div>
+                          <div className="font-semibold text-slate-700 whitespace-nowrap">{col.k}</div>
+                        </div>
+                      </th>
+                    );
+                  })}
+                </tr>
+              </thead>
+              <tbody>
+                {activeRows.map((row, i) => (
+                  <tr key={i} className="border-b last:border-0 hover:bg-muted/20 transition-colors">
+                    <td className="p-3 text-muted-foreground font-mono text-xs">{i + 1}</td>
+                    {activeSchema.slice(0, 10).map((col) => {
+                      const val = row[col.k];
+                      const isNaN = val === "NaN" || val === null || val === undefined || val === "";
+                      return (
+                        <td key={col.k} className="p-3">
+                          {isNaN ? (
+                            <span className="text-red-500 font-medium bg-red-50 px-1.5 py-0.5 rounded text-xs">NaN</span>
+                          ) : (
+                            <span className="text-slate-600 font-mono text-xs">{val}</span>
+                          )}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          
+          <div className="mt-4 flex items-center gap-2">
             <Button
               size="sm"
               className="rounded-xl"
@@ -923,20 +1706,18 @@ function HealthPanel({ datasetId, notify, openModal, setActive }) {
             >
               生成治理建议
             </Button>
-            <Badge variant="outline" className="rounded-xl">
-              Mock
-            </Badge>
+
           </div>
         </CardContent>
       </Card>
 
-      <div className="grid md:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3">
         <Card className="rounded-2xl">
           <CardHeader>
             <CardTitle className="text-base">口径一致性（Top 问题）</CardTitle>
             <CardDescription className="text-xs">回答问题：为什么统计对不上？下一步：一键映射标准码表。</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="grid md:grid-cols-2 gap-3">
             {health.inconsistencies.map((it) => {
               const done = resolved.has(it.id);
               return (
@@ -983,69 +1764,15 @@ function HealthPanel({ datasetId, notify, openModal, setActive }) {
           </CardContent>
         </Card>
 
-        <Card className="rounded-2xl">
-          <CardHeader>
-            <CardTitle className="text-base">漂移预警（PSI 示例）</CardTitle>
-            <CardDescription className="text-xs">回答问题：最近两周是不是变了？下一步：重评估/调阈值/补数据。</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={health.drift} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="day" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="psi" strokeWidth={2} dot />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="mt-3 flex items-center gap-2">
-              <Badge variant="secondary" className="rounded-xl">
-                提示
-              </Badge>
-              <div className="text-sm text-muted-foreground">PSI &gt; 0.2 时建议进入“更准模式”并重新评估分组误差。</div>
-            </div>
-            <div className="mt-3 flex items-center gap-2">
-              <Button
-                size="sm"
-                className="rounded-xl"
-                onClick={() => {
-                  notify("已创建漂移告警", "当 PSI>0.2 时自动提醒并触发重评估（Mock）");
-                }}
-              >
-                订阅漂移告警
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                className="rounded-xl"
-                onClick={() => {
-                  notify("已生成动作清单", "建议：补数据/调阈值/分区策略（Mock）");
-                  setActive("results");
-                }}
-              >
-                去结果页看影响
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+
       </div>
 
-      <Card className="rounded-2xl">
-        <CardHeader>
-          <CardTitle className="text-base">导演话术（现场一句话）</CardTitle>
-          <CardDescription className="text-xs">让观众在 5 秒内明白“我们不是模型，是治理+决策流水线”。</CardDescription>
-        </CardHeader>
-        <CardContent className="text-sm leading-relaxed">
-          <div className="p-3 rounded-2xl bg-muted">“先不建模。先把数据风险摊开：缺失在哪、口径哪里乱、漂移有没有发生。治理做成按钮级能力，才敢谈上线。”</div>
-        </CardContent>
-      </Card>
+
     </div>
   );
 }
 
-function CleanPanel({ datasetId, setDatasetId, notify, openModal }) {
+function CleanPanel({ datasetId, setDatasetId, notify, openModal, datasets, setDatasets }) {
   const [generated, setGenerated] = useState(false);
   const [applying, setApplying] = useState(false);
   const [ruleState, setRuleState] = useState(() => {
@@ -1108,7 +1835,38 @@ function CleanPanel({ datasetId, setDatasetId, notify, openModal }) {
     notify("开始应用清洗", "正在生成新数据版本 v2（Mock）…");
     setTimeout(() => {
       setApplying(false);
-      setDatasetId("incident_wide_v2");
+      
+      const current = datasets.find(d => d.id === datasetId);
+      let newId = "test_+5_v2";
+      if (current) {
+         if (current.id === "test_+5_v1") {
+             // Keep default behavior for default dataset
+             newId = "test_+5_v2";
+             setDatasetId(newId);
+         } else {
+             // Generate V2 for custom datasets
+             newId = current.id.replace(/_v1$/, '') + '_v2';
+             const existing = datasets.find(d => d.id === newId);
+             if (!existing) {
+                const newDataset = {
+                    ...current,
+                    id: newId,
+                    name: current.name.replace(/V1.*$/, 'V2-清洗后.csv'), 
+                    version: "v2（清洗后）",
+                    qualityScore: 88 + Math.floor(Math.random() * 10),
+                };
+                // Fallback name if regex didn't match
+                if (newDataset.name === current.name) {
+                    newDataset.name = current.name + "_cleaned";
+                }
+                setDatasets(prev => [...prev, newDataset]);
+             }
+             setDatasetId(newId);
+         }
+      } else {
+          setDatasetId("test_+5_v2");
+      }
+      
       notify("清洗完成", "已生成 v2（清洗后）。下一步：去任务页跑多任务 Run。")
     }, 1100);
   };
@@ -1136,7 +1894,8 @@ function CleanPanel({ datasetId, setDatasetId, notify, openModal }) {
     });
   };
 
-  const canApply = generated && datasetId === "incident_wide_v1";
+  const isV2 = datasetId === "test_+5_v2" || (datasetId && datasetId.endsWith("v2"));
+  const canApply = generated && !isV2;
 
   return (
     <div className="space-y-4">
@@ -1153,15 +1912,15 @@ function CleanPanel({ datasetId, setDatasetId, notify, openModal }) {
               预览变更
             </Button>
             <Button className="rounded-2xl" onClick={applyToV2} disabled={!canApply || applying}>
-              {applying ? "生成中…" : datasetId === "incident_wide_v2" ? "已是 v2" : "应用生成 v2"}
+              {applying ? "生成中…" : isV2 ? "已是 v2" : "应用生成 v2"}
             </Button>
           </div>
         }
       />
 
       <div className="flex items-center gap-2">
-        <Badge className="rounded-xl" variant={datasetId === "incident_wide_v2" ? "secondary" : "outline"}>
-          当前数据：{datasetId === "incident_wide_v2" ? "v2（清洗后）" : "v1（含脏数据）"}
+        <Badge className="rounded-xl" variant={isV2 ? "secondary" : "outline"}>
+          当前数据：{isV2 ? "v2（清洗后）" : "v1（含脏数据）"}
         </Badge>
         <Badge className="rounded-xl" variant={generated ? "secondary" : "outline"}>
           策略状态：{generated ? "已生成" : "未生成"}
@@ -1170,7 +1929,7 @@ function CleanPanel({ datasetId, setDatasetId, notify, openModal }) {
 
       <Card className="rounded-2xl">
         <CardHeader>
-          <CardTitle className="text-base">规则清单（Mock）</CardTitle>
+          <CardTitle className="text-base">规则清单</CardTitle>
           <CardDescription className="text-xs">回答问题：做了哪些变更？风险是什么？下一步：应用到新版本。</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -1260,15 +2019,7 @@ function CleanPanel({ datasetId, setDatasetId, notify, openModal }) {
         </CardContent>
       </Card>
 
-      <Card className="rounded-2xl">
-        <CardHeader>
-          <CardTitle className="text-base">导演话术（让人敢用）</CardTitle>
-          <CardDescription className="text-xs">“预览 + 回滚”是信任的关键，不然自动化会被否掉。</CardDescription>
-        </CardHeader>
-        <CardContent className="text-sm leading-relaxed">
-          <div className="p-3 rounded-2xl bg-muted">“我们不靠拍脑袋清洗。每条规则都有变更预览、影响范围、风险等级。应用后生成新数据版本，随时可回滚。”</div>
-        </CardContent>
-      </Card>
+
     </div>
   );
 }
@@ -1430,23 +2181,15 @@ function FeaturesPanel({ notify, openModal }) {
         ))}
       </div>
 
-      <Card className="rounded-2xl">
-        <CardHeader>
-          <CardTitle className="text-base">导演话术（把“特征”说成人话）</CardTitle>
-          <CardDescription className="text-xs">让不懂代码的人也能听懂：特征=影响决策的杠杆。</CardDescription>
-        </CardHeader>
-        <CardContent className="text-sm leading-relaxed">
-          <div className="p-3 rounded-2xl bg-muted">“特征不是工程细节，是管理杠杆。我们把‘队列长度、可用力量、距离、天气’这些因素的影响强度和稳定性做成卡片，让你知道该优先改哪一个。”</div>
-        </CardContent>
-      </Card>
+
     </div>
   );
 }
 
 function TasksPanel({ quickMode, runs, setRuns, notify }) {
-  const [name, setName] = useState("超时风险分类");
-  const [type, setType] = useState("分类");
-  const [target, setTarget] = useState("is_overdue_30m");
+  const [name, setName] = useState("电价预测");
+  const [type, setType] = useState("时序预测");
+  const [target, setTarget] = useState("label");
   const [running, setRunning] = useState(false);
 
   const runOne = () => {
@@ -1465,7 +2208,7 @@ function TasksPanel({ quickMode, runs, setRuns, notify }) {
         metrics:
           type === "分类"
             ? { AUC: quickMode ? 0.905 : 0.918, F1: quickMode ? 0.775 : 0.792 }
-            : type === "回归"
+            : (type === "回归" || type === "时序预测")
             ? { RMSE: quickMode ? 19.2 : 18.0, MAPE: quickMode ? 0.14 : 0.12 }
             : type === "填补"
             ? { MAE: quickMode ? 4.2 : 3.7, R2: quickMode ? 0.83 : 0.87 }
@@ -1493,7 +2236,7 @@ function TasksPanel({ quickMode, runs, setRuns, notify }) {
 
       <Card className="rounded-2xl">
         <CardHeader>
-          <CardTitle className="text-base">新建任务（Mock）</CardTitle>
+          <CardTitle className="text-base">新建任务</CardTitle>
           <CardDescription className="text-xs">回答问题：我要预测什么？任务类型是什么？下一步：一键运行生成 Run。</CardDescription>
         </CardHeader>
         <CardContent className="grid md:grid-cols-3 gap-3">
@@ -1508,16 +2251,16 @@ function TasksPanel({ quickMode, runs, setRuns, notify }) {
               value={type}
               onChange={(e) => {
                 setType(e.target.value);
+                if (e.target.value === "时序预测") setTarget("label");
                 if (e.target.value === "分类") setTarget("is_overdue_30m");
                 if (e.target.value === "回归") setTarget("resolve_minutes");
                 if (e.target.value === "填补") setTarget("arrive_minutes");
-                if (e.target.value === "异常") setTarget("resolve_minutes");
               }}
             >
+              <option>时序预测</option>
               <option>分类</option>
               <option>回归</option>
               <option>填补</option>
-              <option>异常</option>
             </select>
           </div>
           <div>
@@ -1591,23 +2334,160 @@ function TasksPanel({ quickMode, runs, setRuns, notify }) {
         </CardContent>
       </Card>
 
-      <Card className="rounded-2xl">
-        <CardHeader>
-          <CardTitle className="text-base">导演话术（对比收口）</CardTitle>
-          <CardDescription className="text-xs">把争论变成证据：同数据同口径，看工作量与稳定性。</CardDescription>
-        </CardHeader>
-        <CardContent className="text-sm leading-relaxed">
-          <div className="p-3 rounded-2xl bg-muted">
-            “这里同一份数据，我们一键跑通分类、回归、填补。传统做法往往要分任务建模、反复调参；LLM 能讲道理但难给同口径指标与阈值收益闭环。我们把这些输出固定在同一张结果页里。”
-          </div>
-        </CardContent>
-      </Card>
+
     </div>
   );
 }
 
-function ResultsPanel({ notify, openModal }) {
-  const [published, setPublished] = useState(false);
+function CustomizedDot(props) {
+  const { cx, cy, payload, shape } = props;
+  if (shape === "cross") {
+    // Red X
+    return (
+      <svg x={cx - 5} y={cy - 5} width="10" height="10" viewBox="0 0 10 10">
+        <line x1="2" y1="2" x2="8" y2="8" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" />
+        <line x1="8" y1="2" x2="2" y2="8" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    );
+  } else if (shape === "circle") {
+    // Green Filled Circle
+    return (
+      <circle cx={cx} cy={cy} r="5" fill="#589e5d" /> 
+    );
+  }
+  return null;
+}
+
+function ScatterPlot({ data }) {
+  // Transform hourly data to daily summary for the chart
+  const chartData = useMemo(() => {
+    if (!data) return [];
+    
+    // Group by date and determine if the day is "High Price" (1) or not (0)
+    const dailyMap = new Map();
+    
+    data.forEach(row => {
+        // Extract MM-DD from Time string "YYYY/M/D HH:mm:00"
+        const datePart = row.Time.split(' ')[0]; // "2025/11/16"
+        const d = new Date(datePart);
+        
+        // Use timestamp for sorting and plotting
+        // Normalize to midnight to ensure all points for the same day align
+        const timestamp = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+        
+        if (!dailyMap.has(timestamp)) {
+            dailyMap.set(timestamp, null);
+        }
+        
+        if (row.label === "1") {
+            dailyMap.set(timestamp, 1);
+        } else if (row.label === "0") {
+            // Only set to 0 if it's currently null (don't downgrade 1 to 0)
+            if (dailyMap.get(timestamp) !== 1) {
+                dailyMap.set(timestamp, 0);
+            }
+        }
+    });
+    
+    // Convert to array (no sort needed if we let Recharts handle the number axis, but sorting helps debugging)
+    return Array.from(dailyMap.entries())
+      .map(([timestamp, value]) => ({ timestamp, value }))
+      .sort((a, b) => a.timestamp - b.timestamp);
+  }, [data]);
+
+  const formatDate = (timestamp) => {
+      const d = new Date(timestamp);
+      return `${(d.getMonth()+1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
+  };
+
+  const xDomain = useMemo(() => {
+    if (!chartData || chartData.length === 0) return ['dataMin', 'dataMax'];
+    const timestamps = chartData.map(d => d.timestamp);
+    return [Math.min(...timestamps), Math.max(...timestamps)];
+  }, [chartData]);
+
+  const xTicks = useMemo(() => {
+    if (!chartData || chartData.length === 0) return undefined;
+    // Filter timestamps where the date is an even number (e.g., 2, 4, 16, 18...)
+    return chartData
+      .map(d => d.timestamp)
+      .filter(ts => new Date(ts).getDate() % 2 === 0);
+  }, [chartData]);
+
+  return (
+    <div className="h-[300px] w-full">
+      <ResponsiveContainer width="100%" height="100%">
+        <ScatterChart margin={{ top: 20, right: 30, bottom: 40, left: 40 }}>
+          <CartesianGrid strokeDasharray="3 3" vertical={true} horizontal={false} stroke="#e2e8f0" />
+          {/* Custom Horizontal Grid Lines for Y=0 and Y=1 */}
+          <ReferenceLine y={0} stroke="#cbd5e1" strokeDasharray="3 3" />
+          <ReferenceLine y={1} stroke="#cbd5e1" strokeDasharray="3 3" />
+          
+          <XAxis 
+            dataKey="timestamp" 
+            type="number" 
+            domain={xDomain}
+            ticks={xTicks}
+            tickFormatter={formatDate}
+            tick={{ fontSize: 11, fill: "#334155" }}  
+            tickLine={false} 
+            axisLine={{ stroke: "#64748b" }} 
+            interval={0} 
+            angle={-45}
+            textAnchor="end"
+            height={60}
+            label={{ value: "日期", position: "insideBottom", offset: -5, fontSize: 12, fill: "#334155" }}
+          />
+          <YAxis 
+            dataKey="value" 
+            type="number" 
+            domain={[-0.5, 1.5]} 
+            ticks={[0, 1]} 
+            tickFormatter={(tick) => tick === 0 ? "不可搏高价 (0)" : "可搏高价 (1)"} 
+            tick={{ fontSize: 11, fill: "#334155" }} 
+            tickLine={false} 
+            axisLine={{ stroke: "#64748b" }} 
+            width={100} 
+          />
+          <Tooltip 
+            cursor={{ strokeDasharray: '3 3' }} 
+            contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)" }}
+            labelFormatter={formatDate}
+            formatter={(value) => [value === 0 ? "不可搏高价" : "可搏高价", "分类结果"]}
+          />
+          <Legend 
+            layout="vertical" 
+            verticalAlign="middle" 
+            align="right"
+            wrapperStyle={{ right: 0, paddingLeft: "10px" }}
+            content={(props) => {
+                return (
+                    <div className="flex flex-col gap-2 border p-2 rounded-lg bg-white/80 shadow-sm text-xs">
+                        <div className="flex items-center gap-2">
+                            <svg width="12" height="12" viewBox="0 0 10 10">
+                                <line x1="2" y1="2" x2="8" y2="8" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" />
+                                <line x1="8" y1="2" x2="2" y2="8" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" />
+                            </svg>
+                            <span className="text-slate-700">不可搏高价 (0)</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                             <div className="w-3 h-3 rounded-full bg-[#589e5d]"></div>
+                             <span className="text-slate-700">可搏高价 (1)</span>
+                        </div>
+                    </div>
+                )
+            }}
+          />
+          <Scatter name="不可搏高价" data={chartData.filter(item => item.value === 0)} fill="#ef4444" shape={<CustomizedDot shape="cross" />} />
+          <Scatter name="可搏高价" data={chartData.filter(item => item.value === 1)} fill="#589e5d" shape={<CustomizedDot shape="circle" />} />
+        </ScatterChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+function ResultsPanel({ notify, openModal, sceneId }) {
+  // const [published, setPublished] = useState(false);
   const [selectedTh, setSelectedTh] = useState(0.4);
 
   const best = useMemo(() => {
@@ -1618,7 +2498,7 @@ function ResultsPanel({ notify, openModal }) {
     setSelectedTh(best.th);
   }, [best.th]);
 
-  const publish = () => {
+  /* const publish = () => {
     setPublished(true);
     notify("阈值策略已发布", `已发布阈值 ${selectedTh}，并绑定收益曲线（Mock）`);
     openModal(
@@ -1645,7 +2525,7 @@ function ResultsPanel({ notify, openModal }) {
         </div>
       </div>
     );
-  };
+  }; */
 
   return (
     <div className="space-y-4">
@@ -1653,7 +2533,7 @@ function ResultsPanel({ notify, openModal }) {
         icon={BarChart3}
         title="结果页（高精度/高性能必须“证据化”）"
         desc="指标总览 + 分组误差 + 置信度 + 阈值收益曲线（业务能做决策）"
-        right={
+        /* right={
           <div className="flex items-center gap-2 flex-wrap justify-end">
             <Badge className="rounded-xl" variant={published ? "secondary" : "outline"}>
               策略：{published ? "已发布" : "未发布"}
@@ -1662,128 +2542,175 @@ function ResultsPanel({ notify, openModal }) {
               一键发布阈值策略
             </Button>
           </div>
-        }
+        } */
       />
 
       <div className="grid md:grid-cols-4 gap-3">
-        <MetricPill label="分类 AUC" value={0.91} unit="" hint="同口径可复现" />
-        <MetricPill label="分类 F1" value={0.78} unit="" hint="阈值可调" />
-        <MetricPill label="回归 RMSE" value={18.4} unit="min" hint="分组误差可追" />
-        <MetricPill label="端到端耗时" value={"~20"} unit="s" hint="模式可切换" />
+        {sceneId === "sd_high_price_clf" ? (
+          <>
+            <MetricPill label="分类 AUC" value={0.5922} unit="" />
+            <MetricPill label="acc" value={0.6451} unit="" />
+            <MetricPill label="f1" value={0.0149} unit="" />
+          </>
+        ) : (
+          <>
+            <MetricPill label="MSE (均方误差)" value={6.59} unit="" />
+            <MetricPill label="RMSE (均方根误差)" value={2.57} unit="" />
+            <MetricPill label="MAE (平均绝对误差)" value={2.26} unit="" />
+          </>
+        )}
+        <MetricPill label="推理耗时" value={11} unit="s" />
       </div>
 
       <Card className="rounded-2xl">
         <CardHeader>
-          <CardTitle className="text-base">分组误差热力图（区域 × 事件类型）</CardTitle>
-          <CardDescription className="text-xs">回答问题：哪里最不准？下一步：补数据/调阈值/进入更准模式。</CardDescription>
+          <CardTitle className="text-base">
+            {sceneId === "sd_high_price_clf" ? "每日'搏高价'分类结果概览 (近30天)" : "未来 30 天日前电价预测趋势"}
+          </CardTitle>
+          <CardDescription className="text-xs">
+            {sceneId === "sd_high_price_clf" ? "回答问题：哪些日期可搏高价？" : "回答问题：未来走势如何？置信区间是多少？"}
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <HeatGrid rows={MOCK_GROUP_ERROR.rows} cols={MOCK_GROUP_ERROR.cols} matrix={MOCK_GROUP_ERROR.matrix} minLabel="误差小" maxLabel="误差大" />
-          <div className="mt-3 flex items-center gap-2">
-            <Button
-              size="sm"
-              className="rounded-xl"
-              onClick={() => notify("已生成纠偏清单", "已为 Top 误差格子生成补数据/调阈值建议（Mock）")}
-            >
-              生成纠偏清单
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              className="rounded-xl"
-              onClick={() => notify("已创建工单", "已创建“分组误差治理”工单（Mock）")}
-            >
-              创建治理工单
-            </Button>
+          <div className="h-[300px] w-full">
+            {sceneId === "sd_high_price_clf" ? (
+              <ScatterPlot data={MOCK_ROWS_CLF} />
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={MOCK_PRICE_PREDICTION} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                  <XAxis 
+                    dataKey="date" 
+                    tick={{ fontSize: 11, fill: "#64748b" }} 
+                    tickLine={false} 
+                    axisLine={false} 
+                    minTickGap={30}
+                  />
+                  <YAxis 
+                    tick={{ fontSize: 11, fill: "#64748b" }} 
+                    tickLine={false} 
+                    axisLine={false} 
+                    unit="元" 
+                    width={35} 
+                  />
+                  <Tooltip
+                    contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)" }}
+                    cursor={{ stroke: "#94a3b8", strokeWidth: 1, strokeDasharray: "4 4" }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="pred"
+                    name="预测电价"
+                    stroke="#3b82f6"
+                    strokeWidth={2}
+                    dot={false}
+                    activeDot={{ r: 6, strokeWidth: 0, fill: "#2563eb" }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="upper"
+                    name="置信上限"
+                    stroke="#93c5fd"
+                    strokeWidth={1}
+                    strokeDasharray="4 4"
+                    dot={false}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="lower"
+                    name="置信下限"
+                    stroke="#93c5fd"
+                    strokeWidth={1}
+                    strokeDasharray="4 4"
+                    dot={false}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            )}
           </div>
+
         </CardContent>
       </Card>
 
-      <div className="grid md:grid-cols-2 gap-3">
+      {sceneId === "sd_high_price_clf" && <div className="grid md:grid-cols-2 gap-3">
         <Card className="rounded-2xl">
           <CardHeader>
-            <CardTitle className="text-base">置信度分布（可转人工复核队列）</CardTitle>
-            <CardDescription className="text-xs">回答问题：哪些结果不确定？下一步：建立复核工单。</CardDescription>
+            <CardTitle className="text-base">ROC曲线与AUC值</CardTitle>
+            <CardDescription className="text-xs">回答问题：模型区分正负样本的能力如何？AUC=0.593</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={MOCK_CONFIDENCE} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="bin" hide />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="count" />
-                </BarChart>
+                <LineChart data={MOCK_ROC_DATA} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                  <XAxis 
+                    type="number"
+                    dataKey="fpr" 
+                    domain={[0, 1]}
+                    label={{ value: '假正例率 (FPR)', position: 'insideBottom', offset: -10, fontSize: 12, fill: "#64748b" }} 
+                    tick={{ fontSize: 11, fill: "#64748b" }} 
+                    tickLine={false} 
+                    axisLine={false} 
+                  />
+                  <YAxis 
+                    domain={[0, 1]}
+                    label={{ value: '真正例率 (TPR)', angle: -90, position: 'insideLeft', fontSize: 12, fill: "#64748b" }} 
+                    tick={{ fontSize: 11, fill: "#64748b" }} 
+                    tickLine={false} 
+                    axisLine={false} 
+                  />
+                  <Tooltip
+                    contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)" }}
+                  />
+                  <Legend verticalAlign="top" height={36} iconType="plainline" />
+                  <Line type="linear" dataKey="tpr" name="ROC曲线 (AUC = 0.593)" stroke="#f97316" strokeWidth={2} dot={false} />
+                  <Line type="linear" dataKey="random" name="随机猜测" stroke="#1e40af" strokeWidth={2} strokeDasharray="5 5" dot={false} />
+                </LineChart>
               </ResponsiveContainer>
-            </div>
-            <div className="mt-3 flex items-center gap-2">
-              <Badge className="rounded-xl" variant="secondary">
-                建议
-              </Badge>
-              <div className="text-sm text-muted-foreground">置信度 &lt; 0.2 的样本进入人工复核队列。</div>
-            </div>
-            <div className="mt-3 flex items-center gap-2">
-              <Button size="sm" className="rounded-xl" onClick={() => notify("复核队列已创建", "低置信度样本已自动入队（Mock）")}>一键创建复核队列</Button>
-              <Button size="sm" variant="outline" className="rounded-xl" onClick={() => notify("已生成规则", "复核SOP已生成（Mock）")}>生成复核SOP</Button>
             </div>
           </CardContent>
         </Card>
 
         <Card className="rounded-2xl">
           <CardHeader>
-            <CardTitle className="text-base">阈值-收益曲线（把指标翻译成钱/时间）</CardTitle>
-            <CardDescription className="text-xs">回答问题：阈值设多少最划算？下一步：发布阈值策略。</CardDescription>
+            <CardTitle className="text-base">Precision-Recall 曲线</CardTitle>
+            <CardDescription className="text-xs">回答问题：在不同召回率下的精确率表现。</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center gap-2 flex-wrap">
-              <Badge variant="secondary" className="rounded-xl">选择阈值</Badge>
-              <select
-                className="text-sm bg-transparent outline-none border rounded-2xl px-3 py-2"
-                value={selectedTh}
-                onChange={(e) => setSelectedTh(Number(e.target.value))}
-              >
-                {MOCK_THRESHOLD.map((x) => (
-                  <option key={x.th} value={x.th}>
-                    {x.th}（收益 {x.benefit}）
-                  </option>
-                ))}
-              </select>
-              <Badge variant="outline" className="rounded-xl">推荐：{best.th}</Badge>
-            </div>
-
-            <div className="h-56 mt-3">
+            <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={MOCK_THRESHOLD} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="th" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="benefit" strokeWidth={2} dot />
-                  <Line type="monotone" dataKey="precision" strokeWidth={2} dot />
-                  <Line type="monotone" dataKey="recall" strokeWidth={2} dot />
+                <LineChart data={MOCK_PR_DATA} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                  <XAxis 
+                    type="number"
+                    dataKey="recall" 
+                    domain={[0, 1]}
+                    label={{ value: '召回率 (Recall)', position: 'insideBottom', offset: -10, fontSize: 12, fill: "#64748b" }} 
+                    tick={{ fontSize: 11, fill: "#64748b" }} 
+                    tickLine={false} 
+                    axisLine={false} 
+                  />
+                  <YAxis 
+                    domain={[0, 1]}
+                    label={{ value: '精确率 (Precision)', angle: -90, position: 'insideLeft', fontSize: 12, fill: "#64748b" }} 
+                    tick={{ fontSize: 11, fill: "#64748b" }} 
+                    tickLine={false} 
+                    axisLine={false} 
+                  />
+                  <Tooltip
+                    contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)" }}
+                  />
+                  <Legend verticalAlign="top" height={36} iconType="plainline" />
+                  <Line type="linear" dataKey="precision" name="PR曲线" stroke="#2563eb" strokeWidth={2} dot={false} />
+                  <Line type="linear" dataKey="baseline" name="随机猜测 (比例=0.356)" stroke="#ef4444" strokeWidth={2} strokeDasharray="5 5" dot={false} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
-            <div className="mt-3 flex items-center gap-2">
-              <Button size="sm" className="rounded-xl" onClick={publish}>
-                发布当前阈值
-              </Button>
-              <Button size="sm" variant="outline" className="rounded-xl" onClick={() => notify("已导出", "阈值-收益曲线已导出为报告片段（Mock）")}>导出曲线</Button>
-            </div>
           </CardContent>
         </Card>
-      </div>
+      </div>}
 
-      <Card className="rounded-2xl">
-        <CardHeader>
-          <CardTitle className="text-base">导演话术（别说AUC，说决策）</CardTitle>
-          <CardDescription className="text-xs">让观众感觉“爽”的关键：把结果变成动作。</CardDescription>
-        </CardHeader>
-        <CardContent className="text-sm leading-relaxed">
-          <div className="p-3 rounded-2xl bg-muted">“业务不关心 AUC 是多少，关心阈值设在 0.4 时能减少多少超时、节省多少人力。我们把阈值—收益曲线直接放在结果页，让决策闭环。”</div>
-        </CardContent>
-      </Card>
+
     </div>
   );
 }
@@ -1804,28 +2731,7 @@ function ExplainPanel({ notify, openModal }) {
         icon={ScanSearch}
         title="解释专区（让不懂代码的人秒懂价值）"
         desc="固定结构：全局 → 分群 → 单案 → 反事实（改一个变量，结果怎么变）"
-        right={
-          <div className="flex items-center gap-2 flex-wrap justify-end">
-            <Button
-              className="rounded-2xl"
-              onClick={() =>
-                openModal(
-                  "解释汇总（Mock）",
-                  <div className="space-y-3">
-                    <div className="text-sm">这份汇总要回答：为什么？改什么？改了会不会好？</div>
-                    <div className="p-3 rounded-2xl bg-muted text-sm">全局：queue_len / active_units 主导；分群：R05 与 R02 原因不同；反事实：加力量可显著降低风险。</div>
-                    <div className="flex items-center gap-2">
-                      <Button className="rounded-2xl" onClick={() => notify("已导出", "解释汇总已导出为PPT片段（Mock）")}>导出PPT片段</Button>
-                      <Button variant="outline" className="rounded-2xl" onClick={() => notify("已复制", "解释链接已复制（Mock）")}>复制链接</Button>
-                    </div>
-                  </div>
-                )
-              }
-            >
-              一键汇总
-            </Button>
-          </div>
-        }
+
       />
 
       <Tabs defaultValue="global">
@@ -1833,7 +2739,7 @@ function ExplainPanel({ notify, openModal }) {
           <TabsTrigger value="global" className="rounded-xl">
             全局解释
           </TabsTrigger>
-          <TabsTrigger value="segment" className="rounded-xl">
+          {/* <TabsTrigger value="segment" className="rounded-xl">
             分群解释
           </TabsTrigger>
           <TabsTrigger value="local" className="rounded-xl">
@@ -1841,31 +2747,53 @@ function ExplainPanel({ notify, openModal }) {
           </TabsTrigger>
           <TabsTrigger value="cf" className="rounded-xl">
             反事实模拟
-          </TabsTrigger>
+          </TabsTrigger> */}
         </TabsList>
 
         <TabsContent value="global" className="mt-3">
           <Card className="rounded-2xl">
             <CardHeader>
               <CardTitle className="text-base">Top 影响因子（全局）</CardTitle>
-              <CardDescription className="text-xs">回答问题：总体上为什么超时？下一步：生成治理建议。</CardDescription>
+              {/* <CardDescription className="text-xs">回答问题：总体上为什么超时？下一步：生成治理建议。</CardDescription> */}
             </CardHeader>
-            <CardContent>
-              <div className="h-72">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={[...MOCK_FEATURES_BASE].sort((a, b) => b.importance - a.importance)} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="importance" />
-                  </BarChart>
-                </ResponsiveContainer>
+            <CardContent className="space-y-8">
+              {/* Chart 1: Heatmap */}
+              <div>
+                <div className="mb-4 font-semibold text-base text-center">电力市场影响因子热力图</div>
+                <div className="border rounded-xl p-4 bg-slate-50 overflow-hidden">
+                  <DivergingHeatGrid rows={MOCK_HEATMAP_DATES} cols={MOCK_INFLUENCE_FACTORS} matrix={MOCK_HEATMAP_MATRIX} />
+                </div>
               </div>
-              <div className="mt-3 flex items-center gap-2">
-                <Button size="sm" className="rounded-xl" onClick={() => notify("已生成治理建议", "已生成治理建议清单（Mock）")}>生成治理建议（PPT）</Button>
-                <Badge variant="outline" className="rounded-xl">Mock</Badge>
+
+              {/* Chart 2: Horizontal Bar Chart */}
+              <div>
+                <div className="mb-4 font-semibold text-base text-center">各影响因子影响分数对比</div>
+                <div className="h-[600px] border rounded-xl py-4 pr-4 pl-0">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      layout="vertical"
+                      data={MOCK_INFLUENCE_SCORES}
+                      margin={{ top: 5, right: 50, left: 0, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={true} />
+                      <XAxis type="number" domain={[-200, 200]} />
+                      <YAxis dataKey="name" type="category" width={230} tick={{fontSize: 11}} interval={0} tickMargin={10} />
+                      <Tooltip 
+                        cursor={{fill: 'transparent'}}
+                        contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)" }}
+                      />
+                      <Bar dataKey="value" name="影响分数">
+                        {MOCK_INFLUENCE_SCORES.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.value > 0 ? '#ef4444' : '#3b82f6'} />
+                        ))}
+                        <LabelList dataKey="value" position="right" fontSize={10} formatter={(v) => v.toFixed(1)} />
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
+
+
             </CardContent>
           </Card>
         </TabsContent>
@@ -1989,15 +2917,7 @@ function ExplainPanel({ notify, openModal }) {
         </TabsContent>
       </Tabs>
 
-      <Card className="rounded-2xl">
-        <CardHeader>
-          <CardTitle className="text-base">导演话术（解释的“爽点”）</CardTitle>
-          <CardDescription className="text-xs">别停在“重要性”，要走到“我怎么改”。</CardDescription>
-        </CardHeader>
-        <CardContent className="text-sm leading-relaxed">
-          <div className="p-3 rounded-2xl bg-muted">“解释不是一张图，而是决策动作：全局告诉你该治理什么；分群告诉你不同区打法不同；单案告诉你这单为什么；反事实告诉你改一个变量会不会变好。”</div>
-        </CardContent>
-      </Card>
+
     </div>
   );
 }
@@ -2125,20 +3045,14 @@ function DeliverPanel({ notify, openModal }) {
         </Card>
       </div>
 
-      <Card className="rounded-2xl">
-        <CardHeader>
-          <CardTitle className="text-base">导演话术（交付收口）</CardTitle>
-          <CardDescription className="text-xs">把“demo”变成“值钱的产品”。</CardDescription>
-        </CardHeader>
-        <CardContent className="text-sm leading-relaxed">
-          <div className="p-3 rounded-2xl bg-muted">“如果只停在结果页，它还是个实验。我们把它一键变成报告、API、告警订阅，这才是能落地、能卖、能规模化的产品形态。”</div>
-        </CardContent>
-      </Card>
+
     </div>
   );
 }
 
-function ComparePanel({ notify, openModal }) {
+function ComparePanel({ notify, openModal, sceneId }) {
+  const isClf = sceneId === "sd_high_price_clf";
+  
   const exportCompare = () => {
     notify("对比报告已生成", "已生成同口径对比报告（Mock）")
     openModal(
@@ -2147,7 +3061,6 @@ function ComparePanel({ notify, openModal }) {
         <div className="text-sm">对比维度：工作量 / 稳定性 / 复现性 / 解释性 / 交付完整度</div>
         <div className="p-3 rounded-2xl bg-muted text-xs">提示：这里的数值为演示占位，真实版本应接入同一套评测流水线产出。</div>
         <div className="grid md:grid-cols-2 gap-3">
-          <div className="p-3 rounded-2xl border text-sm">XGBoost：强在可控/可解释，但训练与工程成本高</div>
           <div className="p-3 rounded-2xl border text-sm">AutoGluon：强在自动化，但仍需训练预算与环境固化</div>
           <div className="p-3 rounded-2xl border text-sm">通用LLM：强在表达与交互，但结构化指标与复现不稳</div>
           <div className="p-3 rounded-2xl border text-sm">LimiX：强在“流水线产品化 + 可交付链路”</div>
@@ -2161,9 +3074,257 @@ function ComparePanel({ notify, openModal }) {
     <div className="space-y-4">
       <SectionTitle
         icon={ShieldCheck}
-        title="对比证明墙（同数据同口径，终结争论）"
+        title="对比墙（同数据同口径，终结争论）"
         desc="对比维度：工作量/门槛/稳定性/复现性/解释性/迭代成本/落地链路完整度"
       />
+
+      <div className="grid md:grid-cols-2 gap-3">
+        <Card className="rounded-2xl">
+          <CardHeader>
+            <CardTitle className="text-base">LimiX vs AutoGluon</CardTitle>
+            <CardDescription className="text-xs">
+              {isClf 
+                ? "AutoGluon 在部分峰值预测上存在偏差，训练耗时较长。" 
+                : "AutoGluon 在部分峰值预测上存在偏差，训练耗时较长。"}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-3 mb-2">
+              <Badge variant="secondary" className="bg-blue-50 text-blue-700 hover:bg-blue-50 border-blue-200">LimiX 推理耗时：11s</Badge>
+              <Badge variant="secondary" className="bg-amber-50 text-amber-700 hover:bg-amber-50 border-amber-200">AutoGluon 推理耗时：28s</Badge>
+            </div>
+            <div className="h-[300px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                {isClf ? (
+                  <ScatterChart margin={{ top: 20, right: 30, bottom: 40, left: 10 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={true} horizontal={true} stroke="#e2e8f0" />
+                    <XAxis 
+                      dataKey="timestamp" 
+                      type="number" 
+                      domain={['dataMin', 'dataMax']}
+                      tickFormatter={(ts) => {
+                          const d = new Date(ts);
+                          return `${d.getMonth()+1}-${d.getDate()}`;
+                      }}
+                      tick={{ fontSize: 10, fill: "#64748b" }} 
+                      tickLine={false} 
+                      axisLine={{ stroke: "#64748b" }} 
+                      interval={0}
+                      ticks={MOCK_CLF_COMPARISON_POINTS.filter(p => new Date(p.timestamp).getDate() % 2 === 0).map(p => p.timestamp)}
+                    />
+                    <YAxis 
+                      dataKey="y"
+                      type="number" 
+                      domain={[-0.5, 2.5]} 
+                      ticks={[0, 1, 2]} 
+                      tickFormatter={(val) => val === 2 ? "真实值" : val === 1 ? "LimiX" : "AutoGluon"}
+                      tick={{ fontSize: 11, fill: "#334155", fontWeight: 500 }} 
+                      tickLine={false} 
+                      axisLine={{ stroke: "#64748b" }} 
+                      width={70} 
+                    />
+                    <Tooltip 
+                        cursor={{ strokeDasharray: '3 3' }} 
+                        contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)" }}
+                        labelFormatter={(ts) => {
+                            const d = new Date(ts);
+                            return `${d.getMonth()+1}-${d.getDate()}`;
+                        }}
+                        formatter={(value, name) => [value === 1 ? "可搏 (1)" : "不可搏 (0)", name]}
+                    />
+                    <Legend 
+                        verticalAlign="top" 
+                        height={36} 
+                        content={(props) => (
+                            <div className="flex justify-center gap-4 text-xs mb-2">
+                                <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-[#589e5d]"></div>可搏 (1)</div>
+                                <div className="flex items-center gap-1"><svg width="10" height="10" viewBox="0 0 10 10"><line x1="2" y1="2" x2="8" y2="8" stroke="#ef4444" strokeWidth="2" /><line x1="8" y1="2" x2="2" y2="8" stroke="#ef4444" strokeWidth="2" /></svg>不可搏 (0)</div>
+                            </div>
+                        )}
+                    />
+                    {/* Truth Row (Y=2) */}
+                    <Scatter name="真实值" data={MOCK_CLF_COMPARISON_POINTS.map(d => ({ timestamp: d.timestamp, value: d.truth, y: 2 }))} shape={(props) => props.payload.value === null ? null : <CustomizedDot {...props} shape={props.payload.value === 1 ? "circle" : "cross"} />} />
+                    
+                    {/* LimiX Row (Y=1) */}
+                    <Scatter name="LimiX" data={MOCK_CLF_COMPARISON_POINTS.map(d => ({ timestamp: d.timestamp, value: d.limix, y: 1 }))} shape={(props) => props.payload.value === null ? null : <CustomizedDot {...props} shape={props.payload.value === 1 ? "circle" : "cross"} />} />
+                    
+                    {/* AutoGluon Row (Y=0) */}
+                    <Scatter name="AutoGluon" data={MOCK_CLF_COMPARISON_POINTS.map(d => ({ timestamp: d.timestamp, value: d.autogluon, y: 0 }))} shape={(props) => props.payload.value === null ? null : <CustomizedDot {...props} shape={props.payload.value === 1 ? "circle" : "cross"} />} />
+                  </ScatterChart>
+                ) : (
+                  <LineChart data={MOCK_MODEL_COMPARISON} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                    <XAxis 
+                      dataKey="date" 
+                      tick={{ fontSize: 10, fill: "#64748b" }} 
+                      tickLine={false} 
+                      axisLine={false} 
+                      interval={4}
+                    />
+                    <YAxis 
+                      tick={{ fontSize: 10, fill: "#64748b" }} 
+                      tickLine={false} 
+                      axisLine={false} 
+                      width={40}
+                      domain={['auto', 'auto']}
+                    />
+                    <Tooltip
+                      contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)" }}
+                      cursor={{ stroke: "#94a3b8", strokeWidth: 1, strokeDasharray: "4 4" }}
+                      formatter={(value) => [`${value} 元/MWh`, ""]}
+                    />
+                    <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }}/>
+                    
+                    <Line type="monotone" dataKey="truth" name="真实值" stroke="#334155" strokeWidth={2} strokeDasharray="4 4" dot={false} />
+                    <Line type="monotone" dataKey="limix" name="LimiX" stroke="#2563eb" strokeWidth={2.5} dot={false} activeDot={{ r: 4 }} />
+                    <Line type="monotone" dataKey="autogluon" name="AutoGluon" stroke="#f59e0b" strokeWidth={2} dot={false} />
+                  </LineChart>
+                )}
+              </ResponsiveContainer>
+            </div>
+            {isClf && (
+              <div className="mt-4 overflow-x-auto">
+                <table className="w-full text-xs text-center border-collapse border border-slate-200">
+                  <thead>
+                    <tr className="bg-slate-50/50">
+                      <th className="border border-slate-200 p-2 font-medium text-slate-600">模型</th>
+                      <th className="border border-slate-200 p-2 font-medium text-slate-600">auc</th>
+                      <th className="border border-slate-200 p-2 font-medium text-slate-600">acc</th>
+                      <th className="border border-slate-200 p-2 font-medium text-slate-600">f1</th>
+                      <th className="border border-slate-200 p-2 font-medium text-slate-600">recall</th>
+                      <th className="border border-slate-200 p-2 font-medium text-slate-600">precision</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td className="border border-slate-200 p-2 font-medium text-slate-700">AutoGluon</td>
+                      <td className="border border-slate-200 p-2 text-slate-600">0.5379</td>
+                      <td className="border border-slate-200 p-2 text-slate-600">0.5954</td>
+                      <td className="border border-slate-200 p-2 text-slate-600">0.2641</td>
+                      <td className="border border-slate-200 p-2 text-slate-600">0.2038</td>
+                      <td className="border border-slate-200 p-2 text-slate-600">0.375</td>
+                    </tr>
+                    <tr>
+                      <td className="border border-slate-200 p-2 font-medium text-slate-700">LimiX</td>
+                      <td className="border border-slate-200 p-2 text-slate-600">0.5922</td>
+                      <td className="border border-slate-200 p-2 text-slate-600">0.6451</td>
+                      <td className="border border-slate-200 p-2 text-slate-600">0.0149</td>
+                      <td className="border border-slate-200 p-2 text-slate-600">0.0075</td>
+                      <td className="border border-slate-200 p-2 text-slate-600">0.6666</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-2xl">
+          <CardHeader>
+            <CardTitle className="text-base">LimiX vs DeepSeek LLM</CardTitle>
+            <CardDescription className="text-xs">
+              {isClf 
+                ? "LLM 在数值精确回归任务上稳定性较弱，难以捕捉细节。" 
+                : "LLM 在数值精确回归任务上稳定性较弱，难以捕捉细节。"}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-3 mb-2">
+              <Badge variant="secondary" className="bg-blue-50 text-blue-700 hover:bg-blue-50 border-blue-200">LimiX 推理耗时：11s</Badge>
+              <Badge variant="secondary" className="bg-purple-50 text-purple-700 hover:bg-purple-50 border-purple-200">LLM 推理耗时：39s</Badge>
+            </div>
+            <div className="h-[300px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                {isClf ? (
+                  <ScatterChart margin={{ top: 20, right: 30, bottom: 40, left: 10 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={true} horizontal={true} stroke="#e2e8f0" />
+                    <XAxis 
+                      dataKey="timestamp" 
+                      type="number" 
+                      domain={['dataMin', 'dataMax']}
+                      tickFormatter={(ts) => {
+                          const d = new Date(ts);
+                          return `${d.getMonth()+1}-${d.getDate()}`;
+                      }}
+                      tick={{ fontSize: 10, fill: "#64748b" }} 
+                      tickLine={false} 
+                      axisLine={{ stroke: "#64748b" }} 
+                      interval={0}
+                      ticks={MOCK_CLF_COMPARISON_POINTS.filter(p => new Date(p.timestamp).getDate() % 2 === 0).map(p => p.timestamp)}
+                    />
+                    <YAxis 
+                      dataKey="y"
+                      type="number" 
+                      domain={[-0.5, 2.5]} 
+                      ticks={[0, 1, 2]} 
+                      tickFormatter={(val) => val === 2 ? "真实值" : val === 1 ? "LimiX" : "DeepSeek"}
+                      tick={{ fontSize: 11, fill: "#334155", fontWeight: 500 }} 
+                      tickLine={false} 
+                      axisLine={{ stroke: "#64748b" }} 
+                      width={70} 
+                    />
+                    <Tooltip 
+                        cursor={{ strokeDasharray: '3 3' }} 
+                        contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)" }}
+                        labelFormatter={(ts) => {
+                            const d = new Date(ts);
+                            return `${d.getMonth()+1}-${d.getDate()}`;
+                        }}
+                        formatter={(value, name) => [value === 1 ? "可搏 (1)" : "不可搏 (0)", name]}
+                    />
+                    <Legend 
+                        verticalAlign="top" 
+                        height={36} 
+                        content={(props) => (
+                            <div className="flex justify-center gap-4 text-xs mb-2">
+                                <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-[#589e5d]"></div>可搏 (1)</div>
+                                <div className="flex items-center gap-1"><svg width="10" height="10" viewBox="0 0 10 10"><line x1="2" y1="2" x2="8" y2="8" stroke="#ef4444" strokeWidth="2" /><line x1="8" y1="2" x2="2" y2="8" stroke="#ef4444" strokeWidth="2" /></svg>不可搏 (0)</div>
+                            </div>
+                        )}
+                    />
+                    {/* Truth Row (Y=2) */}
+                    <Scatter name="真实值" data={MOCK_CLF_COMPARISON_POINTS.map(d => ({ timestamp: d.timestamp, value: d.truth, y: 2 }))} shape={(props) => props.payload.value === null ? null : <CustomizedDot {...props} shape={props.payload.value === 1 ? "circle" : "cross"} />} />
+                    
+                    {/* LimiX Row (Y=1) */}
+                    <Scatter name="LimiX" data={MOCK_CLF_COMPARISON_POINTS.map(d => ({ timestamp: d.timestamp, value: d.limix, y: 1 }))} shape={(props) => props.payload.value === null ? null : <CustomizedDot {...props} shape={props.payload.value === 1 ? "circle" : "cross"} />} />
+                    
+                    {/* LLM Row (Y=0) */}
+                    <Scatter name="DeepSeek" data={MOCK_CLF_COMPARISON_POINTS.map(d => ({ timestamp: d.timestamp, value: d.llm, y: 0 }))} shape={(props) => props.payload.value === null ? null : <CustomizedDot {...props} shape={props.payload.value === 1 ? "circle" : "cross"} />} />
+                  </ScatterChart>
+                ) : (
+                  <LineChart data={MOCK_MODEL_COMPARISON} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                    <XAxis 
+                      dataKey="date" 
+                      tick={{ fontSize: 10, fill: "#64748b" }} 
+                      tickLine={false} 
+                      axisLine={false} 
+                      interval={4}
+                    />
+                    <YAxis 
+                      tick={{ fontSize: 10, fill: "#64748b" }} 
+                      tickLine={false} 
+                      axisLine={false} 
+                      width={40}
+                      domain={['auto', 'auto']}
+                    />
+                    <Tooltip
+                      contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)" }}
+                      cursor={{ stroke: "#94a3b8", strokeWidth: 1, strokeDasharray: "4 4" }}
+                      formatter={(value) => [`${value} 元/MWh`, ""]}
+                    />
+                    <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }}/>
+                    
+                    <Line type="monotone" dataKey="truth" name="真实值" stroke="#334155" strokeWidth={2} strokeDasharray="4 4" dot={false} />
+                    <Line type="monotone" dataKey="limix" name="LimiX" stroke="#2563eb" strokeWidth={2.5} dot={false} activeDot={{ r: 4 }} />
+                    <Line type="monotone" dataKey="llm" name="DeepSeek" stroke="#a855f7" strokeWidth={2} dot={false} />
+                  </LineChart>
+                )}
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       <div className="grid md:grid-cols-2 gap-3">
         {MOCK_COMPARE.map((c) => (
@@ -2213,45 +3374,25 @@ function ComparePanel({ notify, openModal }) {
                   {c.delivery}
                 </div>
               </div>
-              <div className="pt-2 flex items-center gap-2 flex-wrap">
-                <Button size="sm" className="rounded-xl" onClick={exportCompare}>导出对比报告</Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="rounded-xl"
-                  onClick={() => notify("已打开评测", "已打开同口径评测详情（Mock）")}
-                >
-                  查看同口径评测
-                </Button>
-              </div>
+
             </CardContent>
           </Card>
         ))}
       </div>
 
-      <Card className="rounded-2xl">
-        <CardHeader>
-          <CardTitle className="text-base">导演话术（投资人收口一句话）</CardTitle>
-          <CardDescription className="text-xs">少形容词，多证据。</CardDescription>
-        </CardHeader>
-        <CardContent className="text-sm leading-relaxed">
-          <div className="p-3 rounded-2xl bg-muted">“我们不卖一个更强的算法，我们卖一条把结构化数据稳定变成‘可解释决策与可交付服务’的流水线产品。对比卡里你看到的是：工作量更低、复现更强、交付更完整。”</div>
-        </CardContent>
-      </Card>
 
-      <div className="flex items-center gap-2">
-        <Button className="rounded-2xl" onClick={exportCompare}>一键导出全量对比</Button>
-        <Button variant="outline" className="rounded-2xl" onClick={() => notify("已复制", "对比墙链接已复制（Mock）")}>复制链接</Button>
-      </div>
+
+
     </div>
   );
 }
 
 export default function LimixDemoMockPreview() {
   const [active, setActive] = useState("datasets");
-  const [sceneId, setSceneId] = useState("gov_incident");
+  const [sceneId, setSceneId] = useState("sd_price");
   const [quickMode, setQuickMode] = useState(true);
-  const [datasetId, setDatasetId] = useState("incident_wide_v1");
+  const [datasetId, setDatasetId] = useState("test_+5_v1");
+  const [datasets, setDatasets] = useState(MOCK_DATASETS); // Initialize with mock data
   const [runs, setRuns] = useState(MOCK_RUNS_BASE);
 
   const [toasts, setToasts] = useState([]);
@@ -2285,19 +3426,31 @@ export default function LimixDemoMockPreview() {
       datasets: 0,
       health: 1,
       clean: 2,
-      features: 3,
-      tasks: 4,
-      results: 5,
-      explain: 6,
-      deliver: 7,
-      compare: 7,
+      tasks: 3,
+      results: 4,
+      explain: 5,
+      deliver: 6,
+      compare: 6,
     };
     return map[active] ?? 0;
   }, [active]);
 
   return (
-    <div className="min-h-screen bg-background">
-      <TopBar sceneId={sceneId} setSceneId={setSceneId} quickMode={quickMode} setQuickMode={setQuickMode} datasetId={datasetId} setDatasetId={setDatasetId} />
+    <div className="h-screen flex flex-col bg-slate-50/50 overflow-hidden font-sans selection:bg-blue-100 selection:text-blue-900">
+      <style>{`
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+      `}</style>
+      {/* Tech Background Pattern */}
+      <div className="fixed inset-0 pointer-events-none z-0 opacity-[0.03]" style={{
+        backgroundImage: `radial-gradient(#3b82f6 1px, transparent 1px), radial-gradient(#3b82f6 1px, transparent 1px)`,
+        backgroundSize: '24px 24px',
+        backgroundPosition: '0 0, 12px 12px'
+      }}></div>
+      
+      <TopBar sceneId={sceneId} setSceneId={setSceneId} quickMode={quickMode} setQuickMode={setQuickMode} datasetId={datasetId} setDatasetId={setDatasetId} datasets={datasets} />
 
       <Modal open={modal.open} title={modal.title} onClose={closeModal}>
         {modal.content}
@@ -2305,21 +3458,20 @@ export default function LimixDemoMockPreview() {
 
       <ToastStack toasts={toasts} dismiss={dismissToast} />
 
-      <div className="max-w-7xl mx-auto px-4 py-4">
-        <div className="mt-0 flex flex-col md:flex-row gap-4">
+      <div className="flex-1 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 py-4 h-full flex flex-col md:flex-row gap-4">
           <SideNav active={active} setActive={setActive} />
 
-          <div className="flex-1">
-            <div className="space-y-4">
-              {active === "datasets" && <DatasetsPanel datasetId={datasetId} setDatasetId={setDatasetId} notify={notify} openModal={openModal} />}
-              {active === "health" && <HealthPanel datasetId={datasetId} notify={notify} openModal={openModal} setActive={setActive} />}
-              {active === "clean" && <CleanPanel datasetId={datasetId} setDatasetId={setDatasetId} notify={notify} openModal={openModal} />}
-              {active === "features" && <FeaturesPanel notify={notify} openModal={openModal} />}
+          <div className="flex-1 h-full overflow-y-auto pr-1">
+            <div className="space-y-4 pb-8">
+              {active === "datasets" && <DatasetsPanel datasetId={datasetId} setDatasetId={setDatasetId} notify={notify} openModal={openModal} datasets={datasets} setDatasets={setDatasets} sceneId={sceneId} />}
+              {active === "health" && <HealthPanel key={datasetId} datasetId={datasetId} notify={notify} openModal={openModal} setActive={setActive} />}
+              {active === "clean" && <CleanPanel datasetId={datasetId} setDatasetId={setDatasetId} notify={notify} openModal={openModal} datasets={datasets} setDatasets={setDatasets} />}
               {active === "tasks" && <TasksPanel quickMode={quickMode} runs={runs} setRuns={setRuns} notify={notify} />}
-              {active === "results" && <ResultsPanel notify={notify} openModal={openModal} />}
+              {active === "results" && <ResultsPanel notify={notify} openModal={openModal} sceneId={sceneId} />}
               {active === "explain" && <ExplainPanel notify={notify} openModal={openModal} />}
-              {active === "deliver" && <DeliverPanel notify={notify} openModal={openModal} />}
-              {active === "compare" && <ComparePanel notify={notify} openModal={openModal} />}
+              {/* {active === "deliver" && <DeliverPanel notify={notify} openModal={openModal} />} */}
+              {active === "compare" && <ComparePanel notify={notify} openModal={openModal} sceneId={sceneId} />}
             </div>
           </div>
         </div>
