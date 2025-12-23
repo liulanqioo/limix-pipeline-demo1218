@@ -1175,7 +1175,7 @@ function TopBar({ sceneId, setSceneId, quickMode, setQuickMode, datasetId, setDa
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 flex items-center justify-center">
-            <img src="/logo.png?v=3" alt="LimiX Logo" className="h-10 w-10 object-contain" />
+            <img src={`${import.meta.env.BASE_URL}logo.png?v=3`} alt="LimiX Logo" className="h-10 w-10 object-contain" />
           </div>
           <div>
             <div className="text-base font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700">LimiX 流水线演示</div>

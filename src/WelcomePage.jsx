@@ -30,7 +30,7 @@ const WelcomePage = ({ onEnter }) => {
         <div className="relative mb-4 group">
            <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full blur opacity-40 group-hover:opacity-80 transition duration-1000 group-hover:duration-200"></div>
            <div className="relative flex items-center justify-center w-32 h-32 bg-slate-900 ring-1 ring-slate-900/5 rounded-full shadow-xl border border-slate-700/50">
-              <img src="/logo.png?v=3" alt="LimiX Logo" className="w-20 h-20 object-contain drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]" />
+              <img src={`${import.meta.env.BASE_URL}logo.png?v=3`} alt="LimiX Logo" className="w-20 h-20 object-contain drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]" />
             </div>
         </div>
 
