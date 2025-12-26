@@ -1,5 +1,5 @@
-import React, { useMemo, useState, useEffect } from "react";
-import { Select, Tag } from "@arco-design/web-react";
+import React, { useMemo, useState, useEffect, useRef } from "react";
+import { Select, Tag, Checkbox } from "@arco-design/web-react";
 import {
   Card,
   CardContent,
@@ -31,6 +31,8 @@ import {
   Code,
   X,
   Check,
+  Upload,
+  Activity,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -54,14 +56,14 @@ import {
 // 注意：本页面所有数据均为 Mock，仅用于演示“平台形态/页面结构/可视化证据链”。
 
 const NAV = [
-  { key: "datasets", name: "数据集导入", icon: Database },
-  { key: "health", name: "数据质量评估", icon: Stethoscope },
-  { key: "clean", name: "清洗方案", icon: Wand2 },
-  { key: "tasks", name: "任务", icon: ListTodo },
-  { key: "results", name: "结果", icon: BarChart3 },
-  { key: "explain", name: "解释", icon: ScanSearch },
+  { key: "datasets", name: "数据资产", icon: Database },
+  { key: "health", name: "数据评估", icon: Stethoscope },
+  { key: "clean", name: "数据清洗", icon: Wand2 },
+  { key: "tasks", name: "推理任务", icon: ListTodo },
+  { key: "results", name: "推理结果", icon: BarChart3 },
+  { key: "explain", name: "因果解释", icon: ScanSearch },
   // { key: "deliver", name: "交付", icon: Rocket },
-  { key: "compare", name: "对比", icon: ShieldCheck },
+  { key: "compare", name: "对比分析", icon: ShieldCheck },
 ];
 
 const SCENES = [
@@ -455,10 +457,10 @@ const MOCK_PREVIEW_ROWS_CLF_V1 = [
 // v1 / v2 的体检数据：只用于展示点击后的“可见变化”
 const HEALTH_V1 = {
   summary: [
-    { name: "缺失率", value: 5.2, unit: "%", hint: "光伏发电_日前 / 风力发电_日前" },
-    { name: "异常值", value: 2.1, unit: "%", hint: "全网负荷_日前<0 或 竞价空间_日前>100000" },
-    { name: "重复率", value: 1.5, unit: "%", hint: "同一 Time 重复" },
-    { name: "口径不一致", value: 4, unit: "项", hint: "MW/kW 单位混用" },
+    { name: "缺失率", value: 5.2, unit: "%" },
+    { name: "异常值", value: 2.1, unit: "%" },
+    { name: "重复率", value: 1.5, unit: "%" },
+    { name: "口径不一致", value: 4, unit: "项" },
   ],
   drift: [
     { day: "05/01", psi: 0.04 },
@@ -504,10 +506,10 @@ const HEALTH_V1 = {
 
 const HEALTH_CLF = {
   summary: [
-    { name: "缺失率", value: 5.2, unit: "%", hint: "光伏发电_日前 / 风力发电_日前" },
-    { name: "异常值", value: 2.1, unit: "%", hint: "全网负荷_日前<0 或 竞价空间_日前>100000" },
-    { name: "重复率", value: 1.5, unit: "%", hint: "同一 Time 重复" },
-    { name: "口径不一致", value: 4, unit: "项", hint: "MW/kW 单位混用" },
+    { name: "缺失率", value: 5.2, unit: "%" },
+    { name: "异常值", value: 2.1, unit: "%" },
+    { name: "重复率", value: 1.5, unit: "%" },
+    { name: "口径不一致", value: 4, unit: "项" },
   ],
   drift: HEALTH_V1.drift,
   missingHeat: HEALTH_V1.missingHeat,
@@ -539,6 +541,14 @@ const HEALTH_V2 = {
 const MOCK_CLEAN_RULES = [
   {
     id: "R-001",
+    name: "去重：基于 Time 字段保留最新",
+    type: "去重",
+    before: "重复 1.5%",
+    after: "重复 0.0%",
+    risk: "低",
+  },
+  {
+    id: "R-002",
     name: "单位换算：统一功率单位为 MW",
     type: "映射",
     before: "kW/MW 混杂",
@@ -546,7 +556,7 @@ const MOCK_CLEAN_RULES = [
     risk: "低",
   },
   {
-    id: "R-002",
+    id: "R-003",
     name: "缺失填补：光伏发电_日前 线性插值",
     type: "填补",
     before: "缺失 5.2%",
@@ -554,20 +564,12 @@ const MOCK_CLEAN_RULES = [
     risk: "中",
   },
   {
-    id: "R-003",
+    id: "R-004",
     name: "异常处理：负荷 < 0 修正为 0",
     type: "异常",
     before: "异常 2.1%",
     after: "异常 0.1%",
     risk: "中",
-  },
-  {
-    id: "R-004",
-    name: "去重：基于 Time 字段保留最新",
-    type: "去重",
-    before: "重复 1.5%",
-    after: "重复 0.0%",
-    risk: "低",
   },
 ];
 
@@ -590,6 +592,8 @@ const MOCK_RUNS_BASE = [
     durationSec: 45,
     metrics: { RMSE: 15.2, MAPE: 0.08 },
     version: "data:v2 · seed:42 · mode:精",
+    createTime: "2025-12-25 10:00:00",
+    finishTime: "2025-12-25 10:00:45",
   },
   {
     id: "run-B",
@@ -600,6 +604,56 @@ const MOCK_RUNS_BASE = [
     durationSec: 32,
     metrics: { RMSE: 16.5, MAPE: 0.09 },
     version: "data:v2 · seed:42 · mode:快",
+    createTime: "2025-12-25 10:05:00",
+    finishTime: "2025-12-25 10:05:32",
+  },
+  {
+    id: "run-D",
+    taskName: "日前电价预测_AutoGluon",
+    taskType: "回归",
+    target: "label",
+    status: "运行中",
+    durationSec: 0,
+    metrics: {},
+    version: "data:v2 · seed:42 · mode:精",
+    createTime: "2025-12-25 10:10:00",
+    finishTime: "-",
+  },
+  {
+    id: "run-E",
+    taskName: "日前电价预测_Limix",
+    taskType: "回归",
+    target: "label",
+    status: "排队中",
+    durationSec: 0,
+    metrics: {},
+    version: "data:v2 · seed:42 · mode:精",
+    createTime: "2025-12-25 10:12:00",
+    finishTime: "-",
+  },
+  {
+    id: "run-F",
+    taskName: "日前电价预测_CNN",
+    taskType: "回归",
+    target: "label",
+    status: "失败",
+    durationSec: 12,
+    metrics: {},
+    version: "data:v2 · seed:42 · mode:精",
+    createTime: "2025-12-25 09:50:00",
+    finishTime: "2025-12-25 09:50:12",
+  },
+  {
+    id: "run-G",
+    taskName: "日前电价预测_Old",
+    taskType: "回归",
+    target: "label",
+    status: "已归档",
+    durationSec: 50,
+    metrics: { RMSE: 18.2, MAPE: 0.12 },
+    version: "data:v1 · seed:42 · mode:快",
+    createTime: "2025-12-24 15:00:00",
+    finishTime: "2025-12-24 15:00:50",
   },
   {
     id: "run-C",
@@ -610,6 +664,8 @@ const MOCK_RUNS_BASE = [
     durationSec: 28,
     metrics: { MAE: 5.4, R2: 0.92 },
     version: "data:v1 · seed:42 · mode:快",
+    createTime: "2025-12-25 09:00:00",
+    finishTime: "2025-12-25 09:00:28",
   },
 ];
 
@@ -664,12 +720,16 @@ const MOCK_PRICE_PREDICTION = Array.from({ length: 30 }, (_, i) => {
   date.setDate(date.getDate() + i + 1);
   const base = 350 + Math.sin(i / 5) * 50;
   const random = (Math.random() - 0.5) * 30;
+  const pred = Math.round(base + random);
+  // Confidence interval width varies: grows slightly with time + random fluctuation
+  const interval = 15 + (i * 0.8) + Math.random() * 10;
+  
   return {
     date: `${date.getMonth() + 1}/${date.getDate()}`,
     actual: null, // Future data has no actual
-    pred: Math.round(base + random),
-    upper: Math.round(base + random + 20),
-    lower: Math.round(base + random - 20),
+    pred: pred,
+    upper: Math.round(pred + interval),
+    lower: Math.round(pred - interval),
   };
 });
 
@@ -886,7 +946,7 @@ function clamp01(x) {
 function nowTimeStr() {
   const d = new Date();
   const pad = (x) => String(x).padStart(2, "0");
-  return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
 const MOCK_INFLUENCE_FACTORS = [
@@ -1092,16 +1152,18 @@ function HeatGrid({ rows, cols, matrix, minLabel = "低", maxLabel = "高" }) {
 function MetricPill({ label, value, unit, hint }) {
   return (
     <Card className="rounded-2xl border-slate-200/60 shadow-sm bg-white/50 hover:shadow-md hover:border-blue-200 hover:bg-white transition-all duration-300">
-      <CardHeader className="pb-2">
+      <CardHeader className="p-3">
         <CardDescription className="text-xs">{label}</CardDescription>
-        <CardTitle className="text-2xl">
+        <CardTitle className="text-xl mt-0.5">
           {value}
-          <span className="text-sm text-muted-foreground">{unit}</span>
+          <span className="text-sm text-muted-foreground ml-1">{unit}</span>
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="text-xs text-muted-foreground">{hint}</div>
-      </CardContent>
+      {hint && (
+        <CardContent className="px-3 pb-3 pt-0">
+          <div className="text-xs text-muted-foreground">{hint}</div>
+        </CardContent>
+      )}
     </Card>
   );
 }
@@ -1178,8 +1240,7 @@ function TopBar({ sceneId, setSceneId, quickMode, setQuickMode, datasetId, setDa
             <img src="/logo.png?v=3" alt="LimiX Logo" className="h-10 w-10 object-contain" />
           </div>
           <div>
-            <div className="text-base font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700">LimiX 流水线演示</div>
-            <div className="text-xs text-slate-500 font-medium">平台形态：从数据到决策的流水线（可视化证据链）</div>
+            <div className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700 leading-10">LimiX通用数据分析平台（演示端）</div>
           </div>
         </div>
 
@@ -1304,10 +1365,10 @@ function SideNav({ active, setActive }) {
 
 function SectionTitle({ icon: Icon, title, desc, right }) {
   return (
-    <div className="flex items-start justify-between gap-3">
-      <div className="flex items-start gap-2">
+    <div className={`flex justify-between gap-3 ${desc ? "items-start" : "items-center"}`}>
+      <div className={`flex gap-2 ${desc ? "items-start" : "items-center"}`}>
         {Icon ? (
-          <div className="mt-1 h-9 w-9 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 shadow-sm border border-blue-100">
+          <div className={`${desc ? "mt-1" : ""} h-9 w-9 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 shadow-sm border border-blue-100`}>
             <Icon className="h-5 w-5" />
           </div>
         ) : null}
@@ -1379,22 +1440,31 @@ function DatasetsPanel({ datasetId, setDatasetId, notify, openModal, datasets, s
     <div className="space-y-4">
       <SectionTitle
         icon={Database}
-        title="数据集（导入）"
-        desc="把数据变成资产"
+        title="数据资产"
         right={
           <div className="flex items-center gap-2">
             <Button
               className="rounded-2xl"
               onClick={() =>
                 openModal(
-                  "上传 CSV",
-                  <div className="space-y-3">
-                    <div className="text-sm">这里演示“上传动作有反馈”。真实实现可对接对象存储/数据湖。</div>
-                    <div className="p-3 rounded-2xl bg-muted text-xs">
-                      已模拟上传：custom_upload.csv（15K 行 / 17 列） → 生成数据版本 v1
+                  "数据上传",
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">数据集名称 <span className="text-red-500">*</span></label>
+                      <Input placeholder="请输入数据集名称" className="rounded-xl" />
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Button className="rounded-2xl" onClick={() => {
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">文件上传</label>
+                      <div className="border-2 border-dashed border-slate-200 rounded-xl h-40 flex flex-col items-center justify-center gap-3 text-slate-500 hover:bg-slate-50 transition-colors cursor-pointer">
+                        <Upload className="h-8 w-8 text-slate-400" />
+                        <div className="text-sm">拖拽文件到此处，或点击选择文件</div>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end gap-3 pt-2">
+                      <Button variant="outline" className="rounded-xl" onClick={() => notify("已取消", "未做更改")}>取消</Button>
+                      <Button className="rounded-xl" onClick={() => {
                         const newId = `custom_${Date.now()}_v1`;
                         const newDataset = {
                             id: newId,
@@ -1410,8 +1480,10 @@ function DatasetsPanel({ datasetId, setDatasetId, notify, openModal, datasets, s
                         setDatasets(prev => [...prev, newDataset]);
                         setDatasetId(newId);
                         notify("上传完成", `已上传 ${newDataset.name} 并自动选中`);
-                      }}>确认</Button>
-                      <Button variant="outline" className="rounded-2xl" onClick={() => notify("已取消", "未做更改")}>取消</Button>
+                      }}>
+                        <Upload className="h-4 w-4 mr-2" />
+                        开始上传
+                      </Button>
                     </div>
                   </div>
                 )
@@ -1424,9 +1496,8 @@ function DatasetsPanel({ datasetId, setDatasetId, notify, openModal, datasets, s
               className="rounded-2xl"
               onClick={() =>
                 openModal(
-                  "连接数据库（Mock）",
+                  "连接数据库",
                   <div className="space-y-3">
-                    <div className="text-sm">这里演示“连接动作”。真实实现可对接 MySQL/PostgreSQL/ClickHouse 等。</div>
                     <div className="p-3 rounded-2xl bg-muted text-xs font-mono">jdbc:postgresql://host:5432/db</div>
                     <div className="flex items-center gap-2">
                       <Button className="rounded-2xl" onClick={() => notify("连接成功", "已创建数据源 data-source:pg01（Mock）")}>测试连接</Button>
@@ -1445,32 +1516,18 @@ function DatasetsPanel({ datasetId, setDatasetId, notify, openModal, datasets, s
       <Card className="rounded-2xl">
         <CardHeader>
           <CardTitle className="text-base">当前选择</CardTitle>
-          <CardDescription className="text-xs">演示建议：用 v1 先体检，再一键清洗生成 v2</CardDescription>
         </CardHeader>
-        <CardContent className="grid md:grid-cols-3 gap-3">
+        <CardContent className="grid md:grid-cols-2 gap-3">
           <Card className="rounded-2xl">
             <CardContent className="p-4">
-              <div className="text-xs text-muted-foreground">数据集</div>
-              <div className="mt-1 font-semibold">{dataset?.name} · {dataset?.version}</div>
+              <div className="flex items-center h-7 text-xs text-muted-foreground">数据集</div>
+              <div className="mt-2 font-semibold">{dataset?.name} · {dataset?.version}</div>
             </CardContent>
           </Card>
           <Card className="rounded-2xl">
             <CardContent className="p-4">
-              <div className="text-xs text-muted-foreground">规模</div>
-              <div className="mt-1 font-semibold">{formatNum(dataset?.rows)} 行 · {dataset?.cols} 列</div>
-              <div className="mt-2 text-xs text-muted-foreground">时间范围：{dataset?.timeRange}</div>
-            </CardContent>
-          </Card>
-          <Card className="rounded-2xl">
-            <CardContent className="p-4">
-              <div className="flex justify-between items-center">
-                <div className="text-xs text-muted-foreground">数据可用性（体检分）</div>
-                <div className="text-xl font-bold text-primary">{dataset?.qualityScore}</div>
-              </div>
-              <div className="mt-2">
-                <Progress value={dataset?.qualityScore ?? 0} />
-              </div>
-              <div className="mt-2 text-xs text-muted-foreground">建议阈值：≥80 才进入对外交付</div>
+              <div className="flex items-center h-7 text-xs text-muted-foreground">规模</div>
+              <div className="mt-2 font-semibold">{formatNum(dataset?.rows)} 行 · {dataset?.cols} 列</div>
             </CardContent>
           </Card>
         </CardContent>
@@ -1479,7 +1536,6 @@ function DatasetsPanel({ datasetId, setDatasetId, notify, openModal, datasets, s
       <Card className="rounded-2xl">
         <CardHeader>
           <CardTitle className="text-base">字段字典（节选）</CardTitle>
-          <CardDescription className="text-xs">看懂每个字段“能做什么决策”</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-auto">
@@ -1580,8 +1636,7 @@ function HealthPanel({ datasetId, notify, openModal, setActive }) {
     <div className="space-y-4">
       <SectionTitle
         icon={Stethoscope}
-        title="数据体检（信任建立的第一屏）"
-        desc="让业务先看到：数据靠谱不靠谱、问题在哪里、怎么修。"
+        title="数据评估"
         right={
           <div className="flex items-center gap-2">
             <Button className="rounded-2xl" onClick={doCheck} disabled={running}>
@@ -1590,31 +1645,13 @@ function HealthPanel({ datasetId, notify, openModal, setActive }) {
             <Button
               variant="outline"
               className="rounded-2xl"
-              onClick={() =>
-                openModal(
-                  "体检报告（Mock）",
-                  <div className="space-y-3">
-                    <div className="text-sm">这份报告要回答两句话：数据哪里烂？烂到什么程度？</div>
-                    <div className="grid grid-cols-1 gap-3">
-                      <div className="p-3 rounded-2xl bg-muted text-sm">
-                        <div className="text-xs text-muted-foreground">本次体检时间</div>
-                        <div className="mt-1 font-semibold">{lastRunAt ? lastRunAt : "尚未运行"}</div>
-                      </div>
-                      <div className="p-3 rounded-2xl bg-muted text-sm">
-                        <div className="text-xs text-muted-foreground">建议下一步</div>
-                        <div className="mt-1">生成清洗策略 → 预览变更 → 应用生成新版本</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button className="rounded-2xl" onClick={() => setActive("clean")}>去生成清洗方案</Button>
-                      <Button variant="outline" className="rounded-2xl" onClick={() => notify("已复制", "报告链接已复制（Mock）")}>复制链接</Button>
-                    </div>
-                  </div>
-                )
-              }
-            >
-              查看报告
-            </Button>
+              onClick={() => {
+                 notify("已生成建议", "已为 Top 缺失字段生成“填补/补采集”建议（Mock）");
+                 setActive("clean");
+               }}
+             >
+               准备清洗
+             </Button>
           </div>
         }
       />
@@ -1637,14 +1674,18 @@ function HealthPanel({ datasetId, notify, openModal, setActive }) {
       <Card className="rounded-2xl">
         <CardHeader>
           <CardTitle className="text-base">数据表预览（前 10 行）</CardTitle>
-          <CardDescription className="text-xs">回答问题：数据长什么样？缺失值在哪里？</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <table className="w-full text-sm border-collapse">
               <thead>
                 <tr>
-                  <th className="p-2 text-left min-w-[60px] font-medium text-muted-foreground bg-muted/30 first:rounded-tl-xl first:rounded-bl-xl">序号</th>
+                  <th className="p-2 text-left min-w-[60px] align-bottom bg-muted/30 first:rounded-tl-xl first:rounded-bl-xl">
+                    <div className="flex flex-col gap-2 pb-1">
+                      <div className="h-5"></div>
+                      <div className="font-semibold text-slate-700 whitespace-nowrap">序号</div>
+                    </div>
+                  </th>
                   {activeSchema.slice(0, 10).map((col) => {
                     const stats = MOCK_PREVIEW_STATS[col.k] || { unique: "-", missing: "0%" };
                     const missingRate = parseFloat(stats.missing);
@@ -1695,27 +1736,14 @@ function HealthPanel({ datasetId, notify, openModal, setActive }) {
             </table>
           </div>
           
-          <div className="mt-4 flex items-center gap-2">
-            <Button
-              size="sm"
-              className="rounded-xl"
-              onClick={() => {
-                notify("已生成建议", "已为 Top 缺失字段生成“填补/补采集”建议（Mock）");
-                setActive("clean");
-              }}
-            >
-              生成治理建议
-            </Button>
 
-          </div>
         </CardContent>
       </Card>
 
       <div className="grid grid-cols-1 gap-3">
         <Card className="rounded-2xl">
           <CardHeader>
-            <CardTitle className="text-base">口径一致性（Top 问题）</CardTitle>
-            <CardDescription className="text-xs">回答问题：为什么统计对不上？下一步：一键映射标准码表。</CardDescription>
+            <CardTitle className="text-base">口径一致性</CardTitle>
           </CardHeader>
           <CardContent className="grid md:grid-cols-2 gap-3">
             {health.inconsistencies.map((it) => {
@@ -1724,40 +1752,9 @@ function HealthPanel({ datasetId, notify, openModal, setActive }) {
                 <div key={it.id} className="p-3 rounded-2xl border">
                   <div className="flex items-center justify-between">
                     <div className="font-semibold">{it.field}</div>
-                    <Badge variant={done ? "secondary" : "outline"} className="rounded-xl">
-                      {done ? "已映射" : "需治理"}
-                    </Badge>
                   </div>
                   <div className="mt-2 text-xs text-muted-foreground">示例：{it.examples.join(" / ")}</div>
                   <div className="mt-2 text-sm">影响：{it.impact}</div>
-                  <div className="mt-3 flex items-center gap-2">
-                    <Button size="sm" className="rounded-xl" onClick={() => toggleResolve(it.id, it.field)}>
-                      {done ? "撤销映射" : "一键映射"}
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="rounded-xl"
-                      onClick={() =>
-                        openModal(
-                          "映射预览（Mock）",
-                          <div className="space-y-3">
-                            <div className="text-sm">字段：{it.field}</div>
-                            <div className="p-3 rounded-2xl bg-muted text-xs">示例映射：{it.examples.join(" → ")} → 标准码</div>
-                            <div className="p-3 rounded-2xl border text-sm">影响范围（Mock）：覆盖 68% 历史值；剩余 32% 进入人工核对队列</div>
-                            <div className="flex items-center gap-2">
-                              <Button className="rounded-2xl" onClick={() => toggleResolve(it.id, it.field)}>
-                                应用映射
-                              </Button>
-                              <Button variant="outline" className="rounded-2xl" onClick={() => notify("已取消", "未做更改")}>取消</Button>
-                            </div>
-                          </div>
-                        )
-                      }
-                    >
-                      预览
-                    </Button>
-                  </div>
                 </div>
               );
             })}
@@ -1773,8 +1770,11 @@ function HealthPanel({ datasetId, notify, openModal, setActive }) {
 }
 
 function CleanPanel({ datasetId, setDatasetId, notify, openModal, datasets, setDatasets }) {
-  const [generated, setGenerated] = useState(false);
+  const [generated, setGenerated] = useState(true);
   const [applying, setApplying] = useState(false);
+  const [hasCleaned, setHasCleaned] = useState(false);
+  const cleaningRef = useRef(false);
+
   const [ruleState, setRuleState] = useState(() => {
     const o = {};
     MOCK_CLEAN_RULES.forEach((r) => {
@@ -1784,8 +1784,16 @@ function CleanPanel({ datasetId, setDatasetId, notify, openModal, datasets, setD
   });
 
   useEffect(() => {
-    setGenerated(false);
+    // setGenerated(false); // Removed as per user request to skip strategy generation step
     setApplying(false);
+    
+    // Only reset hasCleaned if the datasetId change was NOT caused by our cleaning process
+    if (cleaningRef.current) {
+      cleaningRef.current = false;
+    } else {
+      setHasCleaned(false);
+    }
+
     setRuleState(() => {
       const o = {};
       MOCK_CLEAN_RULES.forEach((r) => {
@@ -1802,25 +1810,17 @@ function CleanPanel({ datasetId, setDatasetId, notify, openModal, datasets, setD
 
   const previewDiff = () => {
     openModal(
-      "预览变更（Mock）",
+      "预览变更",
       <div className="space-y-3">
-        <div className="text-sm">这一步要回答：改了什么？影响多少行？风险是什么？</div>
-        <div className="grid md:grid-cols-3 gap-3">
+        <div className="grid md:grid-cols-2 gap-3">
           <div className="p-3 rounded-2xl border">
             <div className="text-xs text-muted-foreground">预计影响行数</div>
-            <div className="mt-1 font-semibold">~ {formatNum(36842)} 行</div>
+            <div className="mt-1 font-semibold">{formatNum(36842)} 行</div>
           </div>
           <div className="p-3 rounded-2xl border">
             <div className="text-xs text-muted-foreground">缺失率变化</div>
             <div className="mt-1 font-semibold">7.8% → 0.3%</div>
           </div>
-          <div className="p-3 rounded-2xl border">
-            <div className="text-xs text-muted-foreground">风险项</div>
-            <div className="mt-1 font-semibold">2 项（需抽检）</div>
-          </div>
-        </div>
-        <div className="p-3 rounded-2xl bg-muted text-sm">
-          示例：event_type_code 口径统一将减少分组误差；resolve_minutes 截断会影响极端样本，建议抽检 200 条。
         </div>
         <div className="flex items-center gap-2">
           <Button className="rounded-2xl" onClick={() => notify("已创建抽检任务", "已抽样 200 条加入审核队列（Mock）")}>创建抽检</Button>
@@ -1845,7 +1845,10 @@ function CleanPanel({ datasetId, setDatasetId, notify, openModal, datasets, setD
              setDatasetId(newId);
          } else {
              // Generate V2 for custom datasets
-             newId = current.id.replace(/_v1$/, '') + '_v2';
+             // Prevent double v2 suffix if already v2
+             const baseId = current.id.endsWith('_v2') ? current.id.slice(0, -3) : current.id.replace(/_v1$/, '');
+             newId = baseId + '_v2';
+             
              const existing = datasets.find(d => d.id === newId);
              if (!existing) {
                 const newDataset = {
@@ -1868,6 +1871,8 @@ function CleanPanel({ datasetId, setDatasetId, notify, openModal, datasets, setD
       }
       
       notify("清洗完成", "已生成 v2（清洗后）。下一步：去任务页跑多任务 Run。")
+      cleaningRef.current = true;
+      setHasCleaned(true);
     }, 1100);
   };
 
@@ -1901,18 +1906,11 @@ function CleanPanel({ datasetId, setDatasetId, notify, openModal, datasets, setD
     <div className="space-y-4">
       <SectionTitle
         icon={Wand2}
-        title="清洗方案（可预览、可回滚）"
-        desc="把自动化变成“可审计的变更”：规则列表 + 前后对比 + 生成新版本"
+        title="数据清洗"
         right={
           <div className="flex items-center gap-2 flex-wrap justify-end">
-            <Button className="rounded-2xl" onClick={genStrategy}>
-              自动生成清洗策略
-            </Button>
-            <Button variant="outline" className="rounded-2xl" onClick={previewDiff} disabled={!generated}>
-              预览变更
-            </Button>
-            <Button className="rounded-2xl" onClick={applyToV2} disabled={!canApply || applying}>
-              {applying ? "生成中…" : isV2 ? "已是 v2" : "应用生成 v2"}
+            <Button className="rounded-2xl" onClick={applyToV2} disabled={!generated || applying || hasCleaned}>
+              {applying ? "清洗中…" : hasCleaned ? "已清洗" : "一键清洗"}
             </Button>
           </div>
         }
@@ -1922,15 +1920,14 @@ function CleanPanel({ datasetId, setDatasetId, notify, openModal, datasets, setD
         <Badge className="rounded-xl" variant={isV2 ? "secondary" : "outline"}>
           当前数据：{isV2 ? "v2（清洗后）" : "v1（含脏数据）"}
         </Badge>
-        <Badge className="rounded-xl" variant={generated ? "secondary" : "outline"}>
+        {/* <Badge className="rounded-xl" variant={generated ? "secondary" : "outline"}>
           策略状态：{generated ? "已生成" : "未生成"}
-        </Badge>
+        </Badge> */}
       </div>
 
       <Card className="rounded-2xl">
         <CardHeader>
           <CardTitle className="text-base">规则清单</CardTitle>
-          <CardDescription className="text-xs">回答问题：做了哪些变更？风险是什么？下一步：应用到新版本。</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           {MOCK_CLEAN_RULES.map((r) => {
@@ -1944,19 +1941,7 @@ function CleanPanel({ datasetId, setDatasetId, notify, openModal, datasets, setD
                     </Badge>
                     <div className="font-semibold">{r.name}</div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Badge className="rounded-xl" variant="secondary">
-                      {r.type}
-                    </Badge>
-                    <Badge className="rounded-xl" variant={r.risk === "低" ? "outline" : "destructive"}>
-                      风险：{r.risk}
-                    </Badge>
-                    {st.list !== "none" && (
-                      <Badge className="rounded-xl" variant={st.list === "white" ? "secondary" : "destructive"}>
-                        {st.list === "white" ? "白名单" : "黑名单"}
-                      </Badge>
-                    )}
-                  </div>
+
                 </div>
 
                 <div className="mt-3 grid md:grid-cols-2 gap-3 text-sm">
@@ -1975,44 +1960,20 @@ function CleanPanel({ datasetId, setDatasetId, notify, openModal, datasets, setD
                     <div className="flex items-center justify-between flex-wrap gap-2">
                       <div className="text-xs text-muted-foreground">最近试跑：{st.lastDryRun.time}</div>
                       <Badge className="rounded-xl" variant={st.lastDryRun.warn ? "destructive" : "secondary"}>
-                        影响 ~{formatNum(st.lastDryRun.affected)} 行
+                        影响 {formatNum(st.lastDryRun.affected)} 行
                       </Badge>
                     </div>
-                    <div className="mt-2 text-xs text-muted-foreground">
-                      {st.lastDryRun.warn ? "建议：抽检样本 & 确认业务口径（Mock）" : "建议：可进入整体应用（Mock）"}
-                    </div>
+                    {st.lastDryRun.warn && (
+                      <div className="mt-2 text-xs text-muted-foreground">
+                        建议：抽检样本 & 确认业务口径（Mock）
+                      </div>
+                    )}
                   </div>
                 ) : null}
 
-                <div className="mt-3 flex items-center gap-2 flex-wrap">
-                  <Button size="sm" className="rounded-xl" onClick={() => dryRun(r.id)} disabled={!generated}>
-                    单条试跑
-                  </Button>
-                  <Button size="sm" variant="outline" className="rounded-xl" onClick={() => toggleList(r.id)} disabled={!generated}>
-                    加入白名单/黑名单
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="rounded-xl"
-                    onClick={() =>
-                      openModal(
-                        "变更回滚点（Mock）",
-                        <div className="space-y-3">
-                          <div className="text-sm">每次应用都会生成新版本：data:v2，并保存回滚点。</div>
-                          <div className="p-3 rounded-2xl bg-muted text-xs font-mono">rollback_to: data:v1</div>
-                          <Button className="rounded-2xl" onClick={() => notify("已创建回滚点", "回滚点已保存（Mock）")}>确认</Button>
-                        </div>
-                      )
-                    }
-                  >
-                    查看回滚点
-                  </Button>
-                </div>
 
-                {!generated ? (
-                  <div className="mt-3 text-xs text-muted-foreground">提示：先点右上角【自动生成清洗策略】再操作。</div>
-                ) : null}
+
+
               </div>
             );
           })}
@@ -2186,11 +2147,62 @@ function FeaturesPanel({ notify, openModal }) {
   );
 }
 
-function TasksPanel({ quickMode, runs, setRuns, notify }) {
+function TasksPanel({ quickMode, runs, setRuns, notify, sceneId, datasetId, setDatasetId, datasets }) {
   const [name, setName] = useState("电价预测");
   const [type, setType] = useState("时序预测");
   const [target, setTarget] = useState("label");
   const [running, setRunning] = useState(false);
+  const [selectedFeatures, setSelectedFeatures] = useState([]);
+  const [selectedModels, setSelectedModels] = useState(["limix", "autogluon", "deepseek"]);
+  const [timeColumn, setTimeColumn] = useState("");
+
+  const models = [
+    {
+      id: "limix",
+      name: "Limix",
+      badges: [
+        { text: "数据大模型", variant: "secondary" }
+      ],
+      desc: "limix自研结构化数据大模型，支持多种任务",
+      meta: "大小: 78.9MB   支持任务: classification, regression, forecasting",
+      tags: []
+    },
+    {
+      id: "autogluon",
+      name: "AutoGluon",
+      badges: [
+        { text: "机器学习", variant: "secondary" }
+      ],
+      desc: "强大的自动化机器学习框架，自动训练和组合多个模型",
+      meta: "大小: 150MB   支持任务: classification, regression, forecasting",
+      tags: []
+    },
+    {
+      id: "deepseek",
+      name: "DeepSeek",
+      badges: [
+        { text: "大语言模型", variant: "secondary" }
+      ],
+      desc: "深度求索新一代大模型，具备强大的逻辑推理与代码能力",
+      meta: "大小: 671B   支持任务: reasoning, extraction",
+      tags: []
+    }
+  ];
+
+  const currentDataset = datasets?.find(d => d.id === datasetId);
+
+  const columns = useMemo(() => {
+    return sceneId === "sd_high_price_clf" 
+      ? MOCK_SCHEMA_CLF.map(c => c.k) 
+      : MOCK_SCHEMA.map(c => c.k);
+  }, [sceneId]);
+
+  useEffect(() => {
+    setSelectedFeatures(columns);
+    if (columns.length > 0) {
+      setTimeColumn(columns[0]);
+    }
+  }, [columns]);
 
   const runOne = () => {
     setRunning(true);
@@ -2214,6 +2226,8 @@ function TasksPanel({ quickMode, runs, setRuns, notify }) {
             ? { MAE: quickMode ? 4.2 : 3.7, R2: quickMode ? 0.83 : 0.87 }
             : { PR_AUC: quickMode ? 0.41 : 0.46, TopK: "Top 1%" },
         version: `data:v2 · seed:42 · mode:${quickMode ? "快" : "准"}`,
+        createTime: nowTimeStr(),
+        finishTime: nowTimeStr(),
       };
       setRuns([newRun, ...runs]);
       setRunning(false);
@@ -2225,111 +2239,204 @@ function TasksPanel({ quickMode, runs, setRuns, notify }) {
     <div className="space-y-4">
       <SectionTitle
         icon={ListTodo}
-        title="任务（多任务同接口：分类/回归/填补/异常）"
-        desc="演示关键：同一份数据，一次选择，多任务跑通。"
-        right={
-          <Button className="rounded-2xl" onClick={runOne} disabled={running}>
-            {running ? "运行中…" : "运行"}
-          </Button>
-        }
+        title="推理任务"
       />
 
       <Card className="rounded-2xl">
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between pb-4">
           <CardTitle className="text-base">新建任务</CardTitle>
-          <CardDescription className="text-xs">回答问题：我要预测什么？任务类型是什么？下一步：一键运行生成 Run。</CardDescription>
+          <Button className="rounded-2xl" onClick={runOne} disabled={running}>
+            {running ? "运行中…" : "运行"}
+          </Button>
         </CardHeader>
         <CardContent className="grid md:grid-cols-3 gap-3">
           <div>
             <div className="text-xs text-muted-foreground">任务名称</div>
-            <Input value={name} onChange={(e) => setName(e.target.value)} className="rounded-2xl mt-2" />
+            <Input value={name} onChange={(e) => setName(e.target.value)} className="rounded-2xl mt-2 h-8" />
           </div>
           <div>
             <div className="text-xs text-muted-foreground">任务类型</div>
             <select
-              className="w-full rounded-2xl border bg-transparent px-3 py-2 mt-2 text-sm"
+              className="w-full rounded-2xl border border-input bg-background px-3 h-8 mt-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               value={type}
               onChange={(e) => {
                 setType(e.target.value);
-                if (e.target.value === "时序预测") setTarget("label");
-                if (e.target.value === "分类") setTarget("is_overdue_30m");
-                if (e.target.value === "回归") setTarget("resolve_minutes");
-                if (e.target.value === "填补") setTarget("arrive_minutes");
+                setTarget("label");
               }}
             >
               <option>时序预测</option>
               <option>分类</option>
               <option>回归</option>
-              <option>填补</option>
             </select>
           </div>
           <div>
+             <div className="text-xs text-muted-foreground">当前数据版本</div>
+             <div className="w-full rounded-2xl border border-input bg-slate-50 px-3 h-8 mt-2 text-sm font-mono text-muted-foreground flex items-center">
+               {currentDataset ? currentDataset.version : ""}
+             </div>
+          </div>
+          <div>
             <div className="text-xs text-muted-foreground">目标字段（Y 或待填补字段）</div>
-            <Input value={target} onChange={(e) => setTarget(e.target.value)} className="rounded-2xl mt-2 font-mono" />
+            <select
+              className="w-full rounded-2xl border border-input bg-background px-3 h-8 mt-2 text-sm font-mono focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              value={target}
+              onChange={(e) => setTarget(e.target.value)}
+            >
+              {columns.map((col) => (
+                <option key={col} value={col}>
+                  {col}
+                </option>
+              ))}
+            </select>
+          </div>
+          {type === "时序预测" && (
+            <div>
+              <div className="text-xs text-muted-foreground">时间列</div>
+              <select
+                className="w-full rounded-2xl border border-input bg-background px-3 h-8 mt-2 text-sm font-mono focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                value={timeColumn}
+                onChange={(e) => setTimeColumn(e.target.value)}
+              >
+                {columns.map((col) => (
+                  <option key={col} value={col}>
+                    {col}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          <div className="md:col-span-3 mt-2">
+            <div className="flex items-center justify-between mb-2">
+                <div className="text-xs text-muted-foreground">特征字段（可选）</div>
+                <div className="flex items-center gap-2">
+                    <Checkbox 
+                        checked={selectedFeatures.length === columns.length} 
+                        indeterminate={selectedFeatures.length > 0 && selectedFeatures.length < columns.length}
+                        onChange={(checked) => setSelectedFeatures(checked ? columns : [])}
+                    >
+                        <span className="text-xs text-muted-foreground">全选 / 清空</span>
+                    </Checkbox>
+                </div>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 border rounded-xl p-3 bg-slate-50/50 max-h-[150px] overflow-y-auto">
+                {columns.map(col => (
+                    <div key={col} className="flex items-center gap-2">
+                        <Checkbox 
+                            checked={selectedFeatures.includes(col)} 
+                            onChange={(checked) => {
+                                if (checked) {
+                                    setSelectedFeatures(prev => [...prev, col]);
+                                } else {
+                                    setSelectedFeatures(prev => prev.filter(c => c !== col));
+                                }
+                            }}
+                        >
+                            <span className="text-sm font-mono truncate" title={col}>{col}</span>
+                        </Checkbox>
+                    </div>
+                ))}
+            </div>
+          </div>
+          <div className="md:col-span-3 mt-6">
+             <div className="flex items-center gap-2 mb-2">
+                <Activity className="w-4 h-4" />
+                <span className="font-semibold text-base">模型选择</span>
+             </div>
+             <div className="text-xs text-muted-foreground mb-3">
+                <span className="text-red-500 mr-1">*</span>
+                选择多个模型进行并行运行和对比
+             </div>
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {models.map((model) => (
+                  <div key={model.id} className="border rounded-xl p-4 hover:bg-slate-50 transition-colors">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-lg">{model.name}</span>
+                        {model.badges.map((badge, idx) => (
+                          <Badge key={idx} variant={badge.variant} className="rounded-md">
+                            {badge.text}
+                          </Badge>
+                        ))}
+                      </div>
+                      <Checkbox 
+                        checked={selectedModels.includes(model.id)}
+                        onChange={(checked) => {
+                          if (checked) {
+                            setSelectedModels(prev => [...prev, model.id]);
+                          } else {
+                            setSelectedModels(prev => prev.filter(id => id !== model.id));
+                          }
+                        }}
+                      />
+                    </div>
+                    <div className="text-sm text-slate-600 mb-2">
+                      {model.desc}
+                    </div>
+                    <div className="flex gap-2">
+                      {model.tags.map((tag, idx) => (
+                        <span key={idx} className="px-2 py-1 bg-slate-100 rounded-full text-xs text-slate-600 border">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+             </div>
           </div>
         </CardContent>
       </Card>
 
       <Card className="rounded-2xl">
         <CardHeader>
-          <CardTitle className="text-base">Run 列表</CardTitle>
-          <CardDescription className="text-xs">每个 Run 都固化“数据版本 / 种子 / 模式”，可复现。</CardDescription>
+          <CardTitle className="text-base">任务列表</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-muted-foreground">
-                  <th className="py-2">任务</th>
-                  <th className="py-2">类型</th>
-                  <th className="py-2">目标</th>
-                  <th className="py-2">指标</th>
-                  <th className="py-2">耗时</th>
-                  <th className="py-2">复现信息</th>
+                  <th className="py-2">任务名称</th>
+                  <th className="py-2">任务ID</th>
+                  <th className="py-2">任务类型</th>
+                  <th className="py-2">运行状态</th>
+                  <th className="py-2">数据集</th>
+                  <th className="py-2">创建时间</th>
+                  <th className="py-2">完成时间</th>
                 </tr>
               </thead>
               <tbody>
-                {runs.map((r) => (
+                {runs.filter(r => r.taskName !== "缺失值填补_RF").map((r) => (
                   <tr key={r.id} className="border-t">
                     <td className="py-2 font-semibold">{r.taskName}</td>
+                    <td className="py-2 font-mono text-xs text-muted-foreground">{r.id}</td>
                     <td className="py-2">
                       <Badge className="rounded-xl" variant="outline">
                         {r.taskType}
                       </Badge>
                     </td>
-                    <td className="py-2 font-mono">{r.target}</td>
-                    <td className="py-2 text-muted-foreground">
-                      {Object.entries(r.metrics)
-                        .map(([k, v]) => `${k}:${typeof v === "number" ? v.toFixed(3) : v}`)
-                        .join(" · ")}
-                    </td>
                     <td className="py-2">
-                      <Badge className="rounded-xl" variant="secondary">
-                        {r.durationSec}s
+                      <Badge 
+                        className={`rounded-xl ${
+                          r.status === "已完成" ? "bg-green-100 text-green-800 border-green-200 hover:bg-green-100" :
+                          r.status === "运行中" ? "bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-100" :
+                          r.status === "排队中" ? "bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-100" :
+                          r.status === "失败" ? "bg-red-100 text-red-800 border-red-200 hover:bg-red-100" :
+                          "bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-100"
+                        }`} 
+                        variant="outline"
+                      >
+                        {r.status}
                       </Badge>
                     </td>
-                    <td className="py-2 text-xs text-muted-foreground">{r.version}</td>
+                    <td className="py-2 font-mono">
+                      {r.version.includes("v2") ? "v2 (清洗后)" : "v1 (含脏数据)"}
+                    </td>
+                    <td className="py-2 font-mono text-sm text-muted-foreground">{r.createTime}</td>
+                    <td className="py-2 font-mono text-sm text-muted-foreground">{r.finishTime || "-"}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          </div>
-          <div className="mt-3 flex items-center gap-2">
-            <Button
-              size="sm"
-              className="rounded-xl"
-              onClick={() => notify("已导出", "Run 列表已导出为报告片段（Mock）")}
-            >
-              导出 Run 列表
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              className="rounded-xl"
-              onClick={() => notify("已创建看板", "已创建“Run 追踪看板”（Mock）")}
-            >
-              创建看板
-            </Button>
           </div>
         </CardContent>
       </Card>
@@ -2527,12 +2634,40 @@ function ResultsPanel({ notify, openModal, sceneId }) {
     );
   }; */
 
+  const availableRuns = useMemo(() => {
+    if (sceneId === "sd_high_price_clf") {
+      return [{
+        id: "run-CLF-001",
+        taskName: "搏高价分类预测_XGB",
+        taskType: "分类",
+        target: "label",
+        status: "已完成",
+        version: "data:v2 · seed:42 · mode:精",
+        createTime: "2025-12-25 10:30:00",
+        finishTime: "2025-12-25 10:30:45",
+      }];
+    }
+    return MOCK_RUNS_BASE;
+  }, [sceneId]);
+
+  const [selectedRunId, setSelectedRunId] = useState(null);
+
+  useEffect(() => {
+    if (availableRuns.length > 0) {
+      setSelectedRunId(availableRuns[0].id);
+    }
+  }, [availableRuns]);
+
+  const currentRun = useMemo(() => {
+    return availableRuns.find(r => r.id === selectedRunId) || availableRuns[0];
+  }, [availableRuns, selectedRunId]);
+
   return (
     <div className="space-y-4">
       <SectionTitle
         icon={BarChart3}
-        title="结果页（高精度/高性能必须“证据化”）"
-        desc="指标总览 + 分组误差 + 置信度 + 阈值收益曲线（业务能做决策）"
+        title="推理结果"
+        
         /* right={
           <div className="flex items-center gap-2 flex-wrap justify-end">
             <Badge className="rounded-xl" variant={published ? "secondary" : "outline"}>
@@ -2544,6 +2679,55 @@ function ResultsPanel({ notify, openModal, sceneId }) {
           </div>
         } */
       />
+
+      <Card className="rounded-2xl">
+        <CardContent className="p-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+            <div>
+              <div className="text-xs text-muted-foreground">任务名称</div>
+              <select 
+                className="w-full mt-0.5 rounded-xl border border-input bg-background px-2 py-1 text-sm font-medium shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                value={selectedRunId || ""}
+                onChange={(e) => setSelectedRunId(e.target.value)}
+              >
+                {availableRuns.map(run => (
+                  <option key={run.id} value={run.id}>{run.taskName}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground">任务ID</div>
+              <div className="mt-0.5 font-mono text-muted-foreground">{currentRun.id}</div>
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground">任务类型</div>
+              <div className="mt-0.5">
+                <Badge variant="outline" className="rounded-xl">{currentRun.taskType}</Badge>
+              </div>
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground">运行状态</div>
+              <div className="mt-0.5">
+                <Badge variant="outline" className="rounded-xl bg-green-100 text-green-800 border-green-200">{currentRun.status}</Badge>
+              </div>
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground">数据版本</div>
+              <div className="mt-0.5 font-mono text-muted-foreground">{currentRun.version.split(' · ')[0]}</div>
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground">创建时间</div>
+              <div className="mt-0.5 font-mono text-muted-foreground">{currentRun.createTime}</div>
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground">完成时间</div>
+              <div className="mt-0.5 font-mono text-muted-foreground">{currentRun.finishTime}</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+
 
       <div className="grid md:grid-cols-4 gap-3">
         {sceneId === "sd_high_price_clf" ? (
@@ -2565,11 +2749,8 @@ function ResultsPanel({ notify, openModal, sceneId }) {
       <Card className="rounded-2xl">
         <CardHeader>
           <CardTitle className="text-base">
-            {sceneId === "sd_high_price_clf" ? "每日'搏高价'分类结果概览 (近30天)" : "未来 30 天日前电价预测趋势"}
+            {sceneId === "sd_high_price_clf" ? "未来 30 天高价概率预测" : "未来 30 天日前电价预测趋势"}
           </CardTitle>
-          <CardDescription className="text-xs">
-            {sceneId === "sd_high_price_clf" ? "回答问题：哪些日期可搏高价？" : "回答问题：未来走势如何？置信区间是多少？"}
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="h-[300px] w-full">
@@ -2577,7 +2758,7 @@ function ResultsPanel({ notify, openModal, sceneId }) {
               <ScatterPlot data={MOCK_ROWS_CLF} />
             ) : (
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={MOCK_PRICE_PREDICTION} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <LineChart data={MOCK_PRICE_PREDICTION} margin={{ top: 10, right: 10, left: 20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                   <XAxis 
                     dataKey="date" 
@@ -2715,43 +2896,92 @@ function ResultsPanel({ notify, openModal, sceneId }) {
   );
 }
 
-function ExplainPanel({ notify, openModal }) {
-  const [units, setUnits] = useState(10);
-  const [dist, setDist] = useState(8);
-  const [queue, setQueue] = useState(25);
+function ExplainPanel({ notify, openModal, sceneId }) {
+  const availableRuns = useMemo(() => {
+    if (sceneId === "sd_high_price_clf") {
+      return [{
+        id: "run-CLF-001",
+        taskName: "搏高价分类预测_XGB",
+        taskType: "分类",
+        target: "label",
+        status: "已完成",
+        version: "data:v2 · seed:42 · mode:精",
+        createTime: "2025-12-25 10:30:00",
+        finishTime: "2025-12-25 10:30:45",
+      }];
+    }
+    return MOCK_RUNS_BASE;
+  }, [sceneId]);
 
-  const risk = useMemo(() => {
-    const base = 0.25 + queue * 0.01 + dist * 0.02 - units * 0.015;
-    return Math.min(0.98, Math.max(0.02, base));
-  }, [units, dist, queue]);
+  const [selectedRunId, setSelectedRunId] = useState(null);
+
+  useEffect(() => {
+    if (availableRuns.length > 0) {
+      setSelectedRunId(availableRuns[0].id);
+    }
+  }, [availableRuns]);
+
+  const currentRun = useMemo(() => {
+    return availableRuns.find(r => r.id === selectedRunId) || availableRuns[0];
+  }, [availableRuns, selectedRunId]);
 
   return (
     <div className="space-y-4">
       <SectionTitle
         icon={ScanSearch}
-        title="解释专区（让不懂代码的人秒懂价值）"
-        desc="固定结构：全局 → 分群 → 单案 → 反事实（改一个变量，结果怎么变）"
+        title="因果解释"
 
       />
 
-      <Tabs defaultValue="global">
-        <TabsList className="rounded-2xl">
-          <TabsTrigger value="global" className="rounded-xl">
-            全局解释
-          </TabsTrigger>
-          {/* <TabsTrigger value="segment" className="rounded-xl">
-            分群解释
-          </TabsTrigger>
-          <TabsTrigger value="local" className="rounded-xl">
-            单案解释
-          </TabsTrigger>
-          <TabsTrigger value="cf" className="rounded-xl">
-            反事实模拟
-          </TabsTrigger> */}
-        </TabsList>
+      <Card className="rounded-2xl">
+        <CardContent className="p-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+            <div>
+              <div className="text-xs text-muted-foreground">任务名称</div>
+              <select 
+                className="w-full mt-0.5 rounded-xl border border-input bg-background px-2 py-1 text-sm font-medium shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                value={selectedRunId || ""}
+                onChange={(e) => setSelectedRunId(e.target.value)}
+              >
+                {availableRuns.map(run => (
+                  <option key={run.id} value={run.id}>{run.taskName}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground">任务ID</div>
+              <div className="mt-0.5 font-mono text-muted-foreground">{currentRun.id}</div>
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground">任务类型</div>
+              <div className="mt-0.5">
+                <Badge variant="outline" className="rounded-xl">{currentRun.taskType}</Badge>
+              </div>
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground">运行状态</div>
+              <div className="mt-0.5">
+                <Badge variant="outline" className="rounded-xl bg-green-100 text-green-800 border-green-200">{currentRun.status}</Badge>
+              </div>
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground">数据版本</div>
+              <div className="mt-0.5 font-mono text-muted-foreground">{currentRun.version.split(' · ')[0]}</div>
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground">创建时间</div>
+              <div className="mt-0.5 font-mono text-muted-foreground">{currentRun.createTime}</div>
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground">完成时间</div>
+              <div className="mt-0.5 font-mono text-muted-foreground">{currentRun.finishTime}</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-        <TabsContent value="global" className="mt-3">
-          <Card className="rounded-2xl">
+
+      <Card className="rounded-2xl">
             <CardHeader>
               <CardTitle className="text-base">Top 影响因子（全局）</CardTitle>
               {/* <CardDescription className="text-xs">回答问题：总体上为什么超时？下一步：生成治理建议。</CardDescription> */}
@@ -2796,126 +3026,7 @@ function ExplainPanel({ notify, openModal }) {
 
             </CardContent>
           </Card>
-        </TabsContent>
 
-        <TabsContent value="segment" className="mt-3">
-          <Card className="rounded-2xl">
-            <CardHeader>
-              <CardTitle className="text-base">分群差异（区域/事件类型）</CardTitle>
-              <CardDescription className="text-xs">回答问题：同样超时，不同区域原因一样吗？下一步：生成分区策略模板。</CardDescription>
-            </CardHeader>
-            <CardContent className="grid md:grid-cols-2 gap-3">
-              <div className="p-4 rounded-2xl border">
-                <div className="font-semibold">R05：高风险主因</div>
-                <div className="mt-2 text-sm text-muted-foreground">队列长 + 可用力量不足 + 新类型 B99 增多</div>
-                <div className="mt-3">
-                  <Badge variant="secondary" className="rounded-xl">建议动作</Badge>
-                  <div className="mt-2 text-sm">高峰时段增派力量；对 B99 走升级SOP；阈值提高到 0.45。</div>
-                </div>
-                <div className="mt-3 flex items-center gap-2">
-                  <Button size="sm" className="rounded-xl" onClick={() => notify("策略已保存", "R05 分区策略已保存为模板（Mock）")}>保存为模板</Button>
-                  <Button size="sm" variant="outline" className="rounded-xl" onClick={() => notify("已派发", "已派发给指挥中心（Mock）")}>派发建议</Button>
-                </div>
-              </div>
-              <div className="p-4 rounded-2xl border">
-                <div className="font-semibold">R02：高风险主因</div>
-                <div className="mt-2 text-sm text-muted-foreground">距离远 + 恶劣天气影响到场</div>
-                <div className="mt-3">
-                  <Badge variant="secondary" className="rounded-xl">建议动作</Badge>
-                  <div className="mt-2 text-sm">优化驻点布局；雨雾天阈值下调到 0.35；建立低置信度复核队列。</div>
-                </div>
-                <div className="mt-3 flex items-center gap-2">
-                  <Button size="sm" className="rounded-xl" onClick={() => notify("策略已保存", "R02 分区策略已保存为模板（Mock）")}>保存为模板</Button>
-                  <Button size="sm" variant="outline" className="rounded-xl" onClick={() => notify("已派发", "已派发给运维班组（Mock）")}>派发建议</Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="local" className="mt-3">
-          <Card className="rounded-2xl">
-            <CardHeader>
-              <CardTitle className="text-base">单案解释（这单为什么高风险）</CardTitle>
-              <CardDescription className="text-xs">回答问题：我敢不敢按这个建议派单？下一步：推荐处置动作。</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="p-4 rounded-2xl border">
-                <div className="flex items-center justify-between">
-                  <div className="font-semibold">incident_id：I000010</div>
-                  <Badge variant="destructive" className="rounded-xl">高风险</Badge>
-                </div>
-                <div className="mt-2 text-sm text-muted-foreground">模型判定：超时概率 0.82（置信度 0.74）</div>
-                <Separator className="my-3" />
-                <div className="text-sm">
-                  <div className="font-semibold">Top 3 原因</div>
-                  <ul className="list-decimal pl-5 mt-2 space-y-1">
-                    <li>active_units=3（力量不足，影响 -0.21）</li>
-                    <li>queue_len=55（队列拥堵，影响 +0.18）</li>
-                    <li>distance_km=32（距离远，影响 +0.12）</li>
-                  </ul>
-                </div>
-                <div className="mt-3 flex items-center gap-2">
-                  <Button size="sm" className="rounded-xl" onClick={() => notify("已推荐派单动作", "建议：改派更近单位 + 增派力量（Mock）")}>推荐派单动作</Button>
-                  <Button size="sm" variant="outline" className="rounded-xl" onClick={() => notify("已加入复核", "该工单已加入复核队列（Mock）")}>加入复核</Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="cf" className="mt-3">
-          <Card className="rounded-2xl">
-            <CardHeader>
-              <CardTitle className="text-base">反事实模拟（改一个变量，结果怎么变）</CardTitle>
-              <CardDescription className="text-xs">回答问题：多派一个队伍有用吗？下一步：形成派单策略。</CardDescription>
-            </CardHeader>
-            <CardContent className="grid md:grid-cols-2 gap-3">
-              <div className="p-4 rounded-2xl border space-y-4">
-                <div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span>可用力量 active_units</span>
-                    <span className="font-mono">{units}</span>
-                  </div>
-                  <input type="range" min={1} max={30} value={units} onChange={(e) => setUnits(Number(e.target.value))} className="w-full" />
-                </div>
-                <div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span>距离 distance_km</span>
-                    <span className="font-mono">{dist}</span>
-                  </div>
-                  <input type="range" min={0} max={40} value={dist} onChange={(e) => setDist(Number(e.target.value))} className="w-full" />
-                </div>
-                <div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span>队列 queue_len</span>
-                    <span className="font-mono">{queue}</span>
-                  </div>
-                  <input type="range" min={0} max={80} value={queue} onChange={(e) => setQueue(Number(e.target.value))} className="w-full" />
-                </div>
-              </div>
-
-              <div className="p-4 rounded-2xl border">
-                <div className="flex items-center justify-between">
-                  <div className="font-semibold">输出（Mock）</div>
-                  <Badge className="rounded-xl" variant={risk > 0.6 ? "destructive" : "secondary"}>风险 {risk.toFixed(2)}</Badge>
-                </div>
-                <div className="mt-4">
-                  <div className="text-xs text-muted-foreground">建议动作</div>
-                  <div className="mt-2 text-sm">
-                    {risk > 0.6 ? "建议：增加力量或改派更近单位；阈值策略=高优先级派单" : "建议：正常派单；进入低置信度队列的概率较低"}
-                  </div>
-                </div>
-                <Separator className="my-4" />
-                <div className="flex items-center gap-2">
-                  <Button size="sm" className="rounded-xl" onClick={() => notify("已保存策略模板", "反事实策略已保存（Mock）")}>保存为策略模板</Button>
-                  <Button size="sm" variant="outline" className="rounded-xl" onClick={() => notify("已导出", "反事实结果已导出为报告片段（Mock）")}>导出报告片段</Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
 
 
     </div>
@@ -3053,6 +3164,34 @@ function DeliverPanel({ notify, openModal }) {
 function ComparePanel({ notify, openModal, sceneId }) {
   const isClf = sceneId === "sd_high_price_clf";
   
+  const availableRuns = useMemo(() => {
+    if (sceneId === "sd_high_price_clf") {
+      return [{
+        id: "run-CLF-001",
+        taskName: "搏高价分类预测_XGB",
+        taskType: "分类",
+        target: "label",
+        status: "已完成",
+        version: "data:v2 · seed:42 · mode:精",
+        createTime: "2025-12-25 10:30:00",
+        finishTime: "2025-12-25 10:30:45",
+      }];
+    }
+    return MOCK_RUNS_BASE;
+  }, [sceneId]);
+
+  const [selectedRunId, setSelectedRunId] = useState(null);
+
+  useEffect(() => {
+    if (availableRuns.length > 0) {
+      setSelectedRunId(availableRuns[0].id);
+    }
+  }, [availableRuns]);
+
+  const currentRun = useMemo(() => {
+    return availableRuns.find(r => r.id === selectedRunId) || availableRuns[0];
+  }, [availableRuns, selectedRunId]);
+  
   const exportCompare = () => {
     notify("对比报告已生成", "已生成同口径对比报告（Mock）")
     openModal(
@@ -3074,9 +3213,55 @@ function ComparePanel({ notify, openModal, sceneId }) {
     <div className="space-y-4">
       <SectionTitle
         icon={ShieldCheck}
-        title="对比墙（同数据同口径，终结争论）"
-        desc="对比维度：工作量/门槛/稳定性/复现性/解释性/迭代成本/落地链路完整度"
+        title="对比分析"
       />
+
+      <Card className="rounded-2xl">
+        <CardContent className="p-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+            <div>
+              <div className="text-xs text-muted-foreground">任务名称</div>
+              <select 
+                className="w-full mt-0.5 rounded-xl border border-input bg-background px-2 py-1 text-sm font-medium shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                value={selectedRunId || ""}
+                onChange={(e) => setSelectedRunId(e.target.value)}
+              >
+                {availableRuns.map(run => (
+                  <option key={run.id} value={run.id}>{run.taskName}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground">任务ID</div>
+              <div className="mt-0.5 font-mono text-muted-foreground">{currentRun.id}</div>
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground">任务类型</div>
+              <div className="mt-0.5">
+                <Badge variant="outline" className="rounded-xl">{currentRun.taskType}</Badge>
+              </div>
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground">运行状态</div>
+              <div className="mt-0.5">
+                <Badge variant="outline" className="rounded-xl bg-green-100 text-green-800 border-green-200">{currentRun.status}</Badge>
+              </div>
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground">数据版本</div>
+              <div className="mt-0.5 font-mono text-muted-foreground">{currentRun.version.split(' · ')[0]}</div>
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground">创建时间</div>
+              <div className="mt-0.5 font-mono text-muted-foreground">{currentRun.createTime}</div>
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground">完成时间</div>
+              <div className="mt-0.5 font-mono text-muted-foreground">{currentRun.finishTime}</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid md:grid-cols-2 gap-3">
         <Card className="rounded-2xl">
@@ -3084,8 +3269,8 @@ function ComparePanel({ notify, openModal, sceneId }) {
             <CardTitle className="text-base">LimiX vs AutoGluon</CardTitle>
             <CardDescription className="text-xs">
               {isClf 
-                ? "AutoGluon 在部分峰值预测上存在偏差，训练耗时较长。" 
-                : "AutoGluon 在部分峰值预测上存在偏差，训练耗时较长。"}
+                ? "AutoGluon 在部分峰值预测上存在偏差，推理耗时较长。" 
+                : "AutoGluon 在部分峰值预测上存在偏差，推理耗时较长。"}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -3221,17 +3406,17 @@ function ComparePanel({ notify, openModal, sceneId }) {
 
         <Card className="rounded-2xl">
           <CardHeader>
-            <CardTitle className="text-base">LimiX vs DeepSeek LLM</CardTitle>
+            <CardTitle className="text-base">LimiX vs DeepSeek</CardTitle>
             <CardDescription className="text-xs">
               {isClf 
-                ? "LLM 在数值精确回归任务上稳定性较弱，难以捕捉细节。" 
-                : "LLM 在数值精确回归任务上稳定性较弱，难以捕捉细节。"}
+                ? "DeepSeek 在回归任务上稳定性较弱，难以捕捉细节。" 
+                : "DeepSeek 在回归任务上稳定性较弱，难以捕捉细节。"}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-3 mb-2">
               <Badge variant="secondary" className="bg-blue-50 text-blue-700 hover:bg-blue-50 border-blue-200">LimiX 推理耗时：11s</Badge>
-              <Badge variant="secondary" className="bg-purple-50 text-purple-700 hover:bg-purple-50 border-purple-200">LLM 推理耗时：39s</Badge>
+              <Badge variant="secondary" className="bg-purple-50 text-purple-700 hover:bg-purple-50 border-purple-200">DeepSeek 推理耗时：39s</Badge>
             </div>
             <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
@@ -3326,59 +3511,7 @@ function ComparePanel({ notify, openModal, sceneId }) {
         </Card>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-3">
-        {MOCK_COMPARE.map((c) => (
-          <Card key={c.name} className={cn("rounded-2xl", c.highlight ? "border-2" : "")}>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base flex items-center justify-between">
-                <span>{c.name}</span>
-                <Badge className="rounded-xl" variant={c.highlight ? "default" : "outline"}>
-                  {c.badge}
-                </Badge>
-              </CardTitle>
-              <CardDescription className="text-xs">一句话：{c.name === "LimiX" ? "卖的是流水线产品" : "更多是方法/组件"}</CardDescription>
-            </CardHeader>
-            <CardContent className="text-sm space-y-2">
-              <div className="flex items-start gap-2">
-                <Timer className="h-4 w-4 mt-0.5" />
-                <div>
-                  <span className="text-muted-foreground">耗时：</span>
-                  {c.time}
-                </div>
-              </div>
-              <div className="flex items-start gap-2">
-                <BarChart3 className="h-4 w-4 mt-0.5" />
-                <div>
-                  <span className="text-muted-foreground">指标：</span>
-                  {c.metric}
-                </div>
-              </div>
-              <div className="flex items-start gap-2">
-                <ScanSearch className="h-4 w-4 mt-0.5" />
-                <div>
-                  <span className="text-muted-foreground">解释：</span>
-                  {c.explain}
-                </div>
-              </div>
-              <div className="flex items-start gap-2">
-                <ShieldCheck className="h-4 w-4 mt-0.5" />
-                <div>
-                  <span className="text-muted-foreground">复现：</span>
-                  {c.repro}
-                </div>
-              </div>
-              <div className="flex items-start gap-2">
-                <Rocket className="h-4 w-4 mt-0.5" />
-                <div>
-                  <span className="text-muted-foreground">交付：</span>
-                  {c.delivery}
-                </div>
-              </div>
 
-            </CardContent>
-          </Card>
-        ))}
-      </div>
 
 
 
@@ -3467,9 +3600,9 @@ export default function LimixDemoMockPreview() {
               {active === "datasets" && <DatasetsPanel datasetId={datasetId} setDatasetId={setDatasetId} notify={notify} openModal={openModal} datasets={datasets} setDatasets={setDatasets} sceneId={sceneId} />}
               {active === "health" && <HealthPanel key={datasetId} datasetId={datasetId} notify={notify} openModal={openModal} setActive={setActive} />}
               {active === "clean" && <CleanPanel datasetId={datasetId} setDatasetId={setDatasetId} notify={notify} openModal={openModal} datasets={datasets} setDatasets={setDatasets} />}
-              {active === "tasks" && <TasksPanel quickMode={quickMode} runs={runs} setRuns={setRuns} notify={notify} />}
+              {active === "tasks" && <TasksPanel quickMode={quickMode} runs={runs} setRuns={setRuns} notify={notify} sceneId={sceneId} datasetId={datasetId} setDatasetId={setDatasetId} datasets={datasets} />}
               {active === "results" && <ResultsPanel notify={notify} openModal={openModal} sceneId={sceneId} />}
-              {active === "explain" && <ExplainPanel notify={notify} openModal={openModal} />}
+              {active === "explain" && <ExplainPanel notify={notify} openModal={openModal} sceneId={sceneId} />}
               {/* {active === "deliver" && <DeliverPanel notify={notify} openModal={openModal} />} */}
               {active === "compare" && <ComparePanel notify={notify} openModal={openModal} sceneId={sceneId} />}
             </div>
