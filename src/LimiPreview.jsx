@@ -3295,7 +3295,7 @@ function ComparePanel({ notify, openModal, sceneId }) {
                       tickLine={false} 
                       axisLine={{ stroke: "#64748b" }} 
                       interval={0}
-                      ticks={MOCK_CLF_COMPARISON_POINTS.filter((p, i) => i % 3 === 0).map(p => p.timestamp)}
+                      ticks={MOCK_CLF_COMPARISON_POINTS.filter((p, i) => i % 5 === 0).map(p => p.timestamp)}
                     />
                     <YAxis 
                       dataKey="y"
