@@ -556,19 +556,19 @@ const MOCK_CLEAN_RULES = [
     risk: "低",
   },
   {
-    id: "R-003",
-    name: "缺失填补：光伏发电_日前 线性插值",
-    type: "填补",
-    before: "缺失 5.2%",
-    after: "缺失 0.0%",
-    risk: "中",
-  },
-  {
     id: "R-004",
     name: "异常处理：负荷 < 0 修正为 0",
     type: "异常",
     before: "异常 2.1%",
     after: "异常 0.1%",
+    risk: "中",
+  },
+  {
+    id: "R-003",
+    name: "缺失填补：光伏发电_日前 线性插值",
+    type: "填补",
+    before: "缺失 5.2%",
+    after: "缺失 0.0%",
     risk: "中",
   },
 ];
@@ -961,8 +961,8 @@ const MOCK_INFLUENCE_FACTORS = [
   "现货出清电价-日前_D-2",
   "现货出清电价-实时_D-2",
   "实时-日前偏差值_D-2",
-  "实时-日前偏差值_p-2_label",
-  "实时-日前偏差值_p-3_label",
+  "实时-日前偏差值_D-2_label",
+  "实时-日前偏差值_D-3_label",
   "现货出清电价-日前_D-3",
   "现货出清电价-实时_D-3"
 ];
@@ -1313,7 +1313,7 @@ function SideNav({ active, setActive }) {
           <CardHeader className="pb-3 border-b border-blue-50/50 bg-gradient-to-r from-blue-50/30 to-transparent">
             <CardTitle className="text-base flex items-center gap-2">
               <span className="w-1 h-4 bg-blue-600 rounded-full shadow-[0_0_8px_rgba(37,99,235,0.5)]"></span>
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-slate-800 to-slate-600">演示导航</span>
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-slate-800 to-slate-600">操作导航</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-3 space-y-1">
@@ -1489,7 +1489,7 @@ function DatasetsPanel({ datasetId, setDatasetId, notify, openModal, datasets, s
                 )
               }
             >
-              上传 CSV
+              上传数据集
             </Button>
             <Button
               variant="outline"
@@ -1515,7 +1515,7 @@ function DatasetsPanel({ datasetId, setDatasetId, notify, openModal, datasets, s
 
       <Card className="rounded-2xl">
         <CardHeader>
-          <CardTitle className="text-base">当前选择</CardTitle>
+          <CardTitle className="text-base">当前数据集信息</CardTitle>
         </CardHeader>
         <CardContent className="grid md:grid-cols-2 gap-3">
           <Card className="rounded-2xl">
@@ -2925,12 +2925,36 @@ function ExplainPanel({ notify, openModal, sceneId }) {
     return availableRuns.find(r => r.id === selectedRunId) || availableRuns[0];
   }, [availableRuns, selectedRunId]);
 
+  // Feature Selection State
+  const [selectedFactors, setSelectedFactors] = useState(MOCK_INFLUENCE_FACTORS);
+  const [activeFactors, setActiveFactors] = useState(MOCK_INFLUENCE_FACTORS);
+
+  const handleGenerate = () => {
+    if (selectedFactors.length === 0) {
+      notify("请至少选择一个特征", "特征列表不能为空");
+      return;
+    }
+    setActiveFactors(selectedFactors);
+    notify("分析已更新", `已根据选择的 ${selectedFactors.length} 个特征重新生成图表`);
+  };
+
+  const activeMatrix = useMemo(() => {
+    const indices = activeFactors.map(f => MOCK_INFLUENCE_FACTORS.indexOf(f));
+    return MOCK_HEATMAP_MATRIX.map(row => indices.map(i => row[i]));
+  }, [activeFactors]);
+
+  const activeScores = useMemo(() => {
+    // Sort by absolute value to keep the chart meaningful
+    return MOCK_INFLUENCE_SCORES
+      .filter(s => activeFactors.includes(s.name))
+      .sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
+  }, [activeFactors]);
+
   return (
     <div className="space-y-4">
       <SectionTitle
         icon={ScanSearch}
         title="因果解释"
-
       />
 
       <Card className="rounded-2xl">
@@ -2980,6 +3004,70 @@ function ExplainPanel({ notify, openModal, sceneId }) {
         </CardContent>
       </Card>
 
+      {/* Feature Selection Panel */}
+      <Card className="rounded-2xl border-blue-100 shadow-sm">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-blue-500" />
+            特征归因分析配置
+          </CardTitle>
+          <CardDescription className="text-xs">
+            自定义选择特征字段，生成定制化的影响因子热力图与分数对比。
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+           <div className="flex items-center gap-4 text-sm">
+             <div className="shrink-0 font-medium text-slate-700">预测目标列：</div>
+             <div className="bg-slate-100 px-3 py-1.5 rounded-lg text-slate-600 font-mono text-xs border border-slate-200">
+               {currentRun.target === "label" ? "label (不可搏 0 / 可搏 1)" : currentRun.target}
+             </div>
+           </div>
+           
+           <div className="space-y-2">
+             <div className="flex items-center justify-between">
+                <div className="font-medium text-sm text-slate-700">特征选择 ({selectedFactors.length}/{MOCK_INFLUENCE_FACTORS.length})：</div>
+                <div className="space-x-2">
+                    <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-6 text-xs text-slate-500"
+                        onClick={() => setSelectedFactors(MOCK_INFLUENCE_FACTORS)}
+                    >
+                        全选
+                    </Button>
+                    <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-6 text-xs text-slate-500"
+                        onClick={() => setSelectedFactors([])}
+                    >
+                        清空
+                    </Button>
+                </div>
+             </div>
+             <div className="p-4 border border-slate-200 rounded-xl bg-slate-50/50">
+               <Checkbox.Group 
+                 value={selectedFactors} 
+                 onChange={setSelectedFactors} 
+                 className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"
+               >
+                 {MOCK_INFLUENCE_FACTORS.map(f => (
+                    <Checkbox key={f} value={f} className="text-xs">
+                        <span className="text-xs text-slate-600 truncate block max-w-[140px]" title={f}>{f}</span>
+                    </Checkbox>
+                 ))}
+               </Checkbox.Group>
+             </div>
+           </div>
+           
+           <div className="flex justify-end pt-2">
+             <Button onClick={handleGenerate} className="rounded-xl shadow-lg shadow-blue-500/20 px-6">
+               <Sparkles className="w-4 h-4 mr-2" />
+               生成分析图表
+             </Button>
+           </div>
+        </CardContent>
+      </Card>
 
       <Card className="rounded-2xl">
             <CardHeader>
@@ -2990,37 +3078,49 @@ function ExplainPanel({ notify, openModal, sceneId }) {
               {/* Chart 1: Heatmap */}
               <div>
                 <div className="mb-4 font-semibold text-base text-center">电力市场影响因子热力图</div>
-                <div className="border rounded-xl p-4 bg-slate-50 overflow-hidden">
-                  <DivergingHeatGrid rows={MOCK_HEATMAP_DATES} cols={MOCK_INFLUENCE_FACTORS} matrix={MOCK_HEATMAP_MATRIX} />
-                </div>
+                {activeFactors.length > 0 ? (
+                    <div className="border rounded-xl p-4 bg-slate-50 overflow-hidden">
+                        <DivergingHeatGrid rows={MOCK_HEATMAP_DATES} cols={activeFactors} matrix={activeMatrix} />
+                    </div>
+                ) : (
+                    <div className="h-40 flex items-center justify-center text-muted-foreground bg-slate-50 rounded-xl border border-dashed">
+                        请选择特征以生成热力图
+                    </div>
+                )}
               </div>
 
               {/* Chart 2: Horizontal Bar Chart */}
               <div>
                 <div className="mb-4 font-semibold text-base text-center">各影响因子影响分数对比</div>
-                <div className="h-[600px] border rounded-xl py-4 pr-4 pl-0">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      layout="vertical"
-                      data={MOCK_INFLUENCE_SCORES}
-                      margin={{ top: 5, right: 50, left: 0, bottom: 5 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={true} />
-                      <XAxis type="number" domain={[-200, 200]} />
-                      <YAxis dataKey="name" type="category" width={230} tick={{fontSize: 11}} interval={0} tickMargin={10} />
-                      <Tooltip 
-                        cursor={{fill: 'transparent'}}
-                        contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)" }}
-                      />
-                      <Bar dataKey="value" name="影响分数">
-                        {MOCK_INFLUENCE_SCORES.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.value > 0 ? '#ef4444' : '#3b82f6'} />
-                        ))}
-                        <LabelList dataKey="value" position="right" fontSize={10} formatter={(v) => v.toFixed(1)} />
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
+                {activeFactors.length > 0 ? (
+                    <div className="h-[600px] border rounded-xl py-4 pr-4 pl-0">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <BarChart
+                        layout="vertical"
+                        data={activeScores}
+                        margin={{ top: 5, right: 50, left: 0, bottom: 5 }}
+                        >
+                        <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={true} />
+                        <XAxis type="number" domain={[-200, 200]} />
+                        <YAxis dataKey="name" type="category" width={230} tick={{fontSize: 11}} interval={0} tickMargin={10} />
+                        <Tooltip 
+                            cursor={{fill: 'transparent'}}
+                            contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)" }}
+                        />
+                        <Bar dataKey="value" name="影响分数">
+                            {activeScores.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.value > 0 ? '#ef4444' : '#3b82f6'} />
+                            ))}
+                            <LabelList dataKey="value" position="right" fontSize={10} formatter={(v) => v.toFixed(1)} />
+                        </Bar>
+                        </BarChart>
+                    </ResponsiveContainer>
+                    </div>
+                ) : (
+                    <div className="h-40 flex items-center justify-center text-muted-foreground bg-slate-50 rounded-xl border border-dashed">
+                        请选择特征以生成对比图
+                    </div>
+                )}
               </div>
 
 

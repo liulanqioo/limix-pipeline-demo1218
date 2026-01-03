@@ -116,9 +116,5 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-# macOS
-.DS_Store
-
-# Trae
-.trae/
-.vercel
+# Generated docs
+*.docx

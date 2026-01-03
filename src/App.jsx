@@ -3,7 +3,7 @@ import LimixDemoMockPreview from './LimiPreview';
 import WelcomePage from './WelcomePage';
 
 function App() {
-  const [showWelcome, setShowWelcome] = useState(true);
+  const [showWelcome, setShowWelcome] = useState(false);
 
   if (showWelcome) {
     return <WelcomePage onEnter={() => setShowWelcome(false)} />;
