@@ -2928,20 +2928,50 @@ function ExplainPanel({ notify, openModal, sceneId }) {
   // Feature Selection State
   const [selectedFactors, setSelectedFactors] = useState(MOCK_INFLUENCE_FACTORS);
   const [activeFactors, setActiveFactors] = useState(MOCK_INFLUENCE_FACTORS);
+  
+  // Row Selection State
+  const [startRow, setStartRow] = useState(2);
+  const [endRow, setEndRow] = useState(31);
+  const [activeRowRange, setActiveRowRange] = useState([2, 31]);
 
   const handleGenerate = () => {
     if (selectedFactors.length === 0) {
       notify("请至少选择一个特征", "特征列表不能为空");
       return;
     }
+    const start = parseInt(startRow);
+    const end = parseInt(endRow);
+    if (isNaN(start) || isNaN(end)) {
+        notify("输入错误", "行号必须为数字");
+        return;
+    }
+    if (start < 2) {
+        notify("范围错误", "起始行必须 >= 2");
+        return;
+    }
+    if (end > 31) {
+        notify("范围错误", "结束行必须 <= 31");
+        return;
+    }
+    if (start > end) {
+        notify("范围错误", "起始行不能大于结束行");
+        return;
+    }
+
     setActiveFactors(selectedFactors);
-    notify("分析已更新", `已根据选择的 ${selectedFactors.length} 个特征重新生成图表`);
+    setActiveRowRange([start, end]);
+    notify("分析已更新", `已根据选择的 ${selectedFactors.length} 个特征和行范围 ${start}-${end} 重新生成图表`);
   };
+
+  const activeDates = useMemo(() => {
+    return MOCK_HEATMAP_DATES.slice(activeRowRange[0] - 1, activeRowRange[1]);
+  }, [activeRowRange]);
 
   const activeMatrix = useMemo(() => {
     const indices = activeFactors.map(f => MOCK_INFLUENCE_FACTORS.indexOf(f));
-    return MOCK_HEATMAP_MATRIX.map(row => indices.map(i => row[i]));
-  }, [activeFactors]);
+    const rowsFiltered = MOCK_HEATMAP_MATRIX.slice(activeRowRange[0] - 1, activeRowRange[1]);
+    return rowsFiltered.map(row => indices.map(i => row[i]));
+  }, [activeFactors, activeRowRange]);
 
   const activeScores = useMemo(() => {
     // Sort by absolute value to keep the chart meaningful
@@ -3022,6 +3052,38 @@ function ExplainPanel({ notify, openModal, sceneId }) {
                {currentRun.target === "label" ? "label (不可搏 0 / 可搏 1)" : currentRun.target}
              </div>
            </div>
+
+           <div className="flex items-center gap-4 text-sm">
+             <div className="shrink-0 font-medium text-slate-700">样本行范围：</div>
+             <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1">
+                    <span className="text-xs text-muted-foreground">第</span>
+                    <Input 
+                        type="number" 
+                        min={2} 
+                        max={31} 
+                        value={startRow} 
+                        onChange={(e) => setStartRow(e.target.value)}
+                        className="w-16 h-8 text-xs text-center"
+                    />
+                    <span className="text-xs text-muted-foreground">行</span>
+                </div>
+                <span className="text-muted-foreground">-</span>
+                <div className="flex items-center gap-1">
+                    <span className="text-xs text-muted-foreground">第</span>
+                    <Input 
+                        type="number" 
+                        min={2} 
+                        max={31} 
+                        value={endRow} 
+                        onChange={(e) => setEndRow(e.target.value)}
+                        className="w-16 h-8 text-xs text-center"
+                    />
+                    <span className="text-xs text-muted-foreground">行</span>
+                </div>
+                <div className="text-xs text-muted-foreground ml-2">(范围: 2 - 31)</div>
+             </div>
+           </div>
            
            <div className="space-y-2">
              <div className="flex items-center justify-between">
@@ -3080,7 +3142,7 @@ function ExplainPanel({ notify, openModal, sceneId }) {
                 <div className="mb-4 font-semibold text-base text-center">电力市场影响因子热力图</div>
                 {activeFactors.length > 0 ? (
                     <div className="border rounded-xl p-4 bg-slate-50 overflow-hidden">
-                        <DivergingHeatGrid rows={MOCK_HEATMAP_DATES} cols={activeFactors} matrix={activeMatrix} />
+                        <DivergingHeatGrid rows={activeDates} cols={activeFactors} matrix={activeMatrix} />
                     </div>
                 ) : (
                     <div className="h-40 flex items-center justify-center text-muted-foreground bg-slate-50 rounded-xl border border-dashed">
