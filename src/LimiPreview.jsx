@@ -556,7 +556,7 @@ const MOCK_CLEAN_RULES = [
     risk: "低",
   },
   {
-    id: "R-004",
+    id: "R-003",
     name: "异常处理：负荷 < 0 修正为 0",
     type: "异常",
     before: "异常 2.1%",
@@ -564,7 +564,7 @@ const MOCK_CLEAN_RULES = [
     risk: "中",
   },
   {
-    id: "R-003",
+    id: "R-004",
     name: "缺失填补：光伏发电_日前 线性插值",
     type: "填补",
     before: "缺失 5.2%",
