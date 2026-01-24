@@ -1240,7 +1240,7 @@ function TopBar({ sceneId, setSceneId, quickMode, setQuickMode, datasetId, setDa
             <img src="/logo.png?v=3" alt="LimiX Logo" className="h-10 w-10 object-contain" />
           </div>
           <div>
-            <div className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700 leading-10">LimiX通用数据分析平台（演示端）</div>
+            <div className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700 leading-10">LimiX通用数据分析平台</div>
           </div>
         </div>
 
