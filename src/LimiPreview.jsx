@@ -1295,9 +1295,6 @@ function TopBar({ sceneId, setSceneId, quickMode, setQuickMode, datasetId, setDa
                 </Select.Option>
               ))}
             </Select>
-            <div className="ml-1">
-              <Tag color="green" size="small" className="rounded-md">体检分 {dataset?.qualityScore}</Tag>
-            </div>
           </div>
         </div>
       </div>
