@@ -7,3 +7,4 @@ export { FeaturesPanel } from './FeaturesPanel';
 export { HealthPanel } from './HealthPanel';
 export { ResultsPanel } from './ResultsPanel';
 export { TasksPanel } from './TasksPanel';
+export { CausalPilotPanel } from './CausalPilotPanel';

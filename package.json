@@ -1,7 +1,7 @@
 {
   "name": "yanshi1218",
   "private": true,
-  "version": "0.0.0",
+  "version": "5.8.0",
   "type": "module",
   "homepage": "https://liulanqioo.github.io/limix-pipeline-demo1218",
   "scripts": {
@@ -27,7 +27,8 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "recharts": "^2.15.0",
-    "tailwind-merge": "^3.4.0"
+    "tailwind-merge": "^3.4.0",
+    "umap-js": "^1.4.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
