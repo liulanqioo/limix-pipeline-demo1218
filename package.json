@@ -12,7 +12,7 @@
     "preview": "node node_modules/vite/bin/vite.js preview",
     "predeploy": "npm run build:gh",
     "deploy": "gh-pages -d dist",
-    "deploy:vercel": "vercel --prod"
+    "deploy:vercel": "npx vercel --prod"
   },
   "dependencies": {
     "@arco-design/web-react": "^2.60.1",
