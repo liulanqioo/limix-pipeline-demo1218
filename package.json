@@ -11,7 +11,8 @@
     "lint": "eslint .",
     "preview": "node node_modules/vite/bin/vite.js preview",
     "predeploy": "npm run build:gh",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+    "deploy:vercel": "vercel --prod"
   },
   "dependencies": {
     "@arco-design/web-react": "^2.60.1",
