@@ -7,9 +7,9 @@ export const NAV_ITEMS = [
   { key: "features", name: "特征工厂", icon: "Sparkles" },
   { key: "tasks", name: "任务", icon: "ListTodo" },
   { key: "results", name: "结果", icon: "BarChart3" },
-  { key: "explain", name: "因果解释", icon: "ScanSearch" },
-  { key: "compare", name: "对比分析", icon: "ShieldCheck" },
-  { key: "report", name: "导出报告", icon: "FileText" },
+  { key: "explain", name: "解释", icon: "ScanSearch" },
+  // { key: "deliver", name: "交付", icon: "Rocket" },
+  { key: "compare", name: "对比", icon: "ShieldCheck" },
 ];
 
 export const SCENES = [

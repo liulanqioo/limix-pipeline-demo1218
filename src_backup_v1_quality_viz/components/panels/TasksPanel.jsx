@@ -36,8 +36,6 @@ export const TasksPanel = ({ quickMode, runs, setRuns, notify, openModal, sceneI
             durationSec: quickMode ? 12 : 45,
             metrics: { AUC: 0.92, F1: 0.81 },
             version: `data:v2 · ${nowTimeStr()}`,
-            createTime: "2025-12-25 10:16:58",
-            finishTime: "2025-12-25 10:18:58",
           };
           setRuns([newRun, ...runs]);
           Message.success("训练任务完成！");

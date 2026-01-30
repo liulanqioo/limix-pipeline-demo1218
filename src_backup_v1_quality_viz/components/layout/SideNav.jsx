@@ -1,5 +1,5 @@
 import React from 'react';
-import { Database, Stethoscope, Wand2, Sparkles, ListTodo, BarChart3, ScanSearch, Rocket, ShieldCheck, FileText } from 'lucide-react';
+import { Database, Stethoscope, Wand2, Sparkles, ListTodo, BarChart3, ScanSearch, Rocket, ShieldCheck } from 'lucide-react';
 import { NAV_ITEMS } from '../../mock/data';
 import { cn } from '../../utils';
 
@@ -13,7 +13,6 @@ const iconMap = {
   ScanSearch,
   Rocket,
   ShieldCheck,
-  FileText,
 };
 
 export const SideNav = ({ active, setActive }) => {

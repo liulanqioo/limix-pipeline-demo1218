@@ -1,43 +1,12 @@
 import React from 'react';
-import { Select, Switch, Tag, Typography, Avatar, Button } from '@arco-design/web-react';
-import { Database, Activity, Zap, UserPlus, Gift } from 'lucide-react';
+import { Select, Switch, Tag, Typography, Avatar } from '@arco-design/web-react';
+import { Database, Activity, Zap } from 'lucide-react';
 import { SCENES, MOCK_DATASETS } from '../../mock/data';
 
 const { Option } = Select;
 const { Text } = Typography;
 
-export const TopBar = ({ sceneId, setSceneId, quickMode, setQuickMode, datasetId, setDatasetId, notify, openModal }) => {
-  const handleInvite = () => {
-    openModal && openModal(
-      "邀请同事协作 (Growth)",
-      <div className="space-y-4">
-        <div className="p-4 bg-blue-50 text-blue-800 rounded-xl text-sm border border-blue-100 flex items-start gap-3">
-          <Gift className="h-5 w-5 shrink-0 text-blue-600" />
-          <div>
-            <div className="font-bold mb-1">限时福利：双向赠送高级会员</div>
-            邀请同事注册 LimiX，双方均可获得 30 天 Pro 会员权限（价值 $29）。
-          </div>
-        </div>
-        
-        <div className="space-y-2">
-          <div className="text-sm font-medium">分享专属链接</div>
-          <div className="flex gap-2">
-            <div className="flex-1 p-2 bg-slate-50 border rounded-lg text-sm font-mono text-slate-600 truncate">
-              https://limix.ai/invite/u/demo_user_007
-            </div>
-            <Button type="primary" onClick={() => notify && notify("链接已复制", "快去分享给同事吧！")}>
-              复制
-            </Button>
-          </div>
-        </div>
-
-        <div className="pt-2 text-xs text-slate-400 text-center">
-          当前已邀请 0 人，还需邀请 1 人即可解锁 <span className="text-slate-600 font-medium">"高级因果解释"</span> 模块
-        </div>
-      </div>
-    );
-  };
-
+export const TopBar = ({ sceneId, setSceneId, quickMode, setQuickMode, datasetId, setDatasetId }) => {
   return (
     <div className="bg-white border-b sticky top-0 z-50 px-4 py-3 shadow-sm flex items-center justify-between gap-4">
       <div className="flex items-center gap-3 overflow-hidden">
@@ -84,16 +53,6 @@ export const TopBar = ({ sceneId, setSceneId, quickMode, setQuickMode, datasetId
       </div>
 
       <div className="flex items-center gap-4 flex-shrink-0">
-        <Button 
-          size="small" 
-          type="outline" 
-          className="rounded-full px-3 text-blue-600 border-blue-200 hover:bg-blue-50"
-          onClick={handleInvite}
-        >
-          <UserPlus className="h-3.5 w-3.5 mr-2" />
-          邀请协作
-        </Button>
-
         <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-full border">
           <Zap className={`h-4 w-4 ${quickMode ? "text-yellow-500 fill-yellow-500" : "text-gray-400"}`} />
           <span className="text-sm font-medium">极速模式</span>

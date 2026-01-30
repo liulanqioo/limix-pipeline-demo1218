@@ -10,9 +10,9 @@ import { cn } from "@/lib/utils";
 import { Slider } from "@arco-design/web-react";
 
 const INITIAL_PARAMS = {
-  "Type": { value: 1, type: "actionable", unit: "", remark: "机器型号 (L/M/H)", min: 0, max: 2, step: 1, options: ["L (低)", "M (中)", "H (高)"] },
-  "环境温度": { value: 298.1, type: "actionable", unit: "K", min: 290, max: 310, step: 0.1, remark: "厂房环境温度" },
-  "过程温度": { value: 308.6, type: "actionable", unit: "K", min: 300, max: 320, step: 0.1, remark: "随转速变化" },
+  "Type": { value: "M (中等)", type: "immutable", unit: "", remark: "机器型号已定" },
+  "环境温度": { value: 298.1, type: "immutable", unit: "K", remark: "厂房环境温度" },
+  "过程温度": { value: 308.6, type: "result", unit: "K", remark: "随转速变化" },
   "转速": { value: 1550, type: "actionable", unit: "rpm", min: 1200, max: 3000, step: 10, remark: "可以调节旋钮" },
   "扭矩": { value: 52.5, type: "actionable", unit: "Nm", min: 10, max: 80, step: 0.5, remark: "随负载调整" },
   "工具磨损": { value: 232, type: "costly", unit: "min", min: 0, max: 250, step: 1, remark: "需要停机换刀" },
@@ -221,7 +221,10 @@ export function CausalPilotPanel({ notify, sceneId }) {
                   <Settings className="w-4 h-4 text-blue-500" />
                   实时仿真面板
                 </CardTitle>
-
+                <Button variant="ghost" size="sm" className="h-6 text-xs text-blue-600 hover:bg-blue-50" onClick={autoOptimize}>
+                   <Zap className="w-3 h-3 mr-1" />
+                   一键优化
+                </Button>
               </div>
               <CardDescription className="flex items-center gap-2 mt-2">
                 预测结果: 
@@ -242,10 +245,23 @@ export function CausalPilotPanel({ notify, sceneId }) {
                        </div>
                        <div className="text-right">
                          <div className="font-mono text-sm font-bold">
-                           {config.options ? config.options[config.value] : (config.type === "result" ? prediction.value : config.value)} 
+                           {config.type === "result" ? prediction.value : config.value} 
                            <span className="text-xs font-normal text-muted-foreground ml-1">{config.unit}</span>
                          </div>
-
+                         <Badge 
+                            variant="secondary" 
+                            className={cn(
+                              "text-[10px] h-4 px-1 font-normal mt-0.5",
+                              config.type === "immutable" ? "bg-slate-100 text-slate-500" :
+                              config.type === "actionable" ? "bg-green-50 text-green-600 border-green-100" :
+                              config.type === "costly" ? "bg-orange-50 text-orange-600 border-orange-100" :
+                              "bg-blue-50 text-blue-600 border-blue-100"
+                            )}
+                          >
+                            {config.type === "immutable" ? "不可变" : 
+                             config.type === "actionable" ? "可调节" :
+                             config.type === "costly" ? "高成本" : "结果变量"}
+                          </Badge>
                        </div>
                      </div>
                      

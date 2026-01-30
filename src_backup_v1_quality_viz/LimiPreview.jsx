@@ -37,7 +37,6 @@ import {
   Download,
   Settings,
   FastForward,
-  Loader2,
 } from "lucide-react";
 import { CausalPilotPanel } from "./components/panels";
 import {
@@ -82,9 +81,6 @@ const CustomScoreBarLabel = (props) => {
 
 import { REAL_MACHINE_DATA, REAL_PRICE_DATA, REAL_CLF_DATA } from './data/real_data';
 import { NEW_MACHINE_DATA } from './data/new_machine_data';
-import { REAL_AIR_DATA } from './data/real_air_data';
-import { AIR_CLEANED_PREVIEW } from './data/air_cleaned_preview';
-import { AIR_TEST_PREVIEW } from './data/air_test_preview';
 
 
 import { MACHINE_HEATMAP_FACTORS, MACHINE_HEATMAP_DATA } from './data/machine_heatmap_data';
@@ -149,11 +145,11 @@ const SCENES = [
 
 const MOCK_PREVIEW_ROWS_MACHINE = [
   { UDI: 2033, "Product ID": "L49212", Type: "L", "Air temperature [K]": 298.8, "Process temperature [K]": 308.5, "Rotational speed [rpm]": 1444, "Torque [Nm]": 42.2, "Tool wear [min]": 83, "Machine failure": 0, TWF: 0, HDF: 0, PWF: 0, OSF: 0, RNF: 0 },
-  { UDI: 6018, "Product ID": "L53197", Type: "L", "Air temperature [K]": null, "Process temperature [K]": null, "Rotational speed [rpm]": 1398, "Torque [Nm]": 38.2, "Tool wear [min]": 50, "Machine failure": 0, TWF: 0, HDF: 0, PWF: 0, OSF: 0, RNF: 0 },
-  { UDI: 3343, "Product ID": "L50522", Type: "L", "Air temperature [K]": 301.5, "Process temperature [K]": 310.8, "Rotational speed [rpm]": 1443, "Torque [Nm]": 52.4, "Tool wear [min]": 165, "Machine failure": 0, TWF: 0, HDF: 0, PWF: 0, OSF: 0, RNF: 0 },
-  { UDI: 461, "Product ID": "H29874", Type: "H", "Air temperature [K]": 297.7, "Process temperature [K]": 308.6, "Rotational speed [rpm]": 1431, "Torque [Nm]": null, "Tool wear [min]": 109, "Machine failure": 0, TWF: 0, HDF: 0, PWF: 0, OSF: 0, RNF: 0 },
+  { UDI: 6018, "Product ID": "L53197", Type: "L", "Air temperature [K]": 300.8, "Process temperature [K]": null, "Rotational speed [rpm]": 1398, "Torque [Nm]": 38.2, "Tool wear [min]": 50, "Machine failure": 0, TWF: 0, HDF: 0, PWF: 0, OSF: 0, RNF: 0 },
+  { UDI: 3343, "Product ID": "L50522", Type: "L", "Air temperature [K]": 301.5, "Process temperature [K]": 310.8, "Rotational speed [rpm]": 9999, "Torque [Nm]": 52.4, "Tool wear [min]": 165, "Machine failure": 0, TWF: 0, HDF: 0, PWF: 0, OSF: 0, RNF: 0 },
+  { UDI: 461, "Product ID": "H29874", Type: "H", "Air temperature [K]": 297.3, "Process temperature [K]": 308.6, "Rotational speed [rpm]": 1431, "Torque [Nm]": null, "Tool wear [min]": 109, "Machine failure": 0, TWF: 0, HDF: 0, PWF: 0, OSF: 0, RNF: 0 },
   { UDI: 9376, "Product ID": "H38789", Type: "H", "Air temperature [K]": 297.7, "Process temperature [K]": 308.4, "Rotational speed [rpm]": 1288, "Torque [Nm]": 49.5, "Tool wear [min]": 91, "Machine failure": 0, TWF: 0, HDF: 0, PWF: 0, OSF: 0, RNF: 0 },
-  { UDI: 9398, "Product ID": "M24257", Type: "M", "Air temperature [K]": 297.7, "Process temperature [K]": '', "Rotational speed [rpm]": 1370, "Torque [Nm]": 53.4, "Tool wear [min]": 162, "Machine failure": 0, TWF: 0, HDF: 0, PWF: 0, OSF: 0, RNF: 0 },
+  { UDI: 9398, "Product ID": "M24257", Type: "M", "Air temperature [K]": 297.7, "Process temperature [K]": 308.2, "Rotational speed [rpm]": 1370, "Torque [Nm]": 53.4, "Tool wear [min]": 162, "Machine failure": 0, TWF: 0, HDF: 0, PWF: 0, OSF: 0, RNF: 0 },
   { UDI: 4774, "Product ID": "L51953", Type: "L", "Air temperature [K]": null, "Process temperature [K]": 312.0, "Rotational speed [rpm]": 1391, "Torque [Nm]": 50.3, "Tool wear [min]": 101, "Machine failure": 0, TWF: 0, HDF: 0, PWF: 0, OSF: 0, RNF: 0 },
   { UDI: 935, "Product ID": "M15794", Type: "M", "Air temperature [K]": 295.5, "Process temperature [K]": 306.0, "Rotational speed [rpm]": 1326, "Torque [Nm]": 50.8, "Tool wear [min]": 18, "Machine failure": 0, TWF: 0, HDF: 0, PWF: 0, OSF: 0, RNF: 0 },
   { UDI: 581, "Product ID": "M15440", Type: "M", "Air temperature [K]": 297.8, "Process temperature [K]": 309.8, "Rotational speed [rpm]": 1798, "Torque [Nm]": 25.5, "Tool wear [min]": 203, "Machine failure": 0, TWF: 0, HDF: 0, PWF: 0, OSF: 0, RNF: 0 },
@@ -161,26 +157,44 @@ const MOCK_PREVIEW_ROWS_MACHINE = [
 ];
 
 const MOCK_PREVIEW_ROWS_MACHINE_TEST = [
-  { UDI: 8466, "Product ID": "M23325", Type: "M", "Air temperature [K]": '', "Process temperature [K]": 309.8, "Rotational speed [rpm]": 1475, "Torque [Nm]": 40.5, "Tool wear [min]": 59, "Machine failure": 0, TWF: 0, HDF: 0, PWF: 0, OSF: 0, RNF: 0 },
+  { UDI: 8466, "Product ID": "M23325", Type: "M", "Air temperature [K]": 298.7, "Process temperature [K]": 309.8, "Rotational speed [rpm]": 1475, "Torque [Nm]": 40.5, "Tool wear [min]": 59, "Machine failure": 0, TWF: 0, HDF: 0, PWF: 0, OSF: 0, RNF: 0 },
   { UDI: 4805, "Product ID": "L51984", Type: "L", "Air temperature [K]": 303.7, "Process temperature [K]": 312.6, "Rotational speed [rpm]": 1621, "Torque [Nm]": 38.8, "Tool wear [min]": 182, "Machine failure": 0, TWF: 0, HDF: 0, PWF: 0, OSF: 0, RNF: 0 },
   { UDI: 2859, "Product ID": "L50038", Type: "L", "Air temperature [K]": 300.5, "Process temperature [K]": 309.3, "Rotational speed [rpm]": 1417, "Torque [Nm]": 51.5, "Tool wear [min]": 231, "Machine failure": 1, TWF: 0, HDF: 0, PWF: 0, OSF: 1, RNF: 0 },
   { UDI: 4220, "Product ID": "L51399", Type: "L", "Air temperature [K]": 301.9, "Process temperature [K]": 310.7, "Rotational speed [rpm]": 1717, "Torque [Nm]": 26.8, "Tool wear [min]": 27, "Machine failure": 0, TWF: 0, HDF: 0, PWF: 0, OSF: 0, RNF: 0 },
   { UDI: 4482, "Product ID": "M19341", Type: "M", "Air temperature [K]": 302.6, "Process temperature [K]": 310.4, "Rotational speed [rpm]": 1544, "Torque [Nm]": 35.1, "Tool wear [min]": 25, "Machine failure": 0, TWF: 0, HDF: 0, PWF: 0, OSF: 0, RNF: 0 },
-  { UDI: 1476, "Product ID": "M16335", Type: "M", "Air temperature [K]": '', "Process temperature [K]": '', "Rotational speed [rpm]": 1519, "Torque [Nm]": 35.4, "Tool wear [min]": 133, "Machine failure": 0, TWF: 0, HDF: 0, PWF: 0, OSF: 0, RNF: 0 },
+  { UDI: 1476, "Product ID": "M16335", Type: "M", "Air temperature [K]": 298.4, "Process temperature [K]": 309.5, "Rotational speed [rpm]": 1519, "Torque [Nm]": 35.4, "Tool wear [min]": 133, "Machine failure": 0, TWF: 0, HDF: 0, PWF: 0, OSF: 0, RNF: 0 },
   { UDI: 2810, "Product ID": "L49989", Type: "L", "Air temperature [K]": 299.9, "Process temperature [K]": 309.2, "Rotational speed [rpm]": 1598, "Torque [Nm]": 34.6, "Tool wear [min]": 111, "Machine failure": 0, TWF: 0, HDF: 0, PWF: 0, OSF: 0, RNF: 0 },
   { UDI: 5814, "Product ID": "L52993", Type: "L", "Air temperature [K]": 301.2, "Process temperature [K]": 311.0, "Rotational speed [rpm]": 1761, "Torque [Nm]": 29.1, "Tool wear [min]": 195, "Machine failure": 0, TWF: 0, HDF: 0, PWF: 0, OSF: 0, RNF: 0 },
   { UDI: 908, "Product ID": "M15767", Type: "M", "Air temperature [K]": 295.6, "Process temperature [K]": 306.1, "Rotational speed [rpm]": 1669, "Torque [Nm]": 29.0, "Tool wear [min]": 161, "Machine failure": 0, TWF: 0, HDF: 0, PWF: 0, OSF: 0, RNF: 0 },
   { UDI: 1771, "Product ID": "H31184", Type: "H", "Air temperature [K]": 298.4, "Process temperature [K]": 307.9, "Rotational speed [rpm]": 1605, "Torque [Nm]": 31.0, "Tool wear [min]": 18, "Machine failure": 0, TWF: 0, HDF: 0, PWF: 0, OSF: 0, RNF: 0 },
 ];
 
-// 使用实际文件的前10行预览数据
-const MOCK_PREVIEW_ROWS_AIR = REAL_AIR_DATA.slice(0, 10);
+const MOCK_PREVIEW_ROWS_AIR = [
+  { "Time": "2024-03-10 18:00:00", "CO(GT)": 2.6, "PT08.S1(CO)": 1360.0, "NMHC(GT)": 150, "C6H6(GT)": 11.881723488680304, "PT08.S2(NMHC)": 1045.5, "NOx(GT)": 166, "PT08.S3(NOx)": 1056.25, "NO2(GT)": 113, "PT08.S4(NO2)": 1692.0, "PT08.S5(O3)": 1267.5, "T": 13.599999904633, "RH": 48.875000953674, "AH": 0.7577538251293606 },
+  { "Time": "2024-03-10 19:00:00", "CO(GT)": 2.0, "PT08.S1(CO)": null, "NMHC(GT)": 112, "C6H6(GT)": 9.397164889581603, "PT08.S2(NMHC)": 954.75, "NOx(GT)": 103, "PT08.S3(NOx)": 1173.75, "NO2(GT)": 92, "PT08.S4(NO2)": 1558.75, "PT08.S5(O3)": 972.25, "T": 13.299999952316, "RH": 47.699999809265, "AH": 0.7254874492424674 },
+  { "Time": "2024-03-10 20:00:00", "CO(GT)": 2.2, "PT08.S1(CO)": 1402.0, "NMHC(GT)": 9999, "C6H6(GT)": 8.997816871326798, "PT08.S2(NMHC)": 939.25, "NOx(GT)": 131, "PT08.S3(NOx)": 1140.0, "NO2(GT)": 114, "PT08.S4(NO2)": 1554.5, "PT08.S5(O3)": 1074.0, "T": 11.900000095367, "RH": 53.97500038147, "AH": 0.7502390673981953 },
+  { "Time": "2024-03-10 21:00:00", "CO(GT)": null, "PT08.S1(CO)": 1375.5, "NMHC(GT)": 80, "C6H6(GT)": 9.228796421407274, "PT08.S2(NMHC)": 948.25, "NOx(GT)": 172, "PT08.S3(NOx)": 1092.0, "NO2(GT)": 122, "PT08.S4(NO2)": 1583.75, "PT08.S5(O3)": 1203.25, "T": 11.0, "RH": null, "AH": 0.7867125330859253 },
+  { "Time": "2024-03-10 22:00:00", "CO(GT)": 1.6, "PT08.S1(CO)": 1272.25, "NMHC(GT)": 51, "C6H6(GT)": 6.518223669074141, "PT08.S2(NMHC)": 835.5, "NOx(GT)": 131, "PT08.S3(NOx)": 1205.0, "NO2(GT)": 116, "PT08.S4(NO2)": 1490.0, "PT08.S5(O3)": 1110.0, "T": 11.150000095367, "RH": 59.575000762939, "AH": 0.7887942318667593 },
+  { "Time": "2024-03-10 23:00:00", "CO(GT)": 1.2, "PT08.S1(CO)": 1197.0, "NMHC(GT)": 38, "C6H6(GT)": 4.741012362478748, "PT08.S2(NMHC)": 750.25, "NOx(GT)": 89, "PT08.S3(NOx)": 1336.5, "NO2(GT)": 96, "PT08.S4(NO2)": 1393.0, "PT08.S5(O3)": 949.25, "T": 11.175000190735, "RH": 59.175000190735, "AH": 0.7847716643397448 },
+  { "Time": "2024-03-11 00:00:00", "CO(GT)": 1.2, "PT08.S1(CO)": 1185.0, "NMHC(GT)": 31, "C6H6(GT)": 3.624399189797516, "PT08.S2(NMHC)": 689.5, "NOx(GT)": 62, "PT08.S3(NOx)": 1461.75, "NO2(GT)": 77, "PT08.S4(NO2)": 1332.75, "PT08.S5(O3)": 732.5, "T": 11.324999809265, "RH": 56.77499961853, "AH": 0.7603119392843289 },
+  { "Time": "2024-03-11 01:00:00", "CO(GT)": 1.0, "PT08.S1(CO)": 1136.25, "NMHC(GT)": 31, "C6H6(GT)": 3.3266769916607997, "PT08.S2(NMHC)": 672.0, "NOx(GT)": 62, "PT08.S3(NOx)": 1453.25, "NO2(GT)": 76, "PT08.S4(NO2)": 1332.75, "PT08.S5(O3)": 729.5, "T": 10.674999952316, "RH": 60.0, "AH": 0.7702384578230451 },
+  { "Time": "2024-03-11 02:00:00", "CO(GT)": 0.9, "PT08.S1(CO)": 1094.0, "NMHC(GT)": 24, "C6H6(GT)": 2.3394161950867094, "PT08.S2(NMHC)": 608.5, "NOx(GT)": 45, "PT08.S3(NOx)": 1579.0, "NO2(GT)": 60, "PT08.S4(NO2)": 1276.0, "PT08.S5(O3)": 619.5, "T": 10.650000095367, "RH": 59.674999237061, "AH": 0.7648187256861201 },
+  { "Time": "2024-03-11 03:00:00", "CO(GT)": 0.6, "PT08.S1(CO)": 1009.75, "NMHC(GT)": 19, "C6H6(GT)": 1.6966582576513223, "PT08.S2(NMHC)": 560.75, "NOx(GT)": -200, "PT08.S3(NOx)": 1705.0, "NO2(GT)": -200, "PT08.S4(NO2)": 1234.75, "PT08.S5(O3)": 501.25, "T": 10.250000238419, "RH": 60.200000762939, "AH": 0.7516571648306898 }
+];
 
-// 清洗后的空气质量训练集预览数据 - 来自空气质量预测训练集清洗1.xlsx
-const MOCK_PREVIEW_ROWS_AIR_CLEANED = AIR_CLEANED_PREVIEW;
-
-// 空气质量测试集预览数据 - 来自空气质量预测测试集.xlsx
-const MOCK_PREVIEW_ROWS_AIR_TEST = AIR_TEST_PREVIEW;
+// 清洗后的空气质量预览数据 - 不含缺失值和异常值
+const MOCK_PREVIEW_ROWS_AIR_CLEANED = [
+  { "Time": "2024-03-10 18:00:00", "CO(GT)": 2.6, "PT08.S1(CO)": 1360.0, "NMHC(GT)": 150, "C6H6(GT)": 11.881723488680304, "PT08.S2(NMHC)": 1045.5, "NOx(GT)": 166, "PT08.S3(NOx)": 1056.25, "NO2(GT)": 113, "PT08.S4(NO2)": 1692.0, "PT08.S5(O3)": 1267.5, "T": 13.599999904633, "RH": 48.875000953674, "AH": 0.7577538251293606 },
+  { "Time": "2024-03-10 19:00:00", "CO(GT)": 2.0, "PT08.S1(CO)": 1292.25, "NMHC(GT)": 112, "C6H6(GT)": 9.397164889581603, "PT08.S2(NMHC)": 954.75, "NOx(GT)": 103, "PT08.S3(NOx)": 1173.75, "NO2(GT)": 92, "PT08.S4(NO2)": 1558.75, "PT08.S5(O3)": 972.25, "T": 13.299999952316, "RH": 47.699999809265, "AH": 0.7254874492424674 },
+  { "Time": "2024-03-10 20:00:00", "CO(GT)": 2.2, "PT08.S1(CO)": 1402.0, "NMHC(GT)": 88, "C6H6(GT)": 8.997816871326798, "PT08.S2(NMHC)": 939.25, "NOx(GT)": 131, "PT08.S3(NOx)": 1140.0, "NO2(GT)": 114, "PT08.S4(NO2)": 1554.5, "PT08.S5(O3)": 1074.0, "T": 11.900000095367, "RH": 53.97500038147, "AH": 0.7502390673981953 },
+  { "Time": "2024-03-10 21:00:00", "CO(GT)": 2.2, "PT08.S1(CO)": 1375.5, "NMHC(GT)": 80, "C6H6(GT)": 9.228796421407274, "PT08.S2(NMHC)": 948.25, "NOx(GT)": 172, "PT08.S3(NOx)": 1092.0, "NO2(GT)": 122, "PT08.S4(NO2)": 1583.75, "PT08.S5(O3)": 1203.25, "T": 11.0, "RH": 60.0, "AH": 0.7867125330859253 },
+  { "Time": "2024-03-10 22:00:00", "CO(GT)": 1.6, "PT08.S1(CO)": 1272.25, "NMHC(GT)": 51, "C6H6(GT)": 6.518223669074141, "PT08.S2(NMHC)": 835.5, "NOx(GT)": 131, "PT08.S3(NOx)": 1205.0, "NO2(GT)": 116, "PT08.S4(NO2)": 1490.0, "PT08.S5(O3)": 1110.0, "T": 11.150000095367, "RH": 59.575000762939, "AH": 0.7887942318667593 },
+  { "Time": "2024-03-10 23:00:00", "CO(GT)": 1.2, "PT08.S1(CO)": 1197.0, "NMHC(GT)": 38, "C6H6(GT)": 4.741012362478748, "PT08.S2(NMHC)": 750.25, "NOx(GT)": 89, "PT08.S3(NOx)": 1336.5, "NO2(GT)": 96, "PT08.S4(NO2)": 1393.0, "PT08.S5(O3)": 949.25, "T": 11.175000190735, "RH": 59.175000190735, "AH": 0.7847716643397448 },
+  { "Time": "2024-03-11 00:00:00", "CO(GT)": 1.2, "PT08.S1(CO)": 1185.0, "NMHC(GT)": 31, "C6H6(GT)": 3.624399189797516, "PT08.S2(NMHC)": 689.5, "NOx(GT)": 62, "PT08.S3(NOx)": 1461.75, "NO2(GT)": 77, "PT08.S4(NO2)": 1332.75, "PT08.S5(O3)": 732.5, "T": 11.324999809265, "RH": 56.77499961853, "AH": 0.7603119392843289 },
+  { "Time": "2024-03-11 01:00:00", "CO(GT)": 1.0, "PT08.S1(CO)": 1136.25, "NMHC(GT)": 31, "C6H6(GT)": 3.3266769916607997, "PT08.S2(NMHC)": 672.0, "NOx(GT)": 62, "PT08.S3(NOx)": 1453.25, "NO2(GT)": 76, "PT08.S4(NO2)": 1332.75, "PT08.S5(O3)": 729.5, "T": 10.674999952316, "RH": 60.0, "AH": 0.7702384578230451 },
+  { "Time": "2024-03-11 02:00:00", "CO(GT)": 0.9, "PT08.S1(CO)": 1094.0, "NMHC(GT)": 24, "C6H6(GT)": 2.3394161950867094, "PT08.S2(NMHC)": 608.5, "NOx(GT)": 45, "PT08.S3(NOx)": 1579.0, "NO2(GT)": 60, "PT08.S4(NO2)": 1276.0, "PT08.S5(O3)": 619.5, "T": 10.650000095367, "RH": 59.674999237061, "AH": 0.7648187256861201 },
+  { "Time": "2024-03-11 03:00:00", "CO(GT)": 0.6, "PT08.S1(CO)": 1009.75, "NMHC(GT)": 19, "C6H6(GT)": 1.6966582576513223, "PT08.S2(NMHC)": 560.75, "NOx(GT)": 75, "PT08.S3(NOx)": 1705.0, "NO2(GT)": 68, "PT08.S4(NO2)": 1234.75, "PT08.S5(O3)": 501.25, "T": 10.250000238419, "RH": 60.200000762939, "AH": 0.7516571648306898 }
+];
 
 // 清洗后的机器预览数据 - 不含缺失值和异常值
 const MOCK_PREVIEW_ROWS_MACHINE_CLEANED = [
@@ -196,7 +210,9 @@ const MOCK_PREVIEW_ROWS_MACHINE_CLEANED = [
   { UDI: 3678, "Product ID": "M49876", Type: "M", "Air temperature [K]": 299.6, "Process temperature [K]": 309.8, "Rotational speed [rpm]": 1445, "Torque [Nm]": 43.1, "Tool wear [min]": 123, "Machine failure": 0, TWF: 0, HDF: 0, PWF: 0, OSF: 0, RNF: 0 }
 ];
 
-const MOCK_NOX_PREDICTION = [{"date": "2024-3-25 00:00", "actual": 80.0, "pred": 82.14, "upper": 90.36, "lower": 73.93}, {"date": "2024-3-25 01:00", "actual": 42.0, "pred": 36.19, "upper": 39.8, "lower": 32.57}, {"date": "2024-3-25 02:00", "actual": 38.0, "pred": 37.02, "upper": 40.72, "lower": 33.31}, {"date": "2024-3-25 03:00", "actual": 28.0, "pred": 23.63, "upper": 26.0, "lower": 21.27}, {"date": "2024-3-25 04:00", "actual": 18.0, "pred": 17.22, "upper": 18.94, "lower": 15.5}, {"date": "2024-3-25 05:00", "actual": 12.0, "pred": 8.7, "upper": 9.57, "lower": 7.83}, {"date": "2024-3-25 06:00", "actual": 43.0, "pred": 42.82, "upper": 47.1, "lower": 38.54}, {"date": "2024-3-25 07:00", "actual": 84.0, "pred": 88.39, "upper": 97.23, "lower": 79.55}, {"date": "2024-3-25 08:00", "actual": 184.0, "pred": 181.63, "upper": 199.79, "lower": 163.47}, {"date": "2024-3-25 09:00", "actual": 202.0, "pred": 223.66, "upper": 246.03, "lower": 201.29}, {"date": "2024-3-25 10:00", "actual": 133.0, "pred": 137.61, "upper": 151.37, "lower": 123.85}, {"date": "2024-3-25 11:00", "actual": 130.0, "pred": 106.39, "upper": 117.03, "lower": 95.75}, {"date": "2024-3-25 12:00", "actual": 106.0, "pred": 86.93, "upper": 95.62, "lower": 78.23}, {"date": "2024-3-25 13:00", "actual": 132.0, "pred": 122.9, "upper": 135.19, "lower": 110.61}, {"date": "2024-3-25 14:00", "actual": 106.0, "pred": 100.86, "upper": 110.95, "lower": 90.78}, {"date": "2024-3-25 15:00", "actual": 125.0, "pred": 108.13, "upper": 118.95, "lower": 97.32}, {"date": "2024-3-25 16:00", "actual": 138.0, "pred": 129.89, "upper": 142.88, "lower": 116.9}, {"date": "2024-3-25 17:00", "actual": 120.0, "pred": 108.83, "upper": 119.71, "lower": 97.94}, {"date": "2024-3-25 18:00", "actual": 158.0, "pred": 158.09, "upper": 173.89, "lower": 142.28}, {"date": "2024-3-25 19:00", "actual": 253.0, "pred": 261.87, "upper": 288.06, "lower": 235.69}, {"date": "2024-3-25 20:00", "actual": 231.0, "pred": 258.89, "upper": 284.78, "lower": 233.0}, {"date": "2024-3-25 21:00", "actual": 150.0, "pred": 157.03, "upper": 172.73, "lower": 141.33}, {"date": "2024-3-25 22:00", "actual": 99.0, "pred": 114.05, "upper": 125.46, "lower": 102.65}, {"date": "2024-3-25 23:00", "actual": 75.0, "pred": 85.57, "upper": 94.13, "lower": 77.01}, {"date": "2024-3-26 00:00", "actual": 93.0, "pred": 107.72, "upper": 118.49, "lower": 96.95}, {"date": "2024-3-26 01:00", "actual": 79.0, "pred": 92.84, "upper": 102.13, "lower": 83.56}, {"date": "2024-3-26 02:00", "actual": 67.0, "pred": 77.0, "upper": 84.7, "lower": 69.3}, {"date": "2024-3-26 03:00", "actual": 56.0, "pred": 50.56, "upper": 55.62, "lower": 45.51}, {"date": "2024-3-26 04:00", "actual": 45.0, "pred": 47.69, "upper": 52.46, "lower": 42.92}, {"date": "2024-3-26 05:00", "actual": 72.0, "pred": 81.37, "upper": 89.5, "lower": 73.23}, {"date": "2024-3-26 06:00", "actual": 103.0, "pred": 95.8, "upper": 105.38, "lower": 86.22}, {"date": "2024-3-26 07:00", "actual": 132.0, "pred": 124.96, "upper": 137.46, "lower": 112.46}, {"date": "2024-3-26 08:00", "actual": 239.0, "pred": 217.19, "upper": 238.91, "lower": 195.47}, {"date": "2024-3-26 09:00", "actual": 275.0, "pred": 252.42, "upper": 277.66, "lower": 227.18}, {"date": "2024-3-26 10:00", "actual": 232.0, "pred": 217.85, "upper": 239.64, "lower": 196.07}, {"date": "2024-3-26 11:00", "actual": 180.0, "pred": 183.59, "upper": 201.95, "lower": 165.23}, {"date": "2024-3-26 12:00", "actual": 112.0, "pred": 128.96, "upper": 141.86, "lower": 116.07}, {"date": "2024-3-26 13:00", "actual": 116.0, "pred": 135.98, "upper": 149.58, "lower": 122.38}, {"date": "2024-3-26 14:00", "actual": 103.0, "pred": 111.78, "upper": 122.96, "lower": 100.61}, {"date": "2024-3-26 15:00", "actual": 89.0, "pred": 80.7, "upper": 88.77, "lower": 72.63}, {"date": "2024-3-26 16:00", "actual": 112.0, "pred": 111.12, "upper": 122.23, "lower": 100.01}, {"date": "2024-3-26 17:00", "actual": 127.0, "pred": 137.89, "upper": 151.68, "lower": 124.1}, {"date": "2024-3-26 18:00", "actual": 125.0, "pred": 151.73, "upper": 166.91, "lower": 136.56}, {"date": "2024-3-26 19:00", "actual": 120.0, "pred": 151.55, "upper": 166.71, "lower": 136.4}, {"date": "2024-3-26 20:00", "actual": 120.0, "pred": 145.32, "upper": 159.85, "lower": 130.79}, {"date": "2024-3-26 21:00", "actual": 99.0, "pred": 104.04, "upper": 114.45, "lower": 93.64}, {"date": "2024-3-26 22:00", "actual": 79.0, "pred": 87.01, "upper": 95.71, "lower": 78.31}, {"date": "2024-3-26 23:00", "actual": 66.0, "pred": 76.34, "upper": 83.97, "lower": 68.7}, {"date": "2024-3-27 00:00", "actual": 94.0, "pred": 98.48, "upper": 108.33, "lower": 88.64}, {"date": "2024-3-27 01:00", "actual": 70.0, "pred": 71.03, "upper": 78.13, "lower": 63.92}, {"date": "2024-3-27 02:00", "actual": 75.0, "pred": 89.58, "upper": 98.54, "lower": 80.62}, {"date": "2024-3-27 03:00", "actual": 66.0, "pred": 78.44, "upper": 86.28, "lower": 70.59}, {"date": "2024-3-27 04:00", "actual": 57.0, "pred": 75.67, "upper": 83.24, "lower": 68.1}, {"date": "2024-3-27 05:00", "actual": 32.0, "pred": 48.68, "upper": 53.55, "lower": 43.82}, {"date": "2024-3-27 06:00", "actual": 54.0, "pred": 68.76, "upper": 75.63, "lower": 61.88}, {"date": "2024-3-27 07:00", "actual": 68.0, "pred": 77.22, "upper": 84.94, "lower": 69.5}, {"date": "2024-3-27 08:00", "actual": 98.0, "pred": 124.25, "upper": 136.68, "lower": 111.83}, {"date": "2024-3-27 09:00", "actual": 128.0, "pred": 153.09, "upper": 168.4, "lower": 137.79}, {"date": "2024-3-27 10:00", "actual": 129.0, "pred": 146.86, "upper": 161.54, "lower": 132.17}, {"date": "2024-3-27 11:00", "actual": 130.0, "pred": 127.56, "upper": 140.31, "lower": 114.8}, {"date": "2024-3-27 12:00", "actual": 111.0, "pred": 116.13, "upper": 127.74, "lower": 104.51}, {"date": "2024-3-27 13:00", "actual": 106.0, "pred": 125.26, "upper": 137.79, "lower": 112.74}, {"date": "2024-3-27 14:00", "actual": 137.0, "pred": 154.6, "upper": 170.06, "lower": 139.14}, {"date": "2024-3-27 15:00", "actual": 113.0, "pred": 118.85, "upper": 130.73, "lower": 106.96}, {"date": "2024-3-27 16:00", "actual": 122.0, "pred": 136.79, "upper": 150.47, "lower": 123.11}, {"date": "2024-3-27 17:00", "actual": 137.0, "pred": 140.38, "upper": 154.42, "lower": 126.34}, {"date": "2024-3-27 18:00", "actual": 165.0, "pred": 157.73, "upper": 173.5, "lower": 141.95}, {"date": "2024-3-27 19:00", "actual": 196.0, "pred": 214.92, "upper": 236.41, "lower": 193.43}, {"date": "2024-3-27 20:00", "actual": 174.0, "pred": 191.34, "upper": 210.47, "lower": 172.2}, {"date": "2024-3-27 21:00", "actual": 140.0, "pred": 144.52, "upper": 158.97, "lower": 130.07}, {"date": "2024-3-27 22:00", "actual": 102.0, "pred": 119.47, "upper": 131.42, "lower": 107.52}, {"date": "2024-3-27 23:00", "actual": 130.0, "pred": 154.13, "upper": 169.54, "lower": 138.72}, {"date": "2024-3-28 00:00", "actual": 121.0, "pred": 143.11, "upper": 157.42, "lower": 128.8}, {"date": "2024-3-28 01:00", "actual": 111.0, "pred": 141.99, "upper": 156.19, "lower": 127.79}, {"date": "2024-3-28 02:00", "actual": 87.0, "pred": 114.74, "upper": 126.22, "lower": 103.27}, {"date": "2024-3-28 03:00", "actual": 82.0, "pred": 148.53, "upper": 163.39, "lower": 133.68}, {"date": "2024-3-28 04:00", "actual": 77.0, "pred": 105.76, "upper": 116.33, "lower": 95.18}, {"date": "2024-3-28 05:00", "actual": 39.0, "pred": 62.12, "upper": 68.33, "lower": 55.91}, {"date": "2024-3-28 06:00", "actual": 77.0, "pred": 83.14, "upper": 91.45, "lower": 74.82}, {"date": "2024-3-28 07:00", "actual": 91.0, "pred": 88.23, "upper": 97.05, "lower": 79.4}, {"date": "2024-3-28 08:00", "actual": 105.0, "pred": 103.65, "upper": 114.02, "lower": 93.29}, {"date": "2024-3-28 09:00", "actual": 133.0, "pred": 133.77, "upper": 147.15, "lower": 120.4}, {"date": "2024-3-28 10:00", "actual": 128.0, "pred": 142.11, "upper": 156.32, "lower": 127.9}, {"date": "2024-3-28 11:00", "actual": 126.0, "pred": 140.95, "upper": 155.05, "lower": 126.86}, {"date": "2024-3-28 12:00", "actual": 92.0, "pred": 105.2, "upper": 115.72, "lower": 94.68}, {"date": "2024-3-28 13:00", "actual": 66.0, "pred": 78.33, "upper": 86.16, "lower": 70.49}, {"date": "2024-3-28 14:00", "actual": 50.0, "pred": 53.99, "upper": 59.39, "lower": 48.59}, {"date": "2024-3-28 15:00", "actual": 70.0, "pred": 71.25, "upper": 78.37, "lower": 64.12}, {"date": "2024-3-28 16:00", "actual": 73.0, "pred": 72.08, "upper": 79.28, "lower": 64.87}, {"date": "2024-3-28 17:00", "actual": 77.0, "pred": 73.24, "upper": 80.56, "lower": 65.91}, {"date": "2024-3-28 18:00", "actual": 86.0, "pred": 86.76, "upper": 95.44, "lower": 78.08}, {"date": "2024-3-28 19:00", "actual": 93.0, "pred": 104.1, "upper": 114.51, "lower": 93.69}, {"date": "2024-3-28 20:00", "actual": 105.0, "pred": 110.21, "upper": 121.23, "lower": 99.19}, {"date": "2024-3-28 21:00", "actual": 67.0, "pred": 71.69, "upper": 78.86, "lower": 64.52}, {"date": "2024-3-28 22:00", "actual": 63.0, "pred": 71.41, "upper": 78.55, "lower": 64.27}, {"date": "2024-3-28 23:00", "actual": 63.0, "pred": 66.99, "upper": 73.69, "lower": 60.29}, {"date": "2024-3-29 00:00", "actual": 46.0, "pred": 49.79, "upper": 54.77, "lower": 44.81}, {"date": "2024-3-29 01:00", "actual": 21.0, "pred": 28.06, "upper": 30.86, "lower": 25.25}, {"date": "2024-3-29 02:00", "actual": 22.0, "pred": 29.6, "upper": 32.57, "lower": 26.64}, {"date": "2024-3-29 03:00", "actual": 30.0, "pred": 37.68, "upper": 41.45, "lower": 33.91}, {"date": "2024-3-29 04:00", "actual": 39.0, "pred": 52.83, "upper": 58.11, "lower": 47.55}, {"date": "2024-3-29 05:00", "actual": 55.0, "pred": 61.51, "upper": 67.67, "lower": 55.36}, {"date": "2024-3-29 06:00", "actual": 76.0, "pred": 76.0, "upper": 83.6, "lower": 68.4}, {"date": "2024-3-29 07:00", "actual": 181.0, "pred": 209.56, "upper": 230.51, "lower": 188.6}, {"date": "2024-3-29 08:00", "actual": 259.0, "pred": 260.66, "upper": 286.72, "lower": 234.59}, {"date": "2024-3-29 09:00", "actual": 118.0, "pred": 115.71, "upper": 127.28, "lower": 104.14}, {"date": "2024-3-29 10:00", "actual": 119.0, "pred": 105.01, "upper": 115.51, "lower": 94.51}, {"date": "2024-3-29 11:00", "actual": 123.0, "pred": 107.91, "upper": 118.7, "lower": 97.12}, {"date": "2024-3-29 12:00", "actual": 92.0, "pred": 87.37, "upper": 96.1, "lower": 78.63}, {"date": "2024-3-29 13:00", "actual": 91.0, "pred": 94.89, "upper": 104.38, "lower": 85.4}, {"date": "2024-3-29 14:00", "actual": 103.0, "pred": 97.71, "upper": 107.48, "lower": 87.94}, {"date": "2024-3-29 15:00", "actual": 102.0, "pred": 89.66, "upper": 98.63, "lower": 80.7}, {"date": "2024-3-29 16:00", "actual": 94.0, "pred": 95.69, "upper": 105.26, "lower": 86.12}, {"date": "2024-3-29 17:00", "actual": 98.0, "pred": 109.68, "upper": 120.65, "lower": 98.71}, {"date": "2024-3-29 18:00", "actual": 126.0, "pred": 145.44, "upper": 159.99, "lower": 130.9}, {"date": "2024-3-29 19:00", "actual": 108.0, "pred": 130.93, "upper": 144.02, "lower": 117.83}, {"date": "2024-3-29 20:00", "actual": 95.0, "pred": 113.36, "upper": 124.7, "lower": 102.02}, {"date": "2024-3-29 21:00", "actual": 78.0, "pred": 89.47, "upper": 98.42, "lower": 80.52}, {"date": "2024-3-29 22:00", "actual": 61.0, "pred": 83.3, "upper": 91.63, "lower": 74.97}, {"date": "2024-3-29 23:00", "actual": 55.0, "pred": 71.41, "upper": 78.55, "lower": 64.27}, {"date": "2024-3-30 00:00", "actual": 57.0, "pred": 71.14, "upper": 78.25, "lower": 64.02}, {"date": "2024-3-30 01:00", "actual": 41.0, "pred": 64.0, "upper": 70.4, "lower": 57.6}, {"date": "2024-3-30 02:00", "actual": 46.0, "pred": 75.45, "upper": 83.0, "lower": 67.91}, {"date": "2024-3-30 03:00", "actual": 43.0, "pred": 73.02, "upper": 80.32, "lower": 65.72}, {"date": "2024-3-30 04:00", "actual": 41.0, "pred": 74.23, "upper": 81.66, "lower": 66.81}, {"date": "2024-3-30 05:00", "actual": 52.0, "pred": 69.59, "upper": 76.55, "lower": 62.63}, {"date": "2024-3-30 06:00", "actual": 111.0, "pred": 122.69, "upper": 134.96, "lower": 110.42}, {"date": "2024-3-30 07:00", "actual": 191.0, "pred": 213.93, "upper": 235.32, "lower": 192.53}, {"date": "2024-3-30 08:00", "actual": 244.0, "pred": 296.27, "upper": 325.9, "lower": 266.64}, {"date": "2024-3-30 09:00", "actual": 283.0, "pred": 316.4, "upper": 348.04, "lower": 284.76}, {"date": "2024-3-30 10:00", "actual": 320.0, "pred": 331.78, "upper": 364.95, "lower": 298.6}, {"date": "2024-3-30 11:00", "actual": 249.0, "pred": 286.1, "upper": 314.71, "lower": 257.49}, {"date": "2024-3-30 12:00", "actual": 219.0, "pred": 263.64, "upper": 290.01, "lower": 237.28}, {"date": "2024-3-30 13:00", "actual": 200.0, "pred": 235.88, "upper": 259.47, "lower": 212.29}, {"date": "2024-3-30 14:00", "actual": 138.0, "pred": 151.19, "upper": 166.31, "lower": 136.07}, {"date": "2024-3-30 15:00", "actual": 118.0, "pred": 117.76, "upper": 129.53, "lower": 105.98}, {"date": "2024-3-30 16:00", "actual": 99.0, "pred": 89.33, "upper": 98.26, "lower": 80.4}, {"date": "2024-3-30 17:00", "actual": 112.0, "pred": 130.27, "upper": 143.3, "lower": 117.24}, {"date": "2024-3-30 18:00", "actual": 117.0, "pred": 129.64, "upper": 142.6, "lower": 116.68}, {"date": "2024-3-30 19:00", "actual": 129.0, "pred": 147.3, "upper": 162.03, "lower": 132.57}, {"date": "2024-3-30 20:00", "actual": 132.0, "pred": 137.5, "upper": 151.25, "lower": 123.75}, {"date": "2024-3-30 21:00", "actual": 73.0, "pred": 77.11, "upper": 84.82, "lower": 69.4}, {"date": "2024-3-30 22:00", "actual": 68.0, "pred": 71.8, "upper": 78.98, "lower": 64.62}, {"date": "2024-3-30 23:00", "actual": 80.0, "pred": 91.13, "upper": 100.24, "lower": 82.02}, {"date": "2024-3-31 00:00", "actual": 68.0, "pred": 77.05, "upper": 84.76, "lower": 69.35}, {"date": "2024-3-31 01:00", "actual": 44.0, "pred": 55.15, "upper": 60.67, "lower": 49.64}, {"date": "2024-3-31 02:00", "actual": 47.0, "pred": 65.33, "upper": 71.86, "lower": 58.8}, {"date": "2024-3-31 03:00", "actual": 31.0, "pred": 37.24, "upper": 40.96, "lower": 33.51}, {"date": "2024-3-31 04:00", "actual": 15.0, "pred": 17.33, "upper": 19.06, "lower": 15.59}, {"date": "2024-3-31 05:00", "actual": 44.0, "pred": 44.43, "upper": 48.87, "lower": 39.98}, {"date": "2024-3-31 06:00", "actual": 85.0, "pred": 85.35, "upper": 93.88, "lower": 76.81}, {"date": "2024-3-31 07:00", "actual": 207.0, "pred": 236.05, "upper": 259.65, "lower": 212.44}, {"date": "2024-3-31 08:00", "actual": 230.0, "pred": 219.24, "upper": 241.16, "lower": 197.31}, {"date": "2024-3-31 09:00", "actual": 181.0, "pred": 163.98, "upper": 180.37, "lower": 147.58}, {"date": "2024-3-31 10:00", "actual": 144.0, "pred": 129.96, "upper": 142.96, "lower": 116.97}, {"date": "2024-3-31 11:00", "actual": 140.0, "pred": 134.17, "upper": 147.58, "lower": 120.75}, {"date": "2024-3-31 12:00", "actual": 204.0, "pred": 194.38, "upper": 213.82, "lower": 174.94}, {"date": "2024-3-31 13:00", "actual": 149.0, "pred": 142.11, "upper": 156.33, "lower": 127.9}, {"date": "2024-3-31 14:00", "actual": 171.0, "pred": 148.55, "upper": 163.41, "lower": 133.7}, {"date": "2024-3-31 15:00", "actual": 195.0, "pred": 175.44, "upper": 192.98, "lower": 157.89}, {"date": "2024-3-31 16:00", "actual": 152.0, "pred": 139.49, "upper": 153.44, "lower": 125.54}, {"date": "2024-3-31 17:00", "actual": 128.0, "pred": 132.01, "upper": 145.21, "lower": 118.81}, {"date": "2024-3-31 18:00", "actual": 121.0, "pred": 147.62, "upper": 162.39, "lower": 132.86}, {"date": "2024-3-31 19:00", "actual": 142.0, "pred": 145.74, "upper": 160.32, "lower": 131.17}, {"date": "2024-3-31 20:00", "actual": 131.0, "pred": 137.55, "upper": 151.31, "lower": 123.8}, {"date": "2024-3-31 21:00", "actual": 81.0, "pred": 92.87, "upper": 102.16, "lower": 83.58}, {"date": "2024-3-31 22:00", "actual": 60.0, "pred": 81.15, "upper": 89.26, "lower": 73.03}, {"date": "2024-3-31 23:00", "actual": 57.0, "pred": 75.01, "upper": 82.51, "lower": 67.51}];
+const MOCK_PREVIEW_ROWS_AIR_TEST = [{ "Time": "2024-03-25 00:00", "CO(GT)": 1.3, "NMHC(GT)": 81, "C6H6(GT)": 4.486627508988761, "NOx(GT)": 80, "NO2(GT)": 89 }, { "Time": "2024-03-25 01:00", "CO(GT)": 1.0, "NMHC(GT)": 52, "C6H6(GT)": 2.514599021549308, "NOx(GT)": 42, "NO2(GT)": 58 }, { "Time": "2024-03-25 02:00", "CO(GT)": 0.7, "NMHC(GT)": 38, "C6H6(GT)": 1.7821586396135651, "NOx(GT)": 38, "NO2(GT)": 54 }, { "Time": "2024-03-25 03:00", "CO(GT)": 0.7, "NMHC(GT)": 35, "C6H6(GT)": 1.4218161094645745, "NOx(GT)": 28, "NO2(GT)": 41 }, { "Time": "2024-03-25 04:00", "CO(GT)": 0.5, "NMHC(GT)": 29, "C6H6(GT)": 0.9066972606578043, "NOx(GT)": 18, "NO2(GT)": 28 }, { "Time": "2024-03-25 05:00", "CO(GT)": 0.5, "NMHC(GT)": 21, "C6H6(GT)": 0.6160853557960174, "NOx(GT)": 12, "NO2(GT)": 20 }, { "Time": "2024-03-25 06:00", "CO(GT)": 0.6, "NMHC(GT)": 46, "C6H6(GT)": 1.442220421528291, "NOx(GT)": 43, "NO2(GT)": 51 }, { "Time": "2024-03-25 07:00", "CO(GT)": 1.1, "NMHC(GT)": 55, "C6H6(GT)": 3.755311504247508, "NOx(GT)": 84, "NO2(GT)": 82 }, { "Time": "2024-03-25 08:00", "CO(GT)": 2.7, "NMHC(GT)": 271, "C6H6(GT)": 11.57450718922684, "NOx(GT)": 184, "NO2(GT)": 112 }, { "Time": "2024-03-25 09:00", "CO(GT)": 3.5, "NMHC(GT)": 434, "C6H6(GT)": 17.831404955551463, "NOx(GT)": 202, "NO2(GT)": 119 }];
+
+const MOCK_NOX_PREDICTION = [{ "date": "2024-03-25 00:00", "actual": 80, "pred": 80.57, "upper": 88.63, "lower": 72.51 }, { "date": "2024-03-25 01:00", "actual": 42, "pred": 40.65, "upper": 44.72, "lower": 36.59 }, { "date": "2024-03-25 02:00", "actual": 38, "pred": 39.48, "upper": 43.43, "lower": 35.53 }, { "date": "2024-03-25 03:00", "actual": 28, "pred": 26.77, "upper": 29.45, "lower": 24.09 }, { "date": "2024-03-25 04:00", "actual": 18, "pred": 17.52, "upper": 19.27, "lower": 15.77 }, { "date": "2024-03-25 05:00", "actual": 12, "pred": 11.62, "upper": 12.78, "lower": 10.46 }, { "date": "2024-03-25 06:00", "actual": 43, "pred": 41.39, "upper": 45.53, "lower": 37.25 }, { "date": "2024-03-25 07:00", "actual": 84, "pred": 80.52, "upper": 88.57, "lower": 72.47 }, { "date": "2024-03-25 08:00", "actual": 184, "pred": 184.32, "upper": 202.75, "lower": 165.89 }, { "date": "2024-03-25 09:00", "actual": 202, "pred": 198.25, "upper": 218.08, "lower": 178.43 }, { "date": "2024-03-25 10:00", "actual": 133, "pred": 129.98, "upper": 142.98, "lower": 116.98 }, { "date": "2024-03-25 11:00", "actual": 130, "pred": 124.0, "upper": 136.4, "lower": 111.6 }, { "date": "2024-03-25 12:00", "actual": 106, "pred": 107.17, "upper": 117.89, "lower": 96.45 }, { "date": "2024-03-25 13:00", "actual": 132, "pred": 129.48, "upper": 142.43, "lower": 116.53 }, { "date": "2024-03-25 14:00", "actual": 106, "pred": 109.61, "upper": 120.57, "lower": 98.65 }, { "date": "2024-03-25 15:00", "actual": 125, "pred": 130.04, "upper": 143.04, "lower": 117.04 }, { "date": "2024-03-25 16:00", "actual": 138, "pred": 139.77, "upper": 153.75, "lower": 125.79 }, { "date": "2024-03-25 17:00", "actual": 120, "pred": 120.78, "upper": 132.86, "lower": 108.7 }, { "date": "2024-03-25 18:00", "actual": 158, "pred": 160.79, "upper": 176.87, "lower": 144.71 }, { "date": "2024-03-25 19:00", "actual": 253, "pred": 244.41, "upper": 268.85, "lower": 219.97 }, { "date": "2024-03-25 20:00", "actual": 231, "pred": 242.5, "upper": 266.75, "lower": 218.25 }, { "date": "2024-03-25 21:00", "actual": 150, "pred": 148.01, "upper": 162.81, "lower": 133.21 }, { "date": "2024-03-25 22:00", "actual": 99, "pred": 99.81, "upper": 109.79, "lower": 89.83 }, { "date": "2024-03-25 23:00", "actual": 75, "pred": 74.0, "upper": 81.4, "lower": 66.6 }, { "date": "2024-03-26 00:00", "actual": 93, "pred": 90.8, "upper": 99.88, "lower": 81.72 }, { "date": "2024-03-26 01:00", "actual": 79, "pred": 78.81, "upper": 86.69, "lower": 70.93 }, { "date": "2024-03-26 02:00", "actual": 67, "pred": 69.99, "upper": 76.99, "lower": 62.99 }, { "date": "2024-03-26 03:00", "actual": 56, "pred": 58.15, "upper": 63.97, "lower": 52.34 }, { "date": "2024-03-26 04:00", "actual": 45, "pred": 47.24, "upper": 51.96, "lower": 42.52 }, { "date": "2024-03-26 05:00", "actual": 72, "pred": 72.52, "upper": 79.77, "lower": 65.27 }, { "date": "2024-03-26 06:00", "actual": 103, "pred": 100.36, "upper": 110.4, "lower": 90.32 }, { "date": "2024-03-26 07:00", "actual": 132, "pred": 128.71, "upper": 141.58, "lower": 115.84 }, { "date": "2024-03-26 08:00", "actual": 239, "pred": 228.96, "upper": 251.86, "lower": 206.06 }, { "date": "2024-03-26 09:00", "actual": 275, "pred": 288.39, "upper": 317.23, "lower": 259.55 }, { "date": "2024-03-26 10:00", "actual": 232, "pred": 234.93, "upper": 258.42, "lower": 211.44 }, { "date": "2024-03-26 11:00", "actual": 180, "pred": 186.87, "upper": 205.56, "lower": 168.18 }, { "date": "2024-03-26 12:00", "actual": 112, "pred": 116.78, "upper": 128.46, "lower": 105.1 }, { "date": "2024-03-26 13:00", "actual": 116, "pred": 116.85, "upper": 128.53, "lower": 105.16 }, { "date": "2024-03-26 14:00", "actual": 103, "pred": 104.28, "upper": 114.71, "lower": 93.85 }, { "date": "2024-03-26 15:00", "actual": 89, "pred": 93.09, "upper": 102.4, "lower": 83.78 }, { "date": "2024-03-26 16:00", "actual": 112, "pred": 110.65, "upper": 121.72, "lower": 99.59 }, { "date": "2024-03-26 17:00", "actual": 127, "pred": 130.71, "upper": 143.78, "lower": 117.64 }, { "date": "2024-03-26 18:00", "actual": 125, "pred": 119.98, "upper": 131.98, "lower": 107.98 }, { "date": "2024-03-26 19:00", "actual": 120, "pred": 123.81, "upper": 136.19, "lower": 111.43 }, { "date": "2024-03-26 20:00", "actual": 120, "pred": 118.95, "upper": 130.85, "lower": 107.06 }, { "date": "2024-03-26 21:00", "actual": 99, "pred": 100.37, "upper": 110.41, "lower": 90.33 }, { "date": "2024-03-26 22:00", "actual": 79, "pred": 80.05, "upper": 88.06, "lower": 72.05 }, { "date": "2024-03-26 23:00", "actual": 66, "pred": 64.95, "upper": 71.45, "lower": 58.46 }, { "date": "2024-03-27 00:00", "actual": 94, "pred": 96.17, "upper": 105.79, "lower": 86.55 }, { "date": "2024-03-27 01:00", "actual": 70, "pred": 71.99, "upper": 79.19, "lower": 64.79 }, { "date": "2024-03-27 02:00", "actual": 75, "pred": 74.33, "upper": 81.76, "lower": 66.9 }, { "date": "2024-03-27 03:00", "actual": 66, "pred": 62.94, "upper": 69.23, "lower": 56.65 }, { "date": "2024-03-27 04:00", "actual": 57, "pred": 55.07, "upper": 60.58, "lower": 49.56 }, { "date": "2024-03-27 05:00", "actual": 32, "pred": 32.81, "upper": 36.09, "lower": 29.53 }, { "date": "2024-03-27 06:00", "actual": 54, "pred": 55.79, "upper": 61.37, "lower": 50.21 }, { "date": "2024-03-27 07:00", "actual": 68, "pred": 66.14, "upper": 72.75, "lower": 59.53 }, { "date": "2024-03-27 08:00", "actual": 98, "pred": 99.37, "upper": 109.31, "lower": 89.43 }, { "date": "2024-03-27 09:00", "actual": 128, "pred": 131.23, "upper": 144.35, "lower": 118.11 }, { "date": "2024-03-27 10:00", "actual": 129, "pred": 122.79, "upper": 135.07, "lower": 110.51 }, { "date": "2024-03-27 11:00", "actual": 130, "pred": 131.48, "upper": 144.63, "lower": 118.33 }, { "date": "2024-03-27 12:00", "actual": 111, "pred": 105.71, "upper": 116.28, "lower": 95.14 }, { "date": "2024-03-27 13:00", "actual": 106, "pred": 108.94, "upper": 119.83, "lower": 98.05 }, { "date": "2024-03-27 14:00", "actual": 137, "pred": 132.49, "upper": 145.74, "lower": 119.24 }, { "date": "2024-03-27 15:00", "actual": 113, "pred": 113.44, "upper": 124.78, "lower": 102.1 }, { "date": "2024-03-27 16:00", "actual": 122, "pred": 120.09, "upper": 132.1, "lower": 108.08 }, { "date": "2024-03-27 17:00", "actual": 137, "pred": 133.97, "upper": 147.37, "lower": 120.57 }, { "date": "2024-03-27 18:00", "actual": 165, "pred": 163.02, "upper": 179.32, "lower": 146.72 }, { "date": "2024-03-27 19:00", "actual": 196, "pred": 196.19, "upper": 215.81, "lower": 176.57 }, { "date": "2024-03-27 20:00", "actual": 174, "pred": 177.01, "upper": 194.71, "lower": 159.31 }, { "date": "2024-03-27 21:00", "actual": 140, "pred": 133.13, "upper": 146.44, "lower": 119.82 }, { "date": "2024-03-27 22:00", "actual": 102, "pred": 103.79, "upper": 114.17, "lower": 93.41 }, { "date": "2024-03-27 23:00", "actual": 130, "pred": 128.07, "upper": 140.88, "lower": 115.26 }, { "date": "2024-03-28 00:00", "actual": 121, "pred": 120.06, "upper": 132.07, "lower": 108.05 }, { "date": "2024-03-28 01:00", "actual": 111, "pred": 109.54, "upper": 120.49, "lower": 98.59 }, { "date": "2024-03-28 02:00", "actual": 87, "pred": 84.19, "upper": 92.61, "lower": 75.77 }, { "date": "2024-03-28 03:00", "actual": 82, "pred": 83.91, "upper": 92.3, "lower": 75.52 }, { "date": "2024-03-28 04:00", "actual": 77, "pred": 78.22, "upper": 86.04, "lower": 70.4 }, { "date": "2024-03-28 05:00", "actual": 39, "pred": 40.25, "upper": 44.28, "lower": 36.23 }, { "date": "2024-03-28 06:00", "actual": 77, "pred": 80.47, "upper": 88.52, "lower": 72.42 }, { "date": "2024-03-28 07:00", "actual": 91, "pred": 89.25, "upper": 98.18, "lower": 80.33 }, { "date": "2024-03-28 08:00", "actual": 105, "pred": 103.19, "upper": 113.51, "lower": 92.87 }, { "date": "2024-03-28 09:00", "actual": 133, "pred": 136.34, "upper": 149.97, "lower": 122.71 }, { "date": "2024-03-28 10:00", "actual": 128, "pred": 134.38, "upper": 147.82, "lower": 120.94 }, { "date": "2024-03-28 11:00", "actual": 126, "pred": 120.37, "upper": 132.41, "lower": 108.33 }, { "date": "2024-03-28 12:00", "actual": 92, "pred": 90.52, "upper": 99.57, "lower": 81.47 }, { "date": "2024-03-28 13:00", "actual": 66, "pred": 65.56, "upper": 72.12, "lower": 59.0 }, { "date": "2024-03-28 14:00", "actual": 50, "pred": 50.9, "upper": 55.99, "lower": 45.81 }, { "date": "2024-03-28 15:00", "actual": 70, "pred": 71.99, "upper": 79.19, "lower": 64.79 }, { "date": "2024-03-28 16:00", "actual": 73, "pred": 76.35, "upper": 83.98, "lower": 68.72 }, { "date": "2024-03-28 17:00", "actual": 77, "pred": 75.84, "upper": 83.42, "lower": 68.26 }, { "date": "2024-03-28 18:00", "actual": 86, "pred": 85.68, "upper": 94.25, "lower": 77.11 }, { "date": "2024-03-28 19:00", "actual": 93, "pred": 94.21, "upper": 103.63, "lower": 84.79 }, { "date": "2024-03-28 20:00", "actual": 105, "pred": 106.65, "upper": 117.32, "lower": 95.99 }, { "date": "2024-03-28 21:00", "actual": 67, "pred": 68.58, "upper": 75.44, "lower": 61.72 }, { "date": "2024-03-28 22:00", "actual": 63, "pred": 66.14, "upper": 72.75, "lower": 59.53 }, { "date": "2024-03-28 23:00", "actual": 63, "pred": 62.69, "upper": 68.96, "lower": 56.42 }, { "date": "2024-03-29 00:00", "actual": 46, "pred": 46.52, "upper": 51.17, "lower": 41.87 }, { "date": "2024-03-29 01:00", "actual": 21, "pred": 20.75, "upper": 22.83, "lower": 18.68 }, { "date": "2024-03-29 02:00", "actual": 22, "pred": 22.7, "upper": 24.97, "lower": 20.43 }, { "date": "2024-03-29 03:00", "actual": 30, "pred": 31.2, "upper": 34.32, "lower": 28.08 }, { "date": "2024-03-29 04:00", "actual": 39, "pred": 39.8, "upper": 43.78, "lower": 35.82 }, { "date": "2024-03-29 05:00", "actual": 55, "pred": 54.99, "upper": 60.49, "lower": 49.49 }, { "date": "2024-03-29 06:00", "actual": 76, "pred": 74.76, "upper": 82.24, "lower": 67.28 }, { "date": "2024-03-29 07:00", "actual": 181, "pred": 189.7, "upper": 208.67, "lower": 170.73 }, { "date": "2024-03-29 08:00", "actual": 259, "pred": 262.9, "upper": 289.19, "lower": 236.61 }, { "date": "2024-03-29 09:00", "actual": 118, "pred": 116.54, "upper": 128.19, "lower": 104.89 }, { "date": "2024-03-29 10:00", "actual": 119, "pred": 122.37, "upper": 134.61, "lower": 110.13 }, { "date": "2024-03-29 11:00", "actual": 123, "pred": 122.75, "upper": 135.03, "lower": 110.48 }, { "date": "2024-03-29 12:00", "actual": 92, "pred": 94.33, "upper": 103.76, "lower": 84.9 }, { "date": "2024-03-29 13:00", "actual": 91, "pred": 89.21, "upper": 98.13, "lower": 80.29 }, { "date": "2024-03-29 14:00", "actual": 103, "pred": 99.37, "upper": 109.31, "lower": 89.43 }, { "date": "2024-03-29 15:00", "actual": 102, "pred": 100.91, "upper": 111.0, "lower": 90.82 }, { "date": "2024-03-29 16:00", "actual": 94, "pred": 93.44, "upper": 102.78, "lower": 84.1 }, { "date": "2024-03-29 17:00", "actual": 98, "pred": 95.66, "upper": 105.23, "lower": 86.09 }, { "date": "2024-03-29 18:00", "actual": 126, "pred": 128.57, "upper": 141.43, "lower": 115.71 }, { "date": "2024-03-29 19:00", "actual": 108, "pred": 107.88, "upper": 118.67, "lower": 97.09 }, { "date": "2024-03-29 20:00", "actual": 95, "pred": 92.14, "upper": 101.35, "lower": 82.93 }, { "date": "2024-03-29 21:00", "actual": 78, "pred": 74.83, "upper": 82.31, "lower": 67.35 }, { "date": "2024-03-29 22:00", "actual": 61, "pred": 63.37, "upper": 69.71, "lower": 57.03 }, { "date": "2024-03-29 23:00", "actual": 55, "pred": 55.29, "upper": 60.82, "lower": 49.76 }, { "date": "2024-03-30 00:00", "actual": 57, "pred": 58.94, "upper": 64.83, "lower": 53.05 }, { "date": "2024-03-30 01:00", "actual": 41, "pred": 41.86, "upper": 46.05, "lower": 37.67 }, { "date": "2024-03-30 02:00", "actual": 46, "pred": 44.67, "upper": 49.14, "lower": 40.2 }, { "date": "2024-03-30 03:00", "actual": 43, "pred": 43.4, "upper": 47.74, "lower": 39.06 }, { "date": "2024-03-30 04:00", "actual": 41, "pred": 39.62, "upper": 43.58, "lower": 35.66 }, { "date": "2024-03-30 05:00", "actual": 52, "pred": 50.5, "upper": 55.55, "lower": 45.45 }, { "date": "2024-03-30 06:00", "actual": 111, "pred": 111.39, "upper": 122.53, "lower": 100.25 }, { "date": "2024-03-30 07:00", "actual": 191, "pred": 186.44, "upper": 205.08, "lower": 167.8 }, { "date": "2024-03-30 08:00", "actual": 244, "pred": 249.35, "upper": 274.29, "lower": 224.41 }, { "date": "2024-03-30 09:00", "actual": 283, "pred": 272.12, "upper": 299.33, "lower": 244.91 }, { "date": "2024-03-30 10:00", "actual": 320, "pred": 305.19, "upper": 335.71, "lower": 274.67 }, { "date": "2024-03-30 11:00", "actual": 249, "pred": 241.91, "upper": 266.1, "lower": 217.72 }, { "date": "2024-03-30 12:00", "actual": 219, "pred": 210.71, "upper": 231.78, "lower": 189.64 }, { "date": "2024-03-30 13:00", "actual": 200, "pred": 198.44, "upper": 218.28, "lower": 178.6 }, { "date": "2024-03-30 14:00", "actual": 138, "pred": 133.79, "upper": 147.17, "lower": 120.41 }, { "date": "2024-03-30 15:00", "actual": 118, "pred": 122.69, "upper": 134.96, "lower": 110.42 }, { "date": "2024-03-30 16:00", "actual": 99, "pred": 101.44, "upper": 111.58, "lower": 91.3 }, { "date": "2024-03-30 17:00", "actual": 112, "pred": 114.94, "upper": 126.43, "lower": 103.45 }, { "date": "2024-03-30 18:00", "actual": 117, "pred": 117.3, "upper": 129.03, "lower": 105.57 }, { "date": "2024-03-30 19:00", "actual": 129, "pred": 131.02, "upper": 144.12, "lower": 117.92 }, { "date": "2024-03-30 20:00", "actual": 132, "pred": 137.9, "upper": 151.69, "lower": 124.11 }, { "date": "2024-03-30 21:00", "actual": 73, "pred": 75.64, "upper": 83.2, "lower": 68.08 }, { "date": "2024-03-30 22:00", "actual": 68, "pred": 71.06, "upper": 78.17, "lower": 63.95 }, { "date": "2024-03-30 23:00", "actual": 80, "pred": 78.01, "upper": 85.81, "lower": 70.21 }, { "date": "2024-03-31 00:00", "actual": 68, "pred": 65.17, "upper": 71.69, "lower": 58.65 }, { "date": "2024-03-31 01:00", "actual": 44, "pred": 43.61, "upper": 47.97, "lower": 39.25 }, { "date": "2024-03-31 02:00", "actual": 47, "pred": 49.01, "upper": 53.91, "lower": 44.11 }, { "date": "2024-03-31 03:00", "actual": 31, "pred": 31.99, "upper": 35.19, "lower": 28.79 }, { "date": "2024-03-31 04:00", "actual": 15, "pred": 14.84, "upper": 16.32, "lower": 13.36 }, { "date": "2024-03-31 05:00", "actual": 44, "pred": 43.84, "upper": 48.22, "lower": 39.46 }, { "date": "2024-03-31 06:00", "actual": 85, "pred": 88.48, "upper": 97.33, "lower": 79.63 }, { "date": "2024-03-31 07:00", "actual": 207, "pred": 208.14, "upper": 228.95, "lower": 187.33 }, { "date": "2024-03-31 08:00", "actual": 230, "pred": 240.41, "upper": 264.45, "lower": 216.37 }, { "date": "2024-03-31 09:00", "actual": 181, "pred": 179.24, "upper": 197.16, "lower": 161.32 }, { "date": "2024-03-31 10:00", "actual": 144, "pred": 144.47, "upper": 158.92, "lower": 130.02 }, { "date": "2024-03-31 11:00", "actual": 140, "pred": 143.6, "upper": 157.96, "lower": 129.24 }, { "date": "2024-03-31 12:00", "actual": 204, "pred": 207.67, "upper": 228.44, "lower": 186.9 }, { "date": "2024-03-31 13:00", "actual": 149, "pred": 148.13, "upper": 162.94, "lower": 133.32 }, { "date": "2024-03-31 14:00", "actual": 171, "pred": 166.74, "upper": 183.41, "lower": 150.07 }, { "date": "2024-03-31 15:00", "actual": 195, "pred": 194.7, "upper": 214.17, "lower": 175.23 }, { "date": "2024-03-31 16:00", "actual": 152, "pred": 145.92, "upper": 160.51, "lower": 131.33 }, { "date": "2024-03-31 17:00", "actual": 128, "pred": 134.05, "upper": 147.46, "lower": 120.65 }, { "date": "2024-03-31 18:00", "actual": 121, "pred": 117.03, "upper": 128.73, "lower": 105.33 }, { "date": "2024-03-31 19:00", "actual": 142, "pred": 144.97, "upper": 159.47, "lower": 130.47 }, { "date": "2024-03-31 20:00", "actual": 131, "pred": 134.88, "upper": 148.37, "lower": 121.39 }, { "date": "2024-03-31 21:00", "actual": 81, "pred": 84.39, "upper": 92.83, "lower": 75.95 }, { "date": "2024-03-31 22:00", "actual": 60, "pred": 57.17, "upper": 62.89, "lower": 51.45 }, { "date": "2024-03-31 23:00", "actual": 57, "pred": 55.6, "upper": 61.16, "lower": 50.04 }];
 
 const MOCK_AIR_QUALITY_TRENDS = [{ "Time": "2024-03-25 00:00", "CO(GT)": 1.3, "NMHC(GT)": 81, "C6H6(GT)": 4.486627508988761, "NOx(GT)": 80, "NO2(GT)": 89 }, { "Time": "2024-03-25 01:00", "CO(GT)": 1.0, "NMHC(GT)": 52, "C6H6(GT)": 2.514599021549308, "NOx(GT)": 42, "NO2(GT)": 58 }, { "Time": "2024-03-25 02:00", "CO(GT)": 0.7, "NMHC(GT)": 38, "C6H6(GT)": 1.7821586396135651, "NOx(GT)": 38, "NO2(GT)": 54 }, { "Time": "2024-03-25 03:00", "CO(GT)": 0.7, "NMHC(GT)": 35, "C6H6(GT)": 1.4218161094645745, "NOx(GT)": 28, "NO2(GT)": 41 }, { "Time": "2024-03-25 04:00", "CO(GT)": 0.5, "NMHC(GT)": 29, "C6H6(GT)": 0.9066972606578043, "NOx(GT)": 18, "NO2(GT)": 28 }, { "Time": "2024-03-25 05:00", "CO(GT)": 0.5, "NMHC(GT)": 21, "C6H6(GT)": 0.6160853557960174, "NOx(GT)": 12, "NO2(GT)": 20 }, { "Time": "2024-03-25 06:00", "CO(GT)": 0.6, "NMHC(GT)": 46, "C6H6(GT)": 1.442220421528291, "NOx(GT)": 43, "NO2(GT)": 51 }, { "Time": "2024-03-25 07:00", "CO(GT)": 1.1, "NMHC(GT)": 55, "C6H6(GT)": 3.755311504247508, "NOx(GT)": 84, "NO2(GT)": 82 }, { "Time": "2024-03-25 08:00", "CO(GT)": 2.7, "NMHC(GT)": 271, "C6H6(GT)": 11.57450718922684, "NOx(GT)": 184, "NO2(GT)": 112 }, { "Time": "2024-03-25 09:00", "CO(GT)": 3.5, "NMHC(GT)": 434, "C6H6(GT)": 17.831404955551463, "NOx(GT)": 202, "NO2(GT)": 119 }, { "Time": "2024-03-25 10:00", "CO(GT)": 2.3, "NMHC(GT)": 300, "C6H6(GT)": 8.845219157196645, "NOx(GT)": 133, "NO2(GT)": 99 }, { "Time": "2024-03-25 11:00", "CO(GT)": 1.6, "NMHC(GT)": 116, "C6H6(GT)": 6.827184440761592, "NOx(GT)": 130, "NO2(GT)": 98 }, { "Time": "2024-03-25 12:00", "CO(GT)": 1.3, "NMHC(GT)": 95, "C6H6(GT)": 5.934730067801716, "NOx(GT)": 106, "NO2(GT)": 88 }, { "Time": "2024-03-25 13:00", "CO(GT)": 2.0, "NMHC(GT)": 211, "C6H6(GT)": 8.889611855025933, "NOx(GT)": 132, "NO2(GT)": 96 }, { "Time": "2024-03-25 14:00", "CO(GT)": 1.9, "NMHC(GT)": 168, "C6H6(GT)": 8.178484755708308, "NOx(GT)": 106, "NO2(GT)": 81 }, { "Time": "2024-03-25 15:00", "CO(GT)": 1.9, "NMHC(GT)": 154, "C6H6(GT)": 8.618412576532277, "NOx(GT)": 125, "NO2(GT)": 92 }, { "Time": "2024-03-25 16:00", "CO(GT)": 2.2, "NMHC(GT)": 267, "C6H6(GT)": 10.123793161712667, "NOx(GT)": 138, "NO2(GT)": 105 }, { "Time": "2024-03-25 17:00", "CO(GT)": 2.0, "NMHC(GT)": 143, "C6H6(GT)": 9.44271643902197, "NOx(GT)": 120, "NO2(GT)": 88 }, { "Time": "2024-03-25 18:00", "CO(GT)": 2.9, "NMHC(GT)": 374, "C6H6(GT)": 14.641827890596746, "NOx(GT)": 158, "NO2(GT)": 103 }, { "Time": "2024-03-25 19:00", "CO(GT)": 5.2, "NMHC(GT)": 797, "C6H6(GT)": 24.563483800808026, "NOx(GT)": 253, "NO2(GT)": 141 }, { "Time": "2024-03-25 20:00", "CO(GT)": 4.6, "NMHC(GT)": 698, "C6H6(GT)": 21.62703708737063, "NOx(GT)": 231, "NO2(GT)": 133 }, { "Time": "2024-03-25 21:00", "CO(GT)": 2.5, "NMHC(GT)": 234, "C6H6(GT)": 10.312426565086698, "NOx(GT)": 150, "NO2(GT)": 119 }, { "Time": "2024-03-25 22:00", "CO(GT)": 1.5, "NMHC(GT)": 104, "C6H6(GT)": 5.701585274620053, "NOx(GT)": 99, "NO2(GT)": 106 }, { "Time": "2024-03-25 23:00", "CO(GT)": 1.2, "NMHC(GT)": 67, "C6H6(GT)": 4.467671749279885, "NOx(GT)": 75, "NO2(GT)": 92 }, { "Time": "2024-03-26 00:00", "CO(GT)": 1.7, "NMHC(GT)": 88, "C6H6(GT)": 5.477599159348292, "NOx(GT)": 93, "NO2(GT)": 97 }, { "Time": "2024-03-26 01:00", "CO(GT)": 1.4, "NMHC(GT)": 79, "C6H6(GT)": 4.799437657555934, "NOx(GT)": 79, "NO2(GT)": 91 }, { "Time": "2024-03-26 02:00", "CO(GT)": 1.2, "NMHC(GT)": 61, "C6H6(GT)": 3.633065021681544, "NOx(GT)": 67, "NO2(GT)": 83 }, { "Time": "2024-03-26 03:00", "CO(GT)": 0.6, "NMHC(GT)": 43, "C6H6(GT)": 1.6997929461444818, "NOx(GT)": 56, "NO2(GT)": 71 }, { "Time": "2024-03-26 04:00", "CO(GT)": 0.7, "NMHC(GT)": 40, "C6H6(GT)": 2.246785504993861, "NOx(GT)": 45, "NO2(GT)": 59 }, { "Time": "2024-03-26 05:00", "CO(GT)": 0.8, "NMHC(GT)": 52, "C6H6(GT)": 3.0278593859425342, "NOx(GT)": 72, "NO2(GT)": 73 }, { "Time": "2024-03-26 06:00", "CO(GT)": 0.9, "NMHC(GT)": 64, "C6H6(GT)": 4.045717310202204, "NOx(GT)": 103, "NO2(GT)": 78 }, { "Time": "2024-03-26 07:00", "CO(GT)": 1.6, "NMHC(GT)": 88, "C6H6(GT)": 6.652292699030296, "NOx(GT)": 132, "NO2(GT)": 90 }, { "Time": "2024-03-26 08:00", "CO(GT)": 3.4, "NMHC(GT)": 375, "C6H6(GT)": 16.702495983514385, "NOx(GT)": 239, "NO2(GT)": 110 }, { "Time": "2024-03-26 09:00", "CO(GT)": 3.8, "NMHC(GT)": 592, "C6H6(GT)": 19.344005847031532, "NOx(GT)": 275, "NO2(GT)": 114 }, { "Time": "2024-03-26 10:00", "CO(GT)": 3.1, "NMHC(GT)": 357, "C6H6(GT)": 14.775598053926105, "NOx(GT)": 232, "NO2(GT)": 119 }, { "Time": "2024-03-26 11:00", "CO(GT)": 2.7, "NMHC(GT)": 296, "C6H6(GT)": 13.431043277829003, "NOx(GT)": 180, "NO2(GT)": 121 }, { "Time": "2024-03-26 12:00", "CO(GT)": 2.0, "NMHC(GT)": 181, "C6H6(GT)": 10.977346204363998, "NOx(GT)": 112, "NO2(GT)": 97 }, { "Time": "2024-03-26 13:00", "CO(GT)": 2.3, "NMHC(GT)": 211, "C6H6(GT)": 12.535803547771689, "NOx(GT)": 116, "NO2(GT)": 99 }, { "Time": "2024-03-26 14:00", "CO(GT)": 1.9, "NMHC(GT)": 199, "C6H6(GT)": 8.4189190812524, "NOx(GT)": 103, "NO2(GT)": 85 }, { "Time": "2024-03-26 15:00", "CO(GT)": 1.3, "NMHC(GT)": 81, "C6H6(GT)": 5.25237752206223, "NOx(GT)": 89, "NO2(GT)": 75 }, { "Time": "2024-03-26 16:00", "CO(GT)": 1.9, "NMHC(GT)": 143, "C6H6(GT)": 8.826222726457212, "NOx(GT)": 112, "NO2(GT)": 87 }, { "Time": "2024-03-26 17:00", "CO(GT)": 2.3, "NMHC(GT)": 247, "C6H6(GT)": 11.228614928035205, "NOx(GT)": 127, "NO2(GT)": 102 }, { "Time": "2024-03-26 18:00", "CO(GT)": 2.4, "NMHC(GT)": 239, "C6H6(GT)": 11.638524261032968, "NOx(GT)": 125, "NO2(GT)": 105 }, { "Time": "2024-03-26 19:00", "CO(GT)": 2.7, "NMHC(GT)": 267, "C6H6(GT)": 12.389162076428056, "NOx(GT)": 120, "NO2(GT)": 98 }, { "Time": "2024-03-26 20:00", "CO(GT)": 2.6, "NMHC(GT)": 261, "C6H6(GT)": 10.591313617363797, "NOx(GT)": 120, "NO2(GT)": 93 }, { "Time": "2024-03-26 21:00", "CO(GT)": 1.5, "NMHC(GT)": 97, "C6H6(GT)": 5.982908820688995, "NOx(GT)": 99, "NO2(GT)": 91 }, { "Time": "2024-03-26 22:00", "CO(GT)": 1.2, "NMHC(GT)": 66, "C6H6(GT)": 4.601079630929639, "NOx(GT)": 79, "NO2(GT)": 85 }, { "Time": "2024-03-26 23:00", "CO(GT)": 1.1, "NMHC(GT)": 60, "C6H6(GT)": 4.068437354625373, "NOx(GT)": 66, "NO2(GT)": 74 }, { "Time": "2024-03-27 00:00", "CO(GT)": 1.5, "NMHC(GT)": 77, "C6H6(GT)": 5.247305750259137, "NOx(GT)": 94, "NO2(GT)": 87 }, { "Time": "2024-03-27 01:00", "CO(GT)": 1.0, "NMHC(GT)": 57, "C6H6(GT)": 3.1860104697339593, "NOx(GT)": 70, "NO2(GT)": 79 }, { "Time": "2024-03-27 02:00", "CO(GT)": 1.2, "NMHC(GT)": 65, "C6H6(GT)": 4.462938156393024, "NOx(GT)": 75, "NO2(GT)": 78 }, { "Time": "2024-03-27 03:00", "CO(GT)": 1.1, "NMHC(GT)": 59, "C6H6(GT)": 3.790555459460099, "NOx(GT)": 66, "NO2(GT)": 70 }, { "Time": "2024-03-27 04:00", "CO(GT)": 1.0, "NMHC(GT)": 48, "C6H6(GT)": 3.7685115383177186, "NOx(GT)": 57, "NO2(GT)": 63 }, { "Time": "2024-03-27 05:00", "CO(GT)": 0.8, "NMHC(GT)": 27, "C6H6(GT)": 1.9220071328834474, "NOx(GT)": 32, "NO2(GT)": 48 }, { "Time": "2024-03-27 06:00", "CO(GT)": 0.9, "NMHC(GT)": 25, "C6H6(GT)": 2.4372931460201444, "NOx(GT)": 54, "NO2(GT)": 59 }, { "Time": "2024-03-27 07:00", "CO(GT)": 1.1, "NMHC(GT)": 42, "C6H6(GT)": 3.268441768671755, "NOx(GT)": 68, "NO2(GT)": 65 }, { "Time": "2024-03-27 08:00", "CO(GT)": 1.5, "NMHC(GT)": 78, "C6H6(GT)": 6.663517615555966, "NOx(GT)": 98, "NO2(GT)": 71 }, { "Time": "2024-03-27 09:00", "CO(GT)": 1.8, "NMHC(GT)": 128, "C6H6(GT)": 8.474825256908856, "NOx(GT)": 128, "NO2(GT)": 84 }, { "Time": "2024-03-27 10:00", "CO(GT)": 2.1, "NMHC(GT)": 184, "C6H6(GT)": 9.698220270852254, "NOx(GT)": 129, "NO2(GT)": 93 }, { "Time": "2024-03-27 11:00", "CO(GT)": 2.1, "NMHC(GT)": 156, "C6H6(GT)": 9.410170035043505, "NOx(GT)": 130, "NO2(GT)": 99 }, { "Time": "2024-03-27 12:00", "CO(GT)": 1.9, "NMHC(GT)": 176, "C6H6(GT)": 9.010583552600266, "NOx(GT)": 111, "NO2(GT)": 93 }, { "Time": "2024-03-27 13:00", "CO(GT)": 2.1, "NMHC(GT)": 232, "C6H6(GT)": 10.030033705078656, "NOx(GT)": 106, "NO2(GT)": 96 }, { "Time": "2024-03-27 14:00", "CO(GT)": 2.5, "NMHC(GT)": 305, "C6H6(GT)": 12.638889972455347, "NOx(GT)": 137, "NO2(GT)": 114 }, { "Time": "2024-03-27 15:00", "CO(GT)": 1.9, "NMHC(GT)": 150, "C6H6(GT)": 7.599353631659464, "NOx(GT)": 113, "NO2(GT)": 101 }, { "Time": "2024-03-27 16:00", "CO(GT)": 2.2, "NMHC(GT)": 188, "C6H6(GT)": 11.781322973571852, "NOx(GT)": 122, "NO2(GT)": 108 }, { "Time": "2024-03-27 17:00", "CO(GT)": 2.3, "NMHC(GT)": 221, "C6H6(GT)": 11.221602522216635, "NOx(GT)": 137, "NO2(GT)": 117 }, { "Time": "2024-03-27 18:00", "CO(GT)": 2.7, "NMHC(GT)": 219, "C6H6(GT)": 12.352616700065974, "NOx(GT)": 165, "NO2(GT)": 125 }, { "Time": "2024-03-27 19:00", "CO(GT)": 3.0, "NMHC(GT)": 306, "C6H6(GT)": 12.868432241320129, "NOx(GT)": 196, "NO2(GT)": 133 }, { "Time": "2024-03-27 20:00", "CO(GT)": 2.8, "NMHC(GT)": 270, "C6H6(GT)": 12.206895761540563, "NOx(GT)": 174, "NO2(GT)": 119 }, { "Time": "2024-03-27 21:00", "CO(GT)": 2.2, "NMHC(GT)": 231, "C6H6(GT)": 8.76933794439815, "NOx(GT)": 140, "NO2(GT)": 107 }, { "Time": "2024-03-27 22:00", "CO(GT)": 1.6, "NMHC(GT)": 125, "C6H6(GT)": 6.787523688906004, "NOx(GT)": 102, "NO2(GT)": 96 }, { "Time": "2024-03-27 23:00", "CO(GT)": 2.1, "NMHC(GT)": 122, "C6H6(GT)": 8.6058859089994, "NOx(GT)": 130, "NO2(GT)": 105 }, { "Time": "2024-03-28 00:00", "CO(GT)": 2.3, "NMHC(GT)": 161, "C6H6(GT)": 8.934099266185445, "NOx(GT)": 121, "NO2(GT)": 102 }, { "Time": "2024-03-28 01:00", "CO(GT)": 2.3, "NMHC(GT)": 101, "C6H6(GT)": 8.313749266595785, "NOx(GT)": 111, "NO2(GT)": 97 }, { "Time": "2024-03-28 02:00", "CO(GT)": 1.7, "NMHC(GT)": 95, "C6H6(GT)": 6.335782437222818, "NOx(GT)": 87, "NO2(GT)": 79 }, { "Time": "2024-03-28 03:00", "CO(GT)": 2.2, "NMHC(GT)": 129, "C6H6(GT)": 8.29524842051841, "NOx(GT)": 82, "NO2(GT)": 74 }, { "Time": "2024-03-28 04:00", "CO(GT)": 1.3, "NMHC(GT)": 96, "C6H6(GT)": 5.116173813476844, "NOx(GT)": 77, "NO2(GT)": 69 }, { "Time": "2024-03-28 05:00", "CO(GT)": 0.8, "NMHC(GT)": 54, "C6H6(GT)": 2.5966872968302512, "NOx(GT)": 39, "NO2(GT)": 52 }, { "Time": "2024-03-28 06:00", "CO(GT)": 1.1, "NMHC(GT)": 63, "C6H6(GT)": 3.602773223770146, "NOx(GT)": 77, "NO2(GT)": 62 }, { "Time": "2024-03-28 07:00", "CO(GT)": 1.4, "NMHC(GT)": 72, "C6H6(GT)": 3.64173967489039, "NOx(GT)": 91, "NO2(GT)": 69 }, { "Time": "2024-03-28 08:00", "CO(GT)": 1.3, "NMHC(GT)": 91, "C6H6(GT)": 4.682892421913301, "NOx(GT)": 105, "NO2(GT)": 75 }, { "Time": "2024-03-28 09:00", "CO(GT)": 1.9, "NMHC(GT)": 127, "C6H6(GT)": 7.534155226996669, "NOx(GT)": 133, "NO2(GT)": 83 }, { "Time": "2024-03-28 10:00", "CO(GT)": 2.3, "NMHC(GT)": 193, "C6H6(GT)": 8.965933937610119, "NOx(GT)": 128, "NO2(GT)": 94 }, { "Time": "2024-03-28 11:00", "CO(GT)": 2.3, "NMHC(GT)": 188, "C6H6(GT)": 9.468788047958288, "NOx(GT)": 126, "NO2(GT)": 96 }, { "Time": "2024-03-28 12:00", "CO(GT)": 1.8, "NMHC(GT)": 151, "C6H6(GT)": 7.694614864499808, "NOx(GT)": 92, "NO2(GT)": 86 }, { "Time": "2024-03-28 13:00", "CO(GT)": 1.4, "NMHC(GT)": 103, "C6H6(GT)": 5.664861806391042, "NOx(GT)": 66, "NO2(GT)": 72 }, { "Time": "2024-03-28 14:00", "CO(GT)": 1.0, "NMHC(GT)": 55, "C6H6(GT)": 3.803808114179806, "NOx(GT)": 50, "NO2(GT)": 53 }, { "Time": "2024-03-28 15:00", "CO(GT)": 1.4, "NMHC(GT)": 104, "C6H6(GT)": 4.804320198215755, "NOx(GT)": 70, "NO2(GT)": 65 }, { "Time": "2024-03-28 16:00", "CO(GT)": 1.3, "NMHC(GT)": 116, "C6H6(GT)": 4.303271193472167, "NOx(GT)": 73, "NO2(GT)": 70 }, { "Time": "2024-03-28 17:00", "CO(GT)": 1.3, "NMHC(GT)": 93, "C6H6(GT)": 4.050256979222614, "NOx(GT)": 77, "NO2(GT)": 75 }, { "Time": "2024-03-28 18:00", "CO(GT)": 1.4, "NMHC(GT)": 93, "C6H6(GT)": 4.653947132964057, "NOx(GT)": 86, "NO2(GT)": 86 }, { "Time": "2024-03-28 19:00", "CO(GT)": 1.9, "NMHC(GT)": 155, "C6H6(GT)": 6.237201055298119, "NOx(GT)": 93, "NO2(GT)": 94 }, { "Time": "2024-03-28 20:00", "CO(GT)": 1.8, "NMHC(GT)": 115, "C6H6(GT)": 5.508623133368252, "NOx(GT)": 105, "NO2(GT)": 103 }, { "Time": "2024-03-28 21:00", "CO(GT)": 1.1, "NMHC(GT)": 75, "C6H6(GT)": 3.2808838245676193, "NOx(GT)": 67, "NO2(GT)": 81 }, { "Time": "2024-03-28 22:00", "CO(GT)": 1.1, "NMHC(GT)": 65, "C6H6(GT)": 3.218875255436456, "NOx(GT)": 63, "NO2(GT)": 80 }, { "Time": "2024-03-28 23:00", "CO(GT)": 1.1, "NMHC(GT)": 57, "C6H6(GT)": 2.9322466012758994, "NOx(GT)": 63, "NO2(GT)": 77 }, { "Time": "2024-03-29 00:00", "CO(GT)": 0.9, "NMHC(GT)": 40, "C6H6(GT)": 2.183593389348636, "NOx(GT)": 46, "NO2(GT)": 58 }, { "Time": "2024-03-29 01:00", "CO(GT)": 0.6, "NMHC(GT)": 27, "C6H6(GT)": 1.2575500759428946, "NOx(GT)": 21, "NO2(GT)": 31 }, { "Time": "2024-03-29 02:00", "CO(GT)": 0.5, "NMHC(GT)": 23, "C6H6(GT)": 1.1019592524649573, "NOx(GT)": 22, "NO2(GT)": 38 }, { "Time": "2024-03-29 03:00", "CO(GT)": 0.7, "NMHC(GT)": 28, "C6H6(GT)": 1.2658352378612354, "NOx(GT)": 30, "NO2(GT)": 48 }, { "Time": "2024-03-29 04:00", "CO(GT)": 0.6, "NMHC(GT)": 21, "C6H6(GT)": 1.179554362055887, "NOx(GT)": 39, "NO2(GT)": 59 }, { "Time": "2024-03-29 05:00", "CO(GT)": 0.7, "NMHC(GT)": 33, "C6H6(GT)": 1.6779019605578074, "NOx(GT)": 55, "NO2(GT)": 70 }, { "Time": "2024-03-29 06:00", "CO(GT)": 0.9, "NMHC(GT)": 40, "C6H6(GT)": 2.8535704981423655, "NOx(GT)": 76, "NO2(GT)": 75 }, { "Time": "2024-03-29 07:00", "CO(GT)": 2.9, "NMHC(GT)": 279, "C6H6(GT)": 14.266927815926682, "NOx(GT)": 181, "NO2(GT)": 103 }, { "Time": "2024-03-29 08:00", "CO(GT)": 4.1, "NMHC(GT)": 743, "C6H6(GT)": 19.743714277046415, "NOx(GT)": 259, "NO2(GT)": 134 }, { "Time": "2024-03-29 09:00", "CO(GT)": 1.5, "NMHC(GT)": 147, "C6H6(GT)": 5.4518029314463465, "NOx(GT)": 118, "NO2(GT)": 98 }, { "Time": "2024-03-29 10:00", "CO(GT)": 1.5, "NMHC(GT)": 97, "C6H6(GT)": 5.596929682822607, "NOx(GT)": 119, "NO2(GT)": 97 }, { "Time": "2024-03-29 11:00", "CO(GT)": 1.5, "NMHC(GT)": 118, "C6H6(GT)": 5.807066327844245, "NOx(GT)": 123, "NO2(GT)": 98 }, { "Time": "2024-03-29 12:00", "CO(GT)": 1.4, "NMHC(GT)": 91, "C6H6(GT)": 5.4569580235554955, "NOx(GT)": 92, "NO2(GT)": 78 }, { "Time": "2024-03-29 13:00", "CO(GT)": 1.6, "NMHC(GT)": 146, "C6H6(GT)": 6.457164646441118, "NOx(GT)": 91, "NO2(GT)": 83 }, { "Time": "2024-03-29 14:00", "CO(GT)": 1.5, "NMHC(GT)": 139, "C6H6(GT)": 5.544912138895297, "NOx(GT)": 103, "NO2(GT)": 92 }, { "Time": "2024-03-29 15:00", "CO(GT)": 1.4, "NMHC(GT)": 155, "C6H6(GT)": 5.247305750259137, "NOx(GT)": 102, "NO2(GT)": 81 }, { "Time": "2024-03-29 16:00", "CO(GT)": 1.5, "NMHC(GT)": 128, "C6H6(GT)": 5.770054202900989, "NOx(GT)": 94, "NO2(GT)": 90 }, { "Time": "2024-03-29 17:00", "CO(GT)": 1.9, "NMHC(GT)": 166, "C6H6(GT)": 7.910799352772567, "NOx(GT)": 98, "NO2(GT)": 95 }, { "Time": "2024-03-29 18:00", "CO(GT)": 2.5, "NMHC(GT)": 299, "C6H6(GT)": 10.204454244911034, "NOx(GT)": 126, "NO2(GT)": 114 }, { "Time": "2024-03-29 19:00", "CO(GT)": 2.1, "NMHC(GT)": 163, "C6H6(GT)": 8.196874198144533, "NOx(GT)": 108, "NO2(GT)": 106 }, { "Time": "2024-03-29 20:00", "CO(GT)": 1.6, "NMHC(GT)": 154, "C6H6(GT)": 5.691082532681572, "NOx(GT)": 95, "NO2(GT)": 99 }, { "Time": "2024-03-29 21:00", "CO(GT)": 1.2, "NMHC(GT)": 80, "C6H6(GT)": 3.7993883716478276, "NOx(GT)": 78, "NO2(GT)": 90 }, { "Time": "2024-03-29 22:00", "CO(GT)": 1.1, "NMHC(GT)": 58, "C6H6(GT)": 3.977882954308811, "NOx(GT)": 61, "NO2(GT)": 82 }, { "Time": "2024-03-29 23:00", "CO(GT)": 1.0, "NMHC(GT)": 55, "C6H6(GT)": 2.8496606572459786, "NOx(GT)": 55, "NO2(GT)": 74 }, { "Time": "2024-03-30 00:00", "CO(GT)": 1.0, "NMHC(GT)": 33, "C6H6(GT)": 2.6495095616042814, "NOx(GT)": 57, "NO2(GT)": 76 }, { "Time": "2024-03-30 01:00", "CO(GT)": 0.7, "NMHC(GT)": 33, "C6H6(GT)": 1.804617397022203, "NOx(GT)": 41, "NO2(GT)": 66 }, { "Time": "2024-03-30 02:00", "CO(GT)": 0.7, "NMHC(GT)": 32, "C6H6(GT)": 1.7249591914596851, "NOx(GT)": 46, "NO2(GT)": 73 }, { "Time": "2024-03-30 03:00", "CO(GT)": 0.8, "NMHC(GT)": 25, "C6H6(GT)": 1.442220421528291, "NOx(GT)": 43, "NO2(GT)": 71 }, { "Time": "2024-03-30 04:00", "CO(GT)": 0.8, "NMHC(GT)": 29, "C6H6(GT)": 1.31322175102388, "NOx(GT)": 41, "NO2(GT)": 69 }, { "Time": "2024-03-30 05:00", "CO(GT)": 0.7, "NMHC(GT)": 26, "C6H6(GT)": 2.2857806756960337, "NOx(GT)": 52, "NO2(GT)": 71 }, { "Time": "2024-03-30 06:00", "CO(GT)": 1.1, "NMHC(GT)": 86, "C6H6(GT)": 5.313401621471466, "NOx(GT)": 111, "NO2(GT)": 98 }, { "Time": "2024-03-30 07:00", "CO(GT)": 2.6, "NMHC(GT)": 294, "C6H6(GT)": 13.378099027683405, "NOx(GT)": 191, "NO2(GT)": 115 }, { "Time": "2024-03-30 08:00", "CO(GT)": 4.0, "NMHC(GT)": 664, "C6H6(GT)": 23.81445830704887, "NOx(GT)": 244, "NO2(GT)": 130 }, { "Time": "2024-03-30 09:00", "CO(GT)": 4.2, "NMHC(GT)": 695, "C6H6(GT)": 21.488111149528635, "NOx(GT)": 283, "NO2(GT)": 150 }, { "Time": "2024-03-30 10:00", "CO(GT)": 4.7, "NMHC(GT)": 735, "C6H6(GT)": 20.981985953180125, "NOx(GT)": 320, "NO2(GT)": 159 }, { "Time": "2024-03-30 11:00", "CO(GT)": 3.9, "NMHC(GT)": 649, "C6H6(GT)": 18.381657068639182, "NOx(GT)": 249, "NO2(GT)": 146 }, { "Time": "2024-03-30 12:00", "CO(GT)": 3.7, "NMHC(GT)": 586, "C6H6(GT)": 18.94778792993442, "NOx(GT)": 219, "NO2(GT)": 138 }, { "Time": "2024-03-30 13:00", "CO(GT)": 3.4, "NMHC(GT)": 546, "C6H6(GT)": 17.10326171179337, "NOx(GT)": 200, "NO2(GT)": 128 }, { "Time": "2024-03-30 14:00", "CO(GT)": 2.2, "NMHC(GT)": 245, "C6H6(GT)": 10.373373792087863, "NOx(GT)": 138, "NO2(GT)": 97 }, { "Time": "2024-03-30 15:00", "CO(GT)": 1.9, "NMHC(GT)": 178, "C6H6(GT)": 7.953131497568524, "NOx(GT)": 118, "NO2(GT)": 91 }, { "Time": "2024-03-30 16:00", "CO(GT)": 1.6, "NMHC(GT)": 130, "C6H6(GT)": 6.166413663112407, "NOx(GT)": 99, "NO2(GT)": 81 }, { "Time": "2024-03-30 17:00", "CO(GT)": 2.1, "NMHC(GT)": 151, "C6H6(GT)": 9.731187323395478, "NOx(GT)": 112, "NO2(GT)": 99 }, { "Time": "2024-03-30 18:00", "CO(GT)": 2.2, "NMHC(GT)": 272, "C6H6(GT)": 9.593046413094703, "NOx(GT)": 117, "NO2(GT)": 101 }, { "Time": "2024-03-30 19:00", "CO(GT)": 2.7, "NMHC(GT)": 301, "C6H6(GT)": 11.924863429687202, "NOx(GT)": 129, "NO2(GT)": 106 }, { "Time": "2024-03-30 20:00", "CO(GT)": 2.4, "NMHC(GT)": 237, "C6H6(GT)": 8.706316634357416, "NOx(GT)": 132, "NO2(GT)": 102 }, { "Time": "2024-03-30 21:00", "CO(GT)": 1.3, "NMHC(GT)": 95, "C6H6(GT)": 4.653947132964057, "NOx(GT)": 73, "NO2(GT)": 84 }, { "Time": "2024-03-30 22:00", "CO(GT)": 1.2, "NMHC(GT)": 68, "C6H6(GT)": 3.830372555883701, "NOx(GT)": 68, "NO2(GT)": 81 }, { "Time": "2024-03-30 23:00", "CO(GT)": 1.5, "NMHC(GT)": 101, "C6H6(GT)": 4.678062894272762, "NOx(GT)": 80, "NO2(GT)": 91 }, { "Time": "2024-03-31 00:00", "CO(GT)": 1.3, "NMHC(GT)": 81, "C6H6(GT)": 3.8481259529430054, "NOx(GT)": 68, "NO2(GT)": 82 }, { "Time": "2024-03-31 01:00", "CO(GT)": 1.0, "NMHC(GT)": 50, "C6H6(GT)": 2.676090587829464, "NOx(GT)": 44, "NO2(GT)": 64 }, { "Time": "2024-03-31 02:00", "CO(GT)": 0.9, "NMHC(GT)": 66, "C6H6(GT)": 2.787414370831833, "NOx(GT)": 47, "NO2(GT)": 70 }, { "Time": "2024-03-31 03:00", "CO(GT)": 0.5, "NMHC(GT)": 22, "C6H6(GT)": 0.9724494566891972, "NOx(GT)": 31, "NO2(GT)": 48 }, { "Time": "2024-03-31 04:00", "CO(GT)": 0.5, "NMHC(GT)": 18, "C6H6(GT)": 0.7901587664876446, "NOx(GT)": 15, "NO2(GT)": 26 }, { "Time": "2024-03-31 05:00", "CO(GT)": 0.6, "NMHC(GT)": 31, "C6H6(GT)": 1.504175249891816, "NOx(GT)": 44, "NO2(GT)": 58 }, { "Time": "2024-03-31 06:00", "CO(GT)": 1.0, "NMHC(GT)": 57, "C6H6(GT)": 3.5210984059647115, "NOx(GT)": 85, "NO2(GT)": 93 }, { "Time": "2024-03-31 07:00", "CO(GT)": 3.1, "NMHC(GT)": 342, "C6H6(GT)": 15.621359219570662, "NOx(GT)": 207, "NO2(GT)": 110 }, { "Time": "2024-03-31 08:00", "CO(GT)": 4.1, "NMHC(GT)": 644, "C6H6(GT)": 19.9493542369401, "NOx(GT)": 230, "NO2(GT)": 115 }, { "Time": "2024-03-31 09:00", "CO(GT)": 2.2, "NMHC(GT)": 216, "C6H6(GT)": 8.599625488406302, "NOx(GT)": 181, "NO2(GT)": 125 }, { "Time": "2024-03-31 10:00", "CO(GT)": 1.7, "NMHC(GT)": 117, "C6H6(GT)": 6.540487668220774, "NOx(GT)": 144, "NO2(GT)": 118 }, { "Time": "2024-03-31 11:00", "CO(GT)": 1.9, "NMHC(GT)": 156, "C6H6(GT)": 7.682679548673003, "NOx(GT)": 140, "NO2(GT)": 109 }, { "Time": "2024-03-31 12:00", "CO(GT)": 2.9, "NMHC(GT)": 332, "C6H6(GT)": 11.30587461136357, "NOx(GT)": 204, "NO2(GT)": 123 }, { "Time": "2024-03-31 13:00", "CO(GT)": 2.2, "NMHC(GT)": 232, "C6H6(GT)": 9.125830725364114, "NOx(GT)": 149, "NO2(GT)": 114 }, { "Time": "2024-03-31 14:00", "CO(GT)": 2.6, "NMHC(GT)": 295, "C6H6(GT)": 11.235629201385404, "NOx(GT)": 171, "NO2(GT)": 114 }, { "Time": "2024-03-31 15:00", "CO(GT)": 3.1, "NMHC(GT)": 386, "C6H6(GT)": 13.484076653735869, "NOx(GT)": 195, "NO2(GT)": 119 }, { "Time": "2024-03-31 16:00", "CO(GT)": 2.3, "NMHC(GT)": 278, "C6H6(GT)": 10.050093703546924, "NOx(GT)": 152, "NO2(GT)": 111 }, { "Time": "2024-03-31 17:00", "CO(GT)": 2.4, "NMHC(GT)": 263, "C6H6(GT)": 11.319946086587374, "NOx(GT)": 128, "NO2(GT)": 103 }, { "Time": "2024-03-31 18:00", "CO(GT)": 2.8, "NMHC(GT)": 322, "C6H6(GT)": 11.752703849058946, "NOx(GT)": 121, "NO2(GT)": 103 }, { "Time": "2024-03-31 19:00", "CO(GT)": 2.7, "NMHC(GT)": 226, "C6H6(GT)": 11.524820242423965, "NOx(GT)": 142, "NO2(GT)": 107 }, { "Time": "2024-03-31 20:00", "CO(GT)": 2.3, "NMHC(GT)": 221, "C6H6(GT)": 9.345221010408595, "NOx(GT)": 131, "NO2(GT)": 105 }, { "Time": "2024-03-31 21:00", "CO(GT)": 1.5, "NMHC(GT)": 109, "C6H6(GT)": 5.467274438558492, "NOx(GT)": 81, "NO2(GT)": 91 }, { "Time": "2024-03-31 22:00", "CO(GT)": 1.4, "NMHC(GT)": 105, "C6H6(GT)": 5.101134317941586, "NOx(GT)": 60, "NO2(GT)": 79 }, { "Time": "2024-03-31 23:00", "CO(GT)": 1.2, "NMHC(GT)": 84, "C6H6(GT)": 4.804320198215755, "NOx(GT)": 57, "NO2(GT)": 79 }];
 
@@ -241,7 +257,7 @@ const MOCK_DATASETS = [
     name: "空气质量预测训练集.xlsx",
     version: "v1（训练集）",
     rows: 342,
-    cols: 14,
+    cols: 15,
     timeRange: "2024-03-10 ~ 2024-03-24",
     owner: "环保部",
     qualityScore: 85,
@@ -254,12 +270,12 @@ const MOCK_DATASETS = [
     name: "空气质量预测训练集.xlsx_cleaned",
     version: "v2（清洗后）",
     rows: 342,
-    cols: 14,
+    cols: 15,
     timeRange: "2024-03-10 ~ 2024-03-24",
     owner: "环保部",
     qualityScore: 95,
     schema: MOCK_SCHEMA_AIR,
-    previewData: AIR_CLEANED_PREVIEW
+    previewData: MOCK_PREVIEW_ROWS_AIR_CLEANED
   },
   {
     id: "test_air_v1",
@@ -273,19 +289,6 @@ const MOCK_DATASETS = [
     qualityScore: 88,
     schema: MOCK_SCHEMA_AIR,
     previewData: MOCK_PREVIEW_ROWS_AIR_TEST
-  },
-  {
-    id: "test_air_v2",
-    sceneId: "air_quality_prediction",
-    name: "空气质量预测测试集.xlsx_cleaned",
-    version: "v2（清洗后）",
-    rows: 168,
-    cols: 14,
-    timeRange: "2024-03-25 ~ 2024-03-31",
-    owner: "环保部",
-    qualityScore: 95,
-    schema: MOCK_SCHEMA_AIR,
-    previewData: AIR_TEST_PREVIEW
   },
   {
     id: "test_clf_v1",
@@ -578,7 +581,7 @@ const MOCK_PREVIEW_ROWS_CLF_V1 = [
 const HEALTH_V1 = {
   summary: [
     { name: "重复率", value: 1.2, unit: "%" },
-    { name: "缺失率", value: 1.8, unit: "%" },
+    { name: "缺失率", value: 3.8, unit: "%" },
     { name: "异常值", value: 2.5, unit: "%" },
     { name: "口径不一致", value: 4, unit: "项" },
   ],
@@ -627,7 +630,7 @@ const HEALTH_V1 = {
 const HEALTH_CLF = {
   summary: [
     { name: "重复率", value: 0.8, unit: "%" },
-    { name: "缺失率", value: 1.3, unit: "%" },
+    { name: "缺失率", value: 2.1, unit: "%" },
     { name: "异常值", value: 1.6, unit: "%" },
     { name: "口径不一致", value: 4, unit: "项" },
   ],
@@ -698,7 +701,7 @@ const MOCK_RUNS_BASE = [
   {
     id: "run-A",
     taskName: "山西省日前电价预测_1",
-    taskType: "时序预测",
+    taskType: "回归",
     target: "label",
     status: "已完成",
     durationSec: 45,
@@ -710,7 +713,7 @@ const MOCK_RUNS_BASE = [
   {
     id: "run-B",
     taskName: "山西省日前电价预测_2",
-    taskType: "时序预测",
+    taskType: "回归",
     target: "label",
     status: "已完成",
     durationSec: 32,
@@ -722,7 +725,7 @@ const MOCK_RUNS_BASE = [
   {
     id: "run-D",
     taskName: "山西省日前电价预测_3",
-    taskType: "时序预测",
+    taskType: "回归",
     target: "label",
     status: "运行中",
     durationSec: 0,
@@ -734,7 +737,7 @@ const MOCK_RUNS_BASE = [
   {
     id: "run-E",
     taskName: "山西省日前电价预测_4",
-    taskType: "时序预测",
+    taskType: "回归",
     target: "label",
     status: "排队中",
     durationSec: 0,
@@ -746,7 +749,7 @@ const MOCK_RUNS_BASE = [
   {
     id: "run-F",
     taskName: "山西省日前电价预测_5",
-    taskType: "时序预测",
+    taskType: "回归",
     target: "label",
     status: "失败",
     durationSec: 12,
@@ -758,7 +761,7 @@ const MOCK_RUNS_BASE = [
   {
     id: "run-G",
     taskName: "山西省日前电价预测_6",
-    taskType: "时序预测",
+    taskType: "回归",
     target: "label",
     status: "已归档",
     durationSec: 50,
@@ -788,8 +791,8 @@ const MOCK_RUNS_BASE = [
     durationSec: 120,
     metrics: { AUC: 0.94, F1: 0.89, acc: 0.92 },
     version: "data:v2 · seed:42 · mode:精",
-    createTime: "2025-12-25 10:16:58",
-    finishTime: "2025-12-25 10:18:58",
+    createTime: "2025-12-25 11:00:00",
+    finishTime: "2025-12-25 11:02:00",
   },
 ];
 
@@ -810,26 +813,7 @@ const MOCK_PREVIEW_STATS = {
   "实时-日前偏差值_D-2_label": { unique: 2, missing: "0.0%" },
   "实时-日前偏差值_D-3_label": { unique: 2, missing: "0.0%" },
   "现货出清电价-日前_D-3": { unique: 737, missing: "0.0%" },
-  "现货出清电价-实时_D-3": { unique: 734, missing: "0.0%" },
-  // 机器预测性维护数据列
-  "Air temperature [K]": { unique: 88, missing: "1.4%" },
-  "Process temperature [K]": { unique: 75, missing: "1.8%" },
-  "Rotational speed [rpm]": { unique: 550, missing: "0.0%" },
-  "Torque [Nm]": { unique: 250, missing: "1.2%" },
-  // 空气质量预测数据列统计（基于完整训练集342行）
-  "CO(GT)": { unique: 63, missing: "2.6%" },
-  "PT08.S1(CO)": { unique: 322, missing: "1.2%" },
-  "NMHC(GT)": { unique: 179, missing: "1.2%" },
-  "C6H6(GT)": { unique: 323, missing: "0.9%" },
-  "PT08.S2(NMHC)": { unique: 326, missing: "0.0%" },
-  "NOx(GT)": { unique: 204, missing: "0.0%" },
-  "PT08.S3(NOx)": { unique: 331, missing: "0.0%" },
-  "NO2(GT)": { unique: 131, missing: "0.0%" },
-  "PT08.S4(NO2)": { unique: 329, missing: "0.0%" },
-  "PT08.S5(O3)": { unique: 333, missing: "0.0%" },
-  "T": { unique: 300, missing: "0.0%" },
-  "RH": { unique: 328, missing: "0.0%" },
-  "AH": { unique: 342, missing: "0.0%" }
+  "现货出清电价-实时_D-3": { unique: 734, missing: "0.0%" }
 };
 
 const MOCK_PREVIEW_ROWS = [
@@ -1008,28 +992,47 @@ function SimpleScatterPlot({ target = "Machine failure" }) {
 
 function ClassificationVisuals({ target = "Machine failure" }) {
   const matrix = useMemo(() => {
-    // 写死的混淆矩阵数据，针对不同的预测类型
-    const fixedMatrixData = {
-      "机器故障": { tp: 8, tn: 182, fp: 9, fn: 1 },
-      "Machine failure": { tp: 8, tn: 182, fp: 9, fn: 1 },
-      "工具磨损故障": { tp: 2, tn: 192, fp: 5, fn: 1 },
-      "TWF": { tp: 2, tn: 192, fp: 5, fn: 1 },
-      "热耗散故障": { tp: 6, tn: 185, fp: 5, fn: 4 },
-      "HDF": { tp: 6, tn: 185, fp: 5, fn: 4 },
-      "功率故障": { tp: 7, tn: 180, fp: 8, fn: 5 },
-      "PWF": { tp: 7, tn: 180, fp: 8, fn: 5 },
-      "过应力故障": { tp: 4, tn: 190, fp: 2, fn: 4 },
-      "OSF": { tp: 4, tn: 190, fp: 2, fn: 4 },
-      "随机故障": { tp: 3, tn: 192, fp: 3, fn: 2 },
-      "RNF": { tp: 3, tn: 192, fp: 3, fn: 2 }
-    };
+    // Check if the target is one of the valid keys in NEW_MACHINE_DATA
+    const validTargets = ["Machine failure", "TWF", "HDF", "PWF", "OSF", "RNF"];
 
-    // 如果有预设的写死数据，直接返回
-    if (fixedMatrixData[target]) {
-      return fixedMatrixData[target];
+    if (validTargets.includes(target) && typeof NEW_MACHINE_DATA !== 'undefined' && NEW_MACHINE_DATA.length > 0) {
+      let tp = 0, tn = 0, fp = 0, fn = 0;
+
+      // Simple seeded random
+      const pseudoRandom = (s) => {
+        let t = s + 0x6D2B79F5;
+        t = Math.imul(t ^ t >>> 15, t | 1);
+        t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+      };
+
+      NEW_MACHINE_DATA.forEach((row, i) => {
+        // Safely access the target property
+        const actual = row[target] === 1 ? 1 : 0;
+
+        // Simulate prediction:
+        // For demonstration, we keep similar simulation logic but apply it to the specific target
+        const r = pseudoRandom(i + 12345 + target.length); // varied seed per target
+        let predicted = actual;
+
+        if (actual === 1) {
+          // 20% chance to miss (FN)
+          if (r < 0.2) predicted = 0;
+        } else {
+          // 5% chance to false alarm (FP)
+          if (r < 0.05) predicted = 1;
+        }
+
+        if (actual === 1 && predicted === 1) tp++;
+        else if (actual === 0 && predicted === 0) tn++;
+        else if (actual === 0 && predicted === 1) fp++;
+        else if (actual === 1 && predicted === 0) fn++;
+      });
+
+      return { tp, tn, fp, fn };
     }
 
-    // Fallback for other targets
+    // Fallback for other targets or mock data
     const seed = target.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
     return {
       tp: 50 + (seed % 20),
@@ -1213,185 +1216,33 @@ const MOCK_CLF_COMPARISON_POINTS = Array.from({ length: 30 }, (_, i) => {
 });
 
 const MOCK_MODEL_COMPARISON_AIR = (() => {
-  // Real data from CSV: reg_0128.csv
-  const csvData = [
-    {time: "2024/3/25 00:00", truth: 80, pred: 82.1418523},
-    {time: "2024/3/25 01:00", truth: 42, pred: 36.18578546},
-    {time: "2024/3/25 02:00", truth: 38, pred: 37.01531735},
-    {time: "2024/3/25 03:00", truth: 28, pred: 23.63220282},
-    {time: "2024/3/25 04:00", truth: 18, pred: 17.21715619},
-    {time: "2024/3/25 05:00", truth: 12, pred: 8.70062876},
-    {time: "2024/3/25 06:00", truth: 43, pred: 42.8220406},
-    {time: "2024/3/25 07:00", truth: 84, pred: 88.39099255},
-    {time: "2024/3/25 08:00", truth: 184, pred: 181.6303773},
-    {time: "2024/3/25 09:00", truth: 202, pred: 223.6599931},
-    {time: "2024/3/25 10:00", truth: 133, pred: 137.6098848},
-    {time: "2024/3/25 11:00", truth: 130, pred: 106.3918346},
-    {time: "2024/3/25 12:00", truth: 106, pred: 86.92548621},
-    {time: "2024/3/25 13:00", truth: 132, pred: 122.8995193},
-    {time: "2024/3/25 14:00", truth: 106, pred: 100.861622},
-    {time: "2024/3/25 15:00", truth: 125, pred: 108.1338516},
-    {time: "2024/3/25 16:00", truth: 138, pred: 129.8883255},
-    {time: "2024/3/25 17:00", truth: 120, pred: 108.8251282},
-    {time: "2024/3/25 18:00", truth: 158, pred: 158.085497},
-    {time: "2024/3/25 19:00", truth: 253, pred: 261.8737623},
-    {time: "2024/3/25 20:00", truth: 231, pred: 258.8874475},
-    {time: "2024/3/25 21:00", truth: 150, pred: 157.0278439},
-    {time: "2024/3/25 22:00", truth: 99, pred: 114.0511791},
-    {time: "2024/3/25 23:00", truth: 75, pred: 85.57058412},
-    {time: "2024/3/26 00:00", truth: 93, pred: 107.7190856},
-    {time: "2024/3/26 01:00", truth: 79, pred: 92.84281371},
-    {time: "2024/3/26 02:00", truth: 67, pred: 76.99875456},
-    {time: "2024/3/26 03:00", truth: 56, pred: 50.56433826},
-    {time: "2024/3/26 04:00", truth: 45, pred: 47.6886277},
-    {time: "2024/3/26 05:00", truth: 72, pred: 81.36762253},
-    {time: "2024/3/26 06:00", truth: 103, pred: 95.80147746},
-    {time: "2024/3/26 07:00", truth: 132, pred: 124.9595235},
-    {time: "2024/3/26 08:00", truth: 239, pred: 217.1896444},
-    {time: "2024/3/26 09:00", truth: 275, pred: 252.4170987},
-    {time: "2024/3/26 10:00", truth: 232, pred: 217.8532699},
-    {time: "2024/3/26 11:00", truth: 180, pred: 183.5936027},
-    {time: "2024/3/26 12:00", truth: 112, pred: 128.9620149},
-    {time: "2024/3/26 13:00", truth: 116, pred: 135.9784721},
-    {time: "2024/3/26 14:00", truth: 103, pred: 111.7837919},
-    {time: "2024/3/26 15:00", truth: 89, pred: 80.70399702},
-    {time: "2024/3/26 16:00", truth: 112, pred: 111.1201664},
-    {time: "2024/3/26 17:00", truth: 127, pred: 137.8863955},
-    {time: "2024/3/26 18:00", truth: 125, pred: 151.7326653},
-    {time: "2024/3/26 19:00", truth: 120, pred: 151.5529334},
-    {time: "2024/3/26 20:00", truth: 120, pred: 145.3176187},
-    {time: "2024/3/26 21:00", truth: 99, pred: 104.0414943},
-    {time: "2024/3/26 22:00", truth: 79, pred: 87.0084394},
-    {time: "2024/3/26 23:00", truth: 66, pred: 76.33512905},
-    {time: "2024/3/27 00:00", truth: 94, pred: 98.48363058},
-    {time: "2024/3/27 01:00", truth: 70, pred: 71.02612494},
-    {time: "2024/3/27 02:00", truth: 75, pred: 89.57998826},
-    {time: "2024/3/27 03:00", truth: 66, pred: 78.43660984},
-    {time: "2024/3/27 04:00", truth: 57, pred: 75.67150354},
-    {time: "2024/3/27 05:00", truth: 32, pred: 48.68406597},
-    {time: "2024/3/27 06:00", truth: 54, pred: 68.75873777},
-    {time: "2024/3/27 07:00", truth: 68, pred: 77.21996307},
-    {time: "2024/3/27 08:00", truth: 98, pred: 124.2544214},
-    {time: "2024/3/27 09:00", truth: 128, pred: 153.0944802},
-    {time: "2024/3/27 10:00", truth: 129, pred: 146.855709},
-    {time: "2024/3/27 11:00", truth: 130, pred: 127.5587234},
-    {time: "2024/3/27 12:00", truth: 111, pred: 116.1250088},
-    {time: "2024/3/27 13:00", truth: 106, pred: 125.2636852},
-    {time: "2024/3/27 14:00", truth: 137, pred: 154.6014631},
-    {time: "2024/3/27 15:00", truth: 113, pred: 118.8486385},
-    {time: "2024/3/27 16:00", truth: 122, pred: 136.7872657},
-    {time: "2024/3/27 17:00", truth: 137, pred: 140.3801757},
-    {time: "2024/3/27 18:00", truth: 165, pred: 157.7260332},
-    {time: "2024/3/27 19:00", truth: 196, pred: 214.9222572},
-    {time: "2024/3/27 20:00", truth: 174, pred: 191.3359004},
-    {time: "2024/3/27 21:00", truth: 140, pred: 144.5191942},
-    {time: "2024/3/27 22:00", truth: 102, pred: 119.4707875},
-    {time: "2024/3/27 23:00", truth: 130, pred: 154.131395},
-    {time: "2024/3/28 00:00", truth: 121, pred: 143.1077209},
-    {time: "2024/3/28 01:00", truth: 111, pred: 141.9943065},
-    {time: "2024/3/28 02:00", truth: 87, pred: 114.7424557},
-    {time: "2024/3/28 03:00", truth: 82, pred: 148.5320547},
-    {time: "2024/3/28 04:00", truth: 77, pred: 105.7558602},
-    {time: "2024/3/28 05:00", truth: 39, pred: 62.12248263},
-    {time: "2024/3/28 06:00", truth: 77, pred: 83.13729057},
-    {time: "2024/3/28 07:00", truth: 91, pred: 88.22508617},
-    {time: "2024/3/28 08:00", truth: 105, pred: 103.6543794},
-    {time: "2024/3/28 09:00", truth: 133, pred: 133.7732998},
-    {time: "2024/3/28 10:00", truth: 128, pred: 142.1057749},
-    {time: "2024/3/28 11:00", truth: 126, pred: 140.9539353},
-    {time: "2024/3/28 12:00", truth: 92, pred: 105.2028389},
-    {time: "2024/3/28 13:00", truth: 66, pred: 78.32600559},
-    {time: "2024/3/28 14:00", truth: 50, pred: 53.99307008},
-    {time: "2024/3/28 15:00", truth: 70, pred: 71.24733344},
-    {time: "2024/3/28 16:00", truth: 73, pred: 72.07686534},
-    {time: "2024/3/28 17:00", truth: 77, pred: 73.23820999},
-    {time: "2024/3/28 18:00", truth: 86, pred: 86.75957983},
-    {time: "2024/3/28 19:00", truth: 93, pred: 104.0967964},
-    {time: "2024/3/28 20:00", truth: 105, pred: 110.2076813},
-    {time: "2024/3/28 21:00", truth: 67, pred: 71.68975045},
-    {time: "2024/3/28 22:00", truth: 63, pred: 71.41323982},
-    {time: "2024/3/28 23:00", truth: 63, pred: 66.98906973},
-    {time: "2024/3/29 00:00", truth: 46, pred: 49.79010849},
-    {time: "2024/3/29 01:00", truth: 21, pred: 28.05637292},
-    {time: "2024/3/29 02:00", truth: 22, pred: 29.60483245},
-    {time: "2024/3/29 03:00", truth: 30, pred: 37.67894287},
-    {time: "2024/3/29 04:00", truth: 39, pred: 52.83172543},
-    {time: "2024/3/29 05:00", truth: 55, pred: 61.51415924},
-    {time: "2024/3/29 06:00", truth: 76, pred: 76.00331629},
-    {time: "2024/3/29 07:00", truth: 181, pred: 209.557951},
-    {time: "2024/3/29 08:00", truth: 259, pred: 260.6571155},
-    {time: "2024/3/29 09:00", truth: 118, pred: 115.7102429},
-    {time: "2024/3/29 10:00", truth: 119, pred: 105.0092815},
-    {time: "2024/3/29 11:00", truth: 123, pred: 107.9126431},
-    {time: "2024/3/29 12:00", truth: 92, pred: 87.36790322},
-    {time: "2024/3/29 13:00", truth: 91, pred: 94.88899238},
-    {time: "2024/3/29 14:00", truth: 103, pred: 97.70940081},
-    {time: "2024/3/29 15:00", truth: 102, pred: 89.66294145},
-    {time: "2024/3/29 16:00", truth: 94, pred: 95.69087321},
-    {time: "2024/3/29 17:00", truth: 98, pred: 109.6823111},
-    {time: "2024/3/29 18:00", truth: 126, pred: 145.4437766},
-    {time: "2024/3/29 19:00", truth: 108, pred: 130.9252403},
-    {time: "2024/3/29 20:00", truth: 95, pred: 113.3599025},
-    {time: "2024/3/29 21:00", truth: 78, pred: 89.46938401},
-    {time: "2024/3/29 22:00", truth: 61, pred: 83.30319695},
-    {time: "2024/3/29 23:00", truth: 55, pred: 71.41323982},
-    {time: "2024/3/30 00:00", truth: 57, pred: 71.13672919},
-    {time: "2024/3/30 01:00", truth: 41, pred: 64.00275492},
-    {time: "2024/3/30 02:00", truth: 46, pred: 75.45029503},
-    {time: "2024/3/30 03:00", truth: 43, pred: 73.01700148},
-    {time: "2024/3/30 04:00", truth: 41, pred: 74.23364826},
-    {time: "2024/3/30 05:00", truth: 52, pred: 69.58826966},
-    {time: "2024/3/30 06:00", truth: 111, pred: 122.6921363},
-    {time: "2024/3/30 07:00", truth: 191, pred: 213.9268189},
-    {time: "2024/3/30 08:00", truth: 244, pred: 296.2716848},
-    {time: "2024/3/30 09:00", truth: 283, pred: 316.4016587},
-    {time: "2024/3/30 10:00", truth: 320, pred: 331.7756498},
-    {time: "2024/3/30 11:00", truth: 249, pred: 286.0960936},
-    {time: "2024/3/30 12:00", truth: 219, pred: 263.6434303},
-    {time: "2024/3/30 13:00", truth: 200, pred: 235.881763},
-    {time: "2024/3/30 14:00", truth: 138, pred: 151.1934696},
-    {time: "2024/3/30 15:00", truth: 118, pred: 117.7564215},
-    {time: "2024/3/30 16:00", truth: 99, pred: 89.3311287},
-    {time: "2024/3/30 17:00", truth: 112, pred: 130.2685276},
-    {time: "2024/3/30 18:00", truth: 117, pred: 129.6394659},
-    {time: "2024/3/30 19:00", truth: 129, pred: 147.3015824},
-    {time: "2024/3/30 20:00", truth: 132, pred: 137.4992806},
-    {time: "2024/3/30 21:00", truth: 73, pred: 77.10935882},
-    {time: "2024/3/30 22:00", truth: 68, pred: 71.80035471},
-    {time: "2024/3/30 23:00", truth: 80, pred: 91.1284478},
-    {time: "2024/3/31 00:00", truth: 68, pred: 77.05405669},
-    {time: "2024/3/31 01:00", truth: 44, pred: 55.15441473},
-    {time: "2024/3/31 02:00", truth: 47, pred: 65.33000594},
-    {time: "2024/3/31 03:00", truth: 31, pred: 37.23652586},
-    {time: "2024/3/31 04:00", truth: 15, pred: 17.32776044},
-    {time: "2024/3/31 05:00", truth: 44, pred: 44.42580226},
-    {time: "2024/3/31 06:00", truth: 85, pred: 85.34937561},
-    {time: "2024/3/31 07:00", truth: 207, pred: 236.0476694},
-    {time: "2024/3/31 08:00", truth: 230, pred: 219.235823},
-    {time: "2024/3/31 09:00", truth: 181, pred: 163.9751735},
-    {time: "2024/3/31 10:00", truth: 144, pred: 129.9643659},
-    {time: "2024/3/31 11:00", truth: 140, pred: 134.1673275},
-    {time: "2024/3/31 12:00", truth: 204, pred: 194.3775173},
-    {time: "2024/3/31 13:00", truth: 149, pred: 142.1144158},
-    {time: "2024/3/31 14:00", truth: 171, pred: 148.552793},
-    {time: "2024/3/31 15:00", truth: 195, pred: 175.4365391},
-    {time: "2024/3/31 16:00", truth: 152, pred: 139.4901571},
-    {time: "2024/3/31 17:00", truth: 128, pred: 132.0105446},
-    {time: "2024/3/31 18:00", truth: 121, pred: 147.623026},
-    {time: "2024/3/31 19:00", truth: 142, pred: 145.7427538},
-    {time: "2024/3/31 20:00", truth: 131, pred: 137.5511263},
-    {time: "2024/3/31 21:00", truth: 81, pred: 92.87046477},
-    {time: "2024/3/31 22:00", truth: 60, pred: 81.14641403},
-    {time: "2024/3/31 23:00", truth: 57, pred: 75.00787802}
-  ];
+  const start = new Date("2024-03-25 00:00:00").getTime();
+  const end = new Date("2024-03-31 23:00:00").getTime();
+  const step = 3600 * 1000; // 1 hour
+  const totalSteps = (end - start) / step + 1;
 
-  // Convert to required format and generate PatchTST/DeepSeek predictions
-  return csvData.map((item, i) => {
-    const timestamp = new Date(item.time).getTime();
-    const truth = item.truth;
-    const limix = item.pred;
+  // 1. Generate Truth Series first
+  const truthSeries = [];
+  for (let i = 0; i < totalSteps; i++) {
+    const t = start + i * step;
+    const d = new Date(t);
+    const hour = d.getHours();
+    const cycle = Math.sin((hour - 8) / 12 * Math.PI) * 0.5 + 0.5; // 0 to 1
+    const base = 50 + cycle * 150; // 50 to 200
+    const truth = Math.max(0, base + (Math.random() - 0.5) * 40);
+    truthSeries.push({ t, truth });
+  }
+
+  // 2. Generate Model Predictions
+  return truthSeries.map((item, i) => {
+    const { t, truth } = item;
     const mean = 125;
-    const totalSteps = csvData.length;
+
+    // LimiX: Lag + Underestimation ("delay" + "value not enough")
+    // Use previous hour's truth to simulate delay
+    const prevTruth = i > 0 ? truthSeries[i - 1].truth : truth;
+    // Apply 0.9 factor to simulate "value not enough" (underestimation)
+    const limix = prevTruth * 0.9 + (Math.random() - 0.5) * 20;
 
     // PatchTST: Simulate 3 error types
     let patchtst;
@@ -1420,7 +1271,7 @@ const MOCK_MODEL_COMPARISON_AIR = (() => {
     }
 
     return {
-      date: timestamp,
+      date: t,
       truth: Math.max(0, truth),
       limix: Math.max(0, limix),
       patchtst: Math.max(0, patchtst),
@@ -1485,7 +1336,7 @@ const MOCK_PR_DATA = [
   { recall: 1.0, precision: 0.36 },
 ].map(p => ({ ...p, baseline: 0.356 }));
 
-function getRocData(target, targetAuc = null) {
+function getRocData(target) {
   const seed = target.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
   // Simulate a high-performance model (ROC curve hugs top-left corner)
   return MOCK_ROC_DATA.map(item => {
@@ -1495,8 +1346,7 @@ function getRocData(target, targetAuc = null) {
     // Base curve: steep rise
     // Using a power function: y = x^(1/k), k > 1 makes it convex (top-left)
     // Adjust k based on seed to give slight variety per target, but all "good"
-    // If targetAuc is provided, calculate k to approximate that AUC: AUC = k / (k + 1) => k = AUC / (1 - AUC)
-    const k = targetAuc ? (targetAuc / (1 - targetAuc)) : (8 + (seed % 5));
+    const k = 8 + (seed % 5);
     let baseTpr = Math.pow(item.fpr, 1 / k);
 
     // Add small smooth noise
@@ -1621,20 +1471,24 @@ const MOCK_FEATURE_META_AIR = {
   "AH": { type: "number", range: [0, 50] }
 };
 
-const MOCK_HEATMAP_DATES_AIR = MOCK_NOX_PREDICTION.map(d => d.date);
+const MOCK_HEATMAP_DATES_AIR = Array.from({ length: AIR_HEATMAP_DATA.length }, (_, i) => {
+  const d = new Date(2024, 2, 25, i); // Start from 2024-03-25 00:00
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:00`;
+});
 
 const MOCK_HEATMAP_MATRIX_AIR = AIR_HEATMAP_DATA;
 
 const MOCK_INFLUENCE_FACTORS_MACHINE = MACHINE_HEATMAP_FACTORS;
 
 const MOCK_INFLUENCE_SCORES_MACHINE = [
-  { name: "类型", value: -155.4 },
-  { name: "转速[rpm]", value: 128.6 },
-  { name: "过程温度[K]", value: -66.6 },
-  { name: "空气温度[K]", value: -51.4 },
-  { name: "工具磨损[min]", value: 34.4 },
-  { name: "扭矩[Nm]", value: 29.0 },
-  { name: "唯一标识符", value: -28.4 }
+  { name: "Type", value: -155.4 },
+  { name: "Rotational speed [rpm]", value: 128.6 },
+  { name: "Process temperature [K]", value: -66.6 },
+  { name: "Air temperature [K]", value: -51.4 },
+  { name: "Tool wear [min]", value: -34.4 },
+  { name: "Torque [Nm]", value: 29.0 },
+  { name: "UDI", value: -28.4 }
 ];
 
 const MOCK_FEATURE_META_MACHINE = {
@@ -2216,22 +2070,19 @@ function Modal({ open, title, children, onClose }) {
 function BatchUploadForm({ sceneId, onCancel, onConfirm }) {
   const [file1, setFile1] = useState(null);
   const [file2, setFile2] = useState(null);
-  const [datasetName, setDatasetName] = useState("");
   const inputRef1 = useRef(null);
   const inputRef2 = useRef(null);
 
   const handleFileChange = (e, setFile) => {
     if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setFile(file);
+      setFile(e.target.files[0]);
     }
   };
 
   const handleDrop = (e, setFile) => {
     e.preventDefault();
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const file = e.dataTransfer.files[0];
-      setFile(file);
+      setFile(e.dataTransfer.files[0]);
     }
   };
 
@@ -2241,6 +2092,15 @@ function BatchUploadForm({ sceneId, onCancel, onConfirm }) {
   };
 
   const getPlaceholder = () => {
+    if (!file1) {
+      return "请输入数据集名称";
+    }
+    if (sceneId === "machine_predictive_maintenance_clf") {
+      return "机器故障预测_LimiX";
+    }
+    if (sceneId === "air_quality_prediction") {
+      return "空气质量预测_LimiX";
+    }
     return "请输入数据集名称";
   };
 
@@ -2329,18 +2189,13 @@ function BatchUploadForm({ sceneId, onCancel, onConfirm }) {
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium">数据集名称</label>
-        <Input 
-          placeholder={getPlaceholder()} 
-          className="rounded-xl" 
-          value={datasetName}
-          onChange={(e) => setDatasetName(e.target.value)}
-        />
+        <label className="text-sm font-medium">数据集名称前缀</label>
+        <Input placeholder={getPlaceholder()} className="rounded-xl" />
       </div>
 
       <div className="flex justify-end gap-3 pt-2">
         <Button variant="outline" className="rounded-xl" onClick={onCancel}>取消</Button>
-        <Button className="rounded-xl" onClick={() => onConfirm(file1, file2, datasetName)}>
+        <Button className="rounded-xl" onClick={() => onConfirm(file1, file2)}>
           <Upload className="h-4 w-4 mr-2" />
           确认上传
         </Button>
@@ -2361,7 +2216,7 @@ function readCsvFile(file) {
       if (file.name.includes("空气") || file.name.includes("Air") || file.name.includes("Quality")) {
         return resolve({
           schema: MOCK_SCHEMA_AIR,
-          rows: REAL_AIR_DATA // 使用完整数据而不是预览数据
+          rows: MOCK_PREVIEW_ROWS_AIR
         });
       }
 
@@ -2420,80 +2275,14 @@ function readCsvFile(file) {
   });
 }
 
-function DataGenerationForm({ columns, schema, onCancel, onConfirm }) {
-  const [selectedCols, setSelectedCols] = useState(columns);
-  const [rowCount, setRowCount] = useState("1000");
-
-  const toggleCol = (col) => {
-    setSelectedCols(prev => prev.includes(col) ? prev.filter(c => c !== col) : [...prev, col]);
-  };
-
-  const getLabel = (col) => {
-    if (!schema) return col;
-    const field = schema.find(s => s.k === col);
-    return field ? `${col} (${field.desc})` : col;
-  };
-
-  return (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <label className="text-sm font-medium">选择生成字段</label>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-48 overflow-y-auto p-2 border rounded-xl bg-slate-50">
-          {columns.map(col => (
-            <div key={col} className="flex items-center space-x-2">
-              <Checkbox 
-                checked={selectedCols.includes(col)}
-                onChange={() => toggleCol(col)}
-              />
-              <span className="text-sm truncate" title={getLabel(col)}>{getLabel(col)}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <label className="text-sm font-medium">生成行数</label>
-        <Input 
-          type="number"
-          value={rowCount}
-          onChange={(e) => setRowCount(e.target.value)}
-          className="rounded-xl"
-        />
-      </div>
-
-      <div className="flex justify-end gap-3 pt-2">
-        <Button variant="outline" className="rounded-xl" onClick={onCancel}>取消</Button>
-        <Button className="rounded-xl" onClick={() => onConfirm(selectedCols, rowCount)}>
-          <Wand2 className="h-4 w-4 mr-2" />
-          确认生成
-        </Button>
-      </div>
-    </div>
-  );
-}
-
 function DatasetsPanel({ datasetId, setDatasetId, notify, openModal, closeModal, datasets, setDatasets, sceneId }) {
   const dataset = datasets.find((d) => d.id === datasetId);
   const activeSchema = useMemo(() => {
-    let schema;
-    if (dataset && dataset.schema) {
-      schema = dataset.schema;
-    } else if (sceneId === "machine_predictive_maintenance_clf") {
-      schema = MOCK_SCHEMA_MACHINE;
-    } else if (sceneId === "sd_high_price_clf") {
-      schema = MOCK_SCHEMA_CLF;
-    } else if (sceneId === "air_quality_prediction") {
-      schema = MOCK_SCHEMA_AIR;
-    } else {
-      schema = MOCK_SCHEMA;
-    }
-
-    // 如果dataset有selectedColumns字段，则根据它过滤schema
-    if (dataset && dataset.selectedColumns && Array.isArray(dataset.selectedColumns)) {
-      schema = schema.filter(col => dataset.selectedColumns.includes(col.k));
-    }
-
-    return schema;
+    if (dataset && dataset.schema) return dataset.schema;
+    if (sceneId === "machine_predictive_maintenance_clf") return MOCK_SCHEMA_MACHINE;
+    if (sceneId === "sd_high_price_clf") return MOCK_SCHEMA_CLF;
+    if (sceneId === "air_quality_prediction") return MOCK_SCHEMA_AIR;
+    return MOCK_SCHEMA;
   }, [sceneId, dataset]);
   const isV2 = datasetId === "test_+5_v2" || (datasetId && datasetId.endsWith("v2"));
 
@@ -2520,7 +2309,7 @@ function DatasetsPanel({ datasetId, setDatasetId, notify, openModal, closeModal,
                       notify("已取消", "未做更改");
                       closeModal();
                     }}
-                    onConfirm={async (file1, file2, datasetName) => {
+                    onConfirm={async (file1, file2) => {
                       if (!file1) {
                         alert("请至少上传训练集文件");
                         return;
@@ -2539,14 +2328,12 @@ function DatasetsPanel({ datasetId, setDatasetId, notify, openModal, closeModal,
 
                       const baseId = `custom_${Date.now()}`;
                       let newDataset1, newDataset2;
-                      
-                      const baseName = datasetName || file1.name.replace(/\.[^/.]+$/, "");
 
                       if (sceneId === "machine_predictive_maintenance_clf") {
                         newDataset1 = {
                           id: `${baseId}_train_machine`,
                           sceneId: sceneId,
-                          name: baseName,
+                          name: file1.name.replace(/[-_]?v1/gi, ""),
                           version: "v1（训练集）",
                           rows: 1440,
                           cols: data1.schema.length || 10,
@@ -2560,7 +2347,7 @@ function DatasetsPanel({ datasetId, setDatasetId, notify, openModal, closeModal,
                           newDataset2 = {
                             id: `${baseId}_test_machine`,
                             sceneId: sceneId,
-                            name: file2.name.replace(/\.[^/.]+$/, ""),
+                            name: file2.name.replace(/[-_]?v1/gi, ""),
                             version: "v1（测试集）",
                             rows: 672,
                             cols: data2?.schema.length || 10,
@@ -2575,9 +2362,9 @@ function DatasetsPanel({ datasetId, setDatasetId, notify, openModal, closeModal,
                         newDataset1 = {
                           id: `${baseId}_train`,
                           sceneId: sceneId,
-                          name: baseName,
+                          name: file1.name,
                           version: "v1（训练集）",
-                          rows: data1.rows.length,
+                          rows: Math.floor(Math.random() * 5000) + 10000,
                           cols: data1.schema.length || 17,
                           timeRange: "2025-08-01 ~ 2026-01-01",
                           owner: "当前用户",
@@ -2587,11 +2374,11 @@ function DatasetsPanel({ datasetId, setDatasetId, notify, openModal, closeModal,
                         };
                         if (file2) {
                           newDataset2 = {
-                            id: `${baseId}_test_machine`,
+                            id: `${baseId}_test`,
                             sceneId: sceneId,
-                            name: file2.name.replace(/\.[^/.]+$/, ""),
+                            name: file2.name,
                             version: "v1（测试集）",
-                            rows: data2.rows.length,
+                            rows: Math.floor(Math.random() * 2000) + 3000,
                             cols: data2?.schema.length || 17,
                             timeRange: "2026-01-02 ~ 2026-02-01",
                             owner: "当前用户",
@@ -2775,13 +2562,8 @@ function HealthPanel({ datasetId, notify, openModal, setActive, datasets, setDat
 
 
   const isMachine = sceneId === "machine_predictive_maintenance_clf" || (datasetId && datasetId.includes("machine"));
-  let activeSchema = currentDataset?.schema || (isMachine ? MOCK_SCHEMA_MACHINE : (isClf ? MOCK_SCHEMA_CLF : MOCK_SCHEMA));
+  const activeSchema = currentDataset?.schema || (isMachine ? MOCK_SCHEMA_MACHINE : (isClf ? MOCK_SCHEMA_CLF : MOCK_SCHEMA));
   const activeRows = currentDataset?.previewData || (isMachine ? MOCK_PREVIEW_ROWS_MACHINE : (isClf ? MOCK_PREVIEW_ROWS_CLF_V1 : (isV2 ? MOCK_PREVIEW_ROWS_V2.slice(0, 10) : MOCK_PREVIEW_ROWS.slice(0, 10))));
-
-  // 如果dataset有selectedColumns字段，则根据它过滤schema
-  if (currentDataset && currentDataset.selectedColumns && Array.isArray(currentDataset.selectedColumns)) {
-    activeSchema = activeSchema.filter(col => currentDataset.selectedColumns.includes(col.k));
-  }
 
   const visualRows = useMemo(() => {
     if (!activeRows || activeRows.length === 0) return [];
@@ -2792,43 +2574,22 @@ function HealthPanel({ datasetId, notify, openModal, setActive, datasets, setDat
     // 强制注入数据质量问题（3个缺失值，1个异常值）
     // 为了保证展示效果，我们选择特定的位置注入，覆盖所有数据源情况
 
-    const keys = Object.keys(rows[0]).filter(k => k !== 'id' && k !== 'UDI' && k !== 'Time' && k !== 'date' && k !== 'label' && !k.endsWith('_label') && k !== 'Product ID' && k !== 'Type');
+    const keys = Object.keys(rows[0]).filter(k => k !== 'id' && k !== 'UDI' && k !== 'Time' && k !== 'date' && k !== 'label' && !k.endsWith('_label'));
 
     if (keys.length > 0) {
-      if (isMachine) {
-        // 机器数据：注入更大的异常值和缺失值
-        // 1. 注入 1 个大异常值 (Row 3, 转速列)
-        const speedKey = keys.find(k => k.includes("speed") || k.includes("rpm")) || keys[2 % keys.length];
-        if (rows[2]) {
-          // 如果是清洗后的数据集(v2)，使用修复后的值，否则使用异常值
-          if (currentDataset && currentDataset.version && currentDataset.version.includes("清洗后")) {
-            rows[2][speedKey] = 1321;
-          } else {
-            rows[2][speedKey] = 99999;
-          }
-        }
+      // 1. 注入 1 个异常值 (Row 1, Last Numeric Column)
+      const outlierKey = keys.length > 1 ? keys[1] : keys[0];
+      rows[0][outlierKey] = 9999;
 
-        // 2. 注入 2 个缺失值 (Row 2, Row 4 在温度列)
-        const tempKey = keys.find(k => k.includes("temperature") || k.includes("Temperature")) || keys[0];
-        if (rows[1]) rows[1][tempKey] = null;
-        const tempKey2 = keys.find(k => k.includes("Process temperature")) || keys[1 % keys.length];
-        if (rows[6]) rows[6][tempKey2] = "NaN";
-      } else {
-        // 非机器数据：注入原有逻辑
-        // 1. 注入 1 个异常值 (Row 1, Last Numeric Column)
-        const outlierKey = keys.length > 1 ? keys[1] : keys[0];
-        rows[0][outlierKey] = 9999;
-
-        // 2. 注入 3 个缺失值 (Row 3, 5, 7)
-        // 确保不覆盖同一个位置
-        rows[2][keys[0]] = null;
-        rows[4][keys[1 % keys.length]] = null;
-        rows[6][keys[2 % keys.length]] = null;
-      }
+      // 2. 注入 3 个缺失值 (Row 3, 5, 7)
+      // 确保不覆盖同一个位置
+      rows[2][keys[0]] = null;
+      rows[4][keys[1 % keys.length]] = null;
+      rows[6][keys[2 % keys.length]] = null;
     }
 
     return rows;
-  }, [activeRows, isMachine]);
+  }, [activeRows]);
 
   // 计算 UMAP
   useEffect(() => {
@@ -2991,25 +2752,9 @@ function HealthPanel({ datasetId, notify, openModal, setActive, datasets, setDat
 
   // 动态计算统计信息 helper
   const getColStats = (colKey) => {
-    // 优先使用 MOCK_PREVIEW_STATS（为了展示效果更真实，因为 Preview 只有 10 行）
-    // 对于机器数据、电价数据和空气质量数据的标准字段，总是优先使用预设统计值
-    if (MOCK_PREVIEW_STATS[colKey]) {
-      // 对于非自定义数据集，直接使用预设值
-      if (datasetId && !datasetId.startsWith("custom_")) {
-        return MOCK_PREVIEW_STATS[colKey];
-      }
-      // 对于自定义上传的机器数据、电价数据、空气质量场景，如果字段在预设中存在，也使用预设值
-      if (sceneId === "machine_predictive_maintenance_clf" || 
-          sceneId === "sd_high_price_clf" || 
-          sceneId === "air_quality_prediction") {
-        return MOCK_PREVIEW_STATS[colKey];
-      }
-    }
-
-    // 尝试获取全量真实数据（仅限内置的机器预测维护场景）
-    // 注意：不对自定义上传的数据使用 REAL_MACHINE_DATA
+    // 优先尝试获取全量真实数据（仅限机器预测维护场景）
     let fullData = null;
-    if (datasetId && !datasetId.startsWith("custom_") && (datasetId.includes("machine") || sceneId === "machine_predictive_maintenance_clf")) {
+    if (datasetId && (datasetId.includes("machine") || sceneId === "machine_predictive_maintenance_clf")) {
       // 根据数据集 ID 切分真实数据，确保统计值与展示行数一致
       if (datasetId === "test_machine_v1" || (datasetId && datasetId.includes("train") && datasetId.includes("machine"))) {
         fullData = REAL_MACHINE_DATA.slice(0, 1440); // 训练集 1440 行
@@ -3018,11 +2763,8 @@ function HealthPanel({ datasetId, notify, openModal, setActive, datasets, setDat
       } else {
         fullData = REAL_MACHINE_DATA; // 清洗后/默认使用全量 8000 行
       }
-    } else if (datasetId && !datasetId.startsWith("custom_") && (datasetId.includes("clf") || sceneId === "sd_high_price_clf")) {
+    } else if (datasetId && (datasetId.includes("clf") || sceneId === "sd_high_price_clf")) {
       fullData = REAL_CLF_DATA; // 749行
-    } else if (sceneId === "air_quality_prediction") {
-      // 空气质量场景使用完整训练集数据（342行）
-      fullData = REAL_AIR_DATA;
     }
 
     // 如果有全量数据，使用全量数据计算
@@ -3038,16 +2780,17 @@ function HealthPanel({ datasetId, notify, openModal, setActive, datasets, setDat
         }
       });
 
-      const calculatedRate = ((missingCount / fullData.length) * 100).toFixed(1);
-      // 根据字段名生成不同的缺失率 (0.0%, 0.5%, 0.8%, 1.2%, 1.3%, 1.6%, 1.8%)
-      const hash = colKey.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-      const rates = ["0.0%", "0.5%", "0.8%", "1.2%", "1.3%", "1.6%", "1.8%"];
-      const missingRate = calculatedRate > 0 ? rates[hash % rates.length] : "0.0%";
+      const missingRate = ((missingCount / fullData.length) * 100).toFixed(1) + "%";
       const uniqueCount = values.size;
       return { unique: uniqueCount, missing: missingRate };
     }
 
-    // 否则根据 visualRows 实时计算 (Fallback) - 用于自定义上传的数据
+    // 如果是 Mock 数据且有预设统计值，优先使用预设值（为了展示效果更真实，因为 Preview 只有 10 行）
+    if (datasetId && !datasetId.startsWith("custom_") && MOCK_PREVIEW_STATS[colKey]) {
+      return MOCK_PREVIEW_STATS[colKey];
+    }
+
+    // 否则根据 visualRows 实时计算 (Fallback)
     if (!visualRows || visualRows.length === 0) return { unique: "-", missing: "-" };
 
     let missingCount = 0;
@@ -3061,11 +2804,7 @@ function HealthPanel({ datasetId, notify, openModal, setActive, datasets, setDat
       }
     });
 
-    const calculatedRate = ((missingCount / visualRows.length) * 100).toFixed(1);
-    // 根据字段名生成不同的缺失率 (0.0%, 0.5%, 0.8%, 1.2%, 1.3%, 1.6%, 1.8%)
-    const hash = colKey.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    const rates = ["0.0%", "0.5%", "0.8%", "1.2%", "1.3%", "1.6%", "1.8%"];
-    const missingRate = calculatedRate > 0 ? rates[hash % rates.length] : "0.0%";
+    const missingRate = ((missingCount / visualRows.length) * 100).toFixed(1) + "%";
     const uniqueCount = values.size;
     return { unique: uniqueCount, missing: missingRate };
   };
@@ -3154,7 +2893,7 @@ function HealthPanel({ datasetId, notify, openModal, setActive, datasets, setDat
                             </Badge>
                             <Badge variant="secondary" className="rounded-md px-2 py-0 text-[10px] h-5 bg-orange-100 text-orange-700 hover:bg-orange-100 border-orange-200 border flex justify-between gap-2 min-w-[96px]">
                               <span>唯一值:</span>
-                              <span className="font-mono">{isTime ? "-" : stats.unique}</span>
+                              <span className="font-mono">{stats.unique}</span>
                             </Badge>
                           </div>
                           {(() => {
@@ -3164,7 +2903,7 @@ function HealthPanel({ datasetId, notify, openModal, setActive, datasets, setDat
                             let mean = 0;
                             let variance = 0;
 
-                            // 优先尝试获取全量真实数据（机器预测维护、电价预测、空气质量场景）
+                            // 优先尝试获取全量真实数据（仅限机器预测维护场景）
                             let fullData = null;
                             if (datasetId && (datasetId.includes("machine") || sceneId === "machine_predictive_maintenance_clf")) {
                               // 复用切分逻辑
@@ -3177,9 +2916,6 @@ function HealthPanel({ datasetId, notify, openModal, setActive, datasets, setDat
                               }
                             } else if (datasetId && (datasetId.includes("clf") || sceneId === "sd_high_price_clf")) {
                               fullData = REAL_CLF_DATA;
-                            } else if (datasetId && (datasetId.includes("air") || sceneId === "air_quality_prediction")) {
-                              // 空气质量场景使用完整训练集数据（342行）
-                              fullData = REAL_AIR_DATA;
                             }
 
                             if (!isSeq && !isTime) {
@@ -3240,10 +2976,10 @@ function HealthPanel({ datasetId, notify, openModal, setActive, datasets, setDat
                     {activeSchema.map((col) => {
                       const val = row[col.k];
                       const isNaN = val === "NaN" || val === null || val === undefined || val === "";
-                      const isOutlier = val === 123456.78 || val === -999.99 || val === 9999 || val === 99999;
+                      const isOutlier = val === 123456.78 || val === -999.99 || val === 9999;
 
                       return (
-                        <td key={col.k} className={`p-3 ${isOutlier ? "bg-yellow-100" : ""}`}>
+                        <td key={col.k} className={`p-3 ${isOutlier ? "bg-orange-100" : ""}`}>
                           {isNaN ? (
                             <span className="text-red-500 font-medium bg-red-50 px-1.5 py-0.5 rounded text-xs">NaN</span>
                           ) : (
@@ -3372,11 +3108,6 @@ function CleanedDataPreview({ datasetId, datasets }) {
   if (currentDataset && currentDataset.schema && currentDataset.previewData) {
     activeSchema = currentDataset.schema;
     activeRows = currentDataset.previewData;
-    
-    // 如果dataset有selectedColumns字段，则根据它过滤schema
-    if (currentDataset.selectedColumns && Array.isArray(currentDataset.selectedColumns)) {
-      activeSchema = activeSchema.filter(col => currentDataset.selectedColumns.includes(col.k));
-    }
   } else {
     // 确保引用的是文件顶部定义的全局变量
     // 如果这些变量未定义，给予默认空数组以防崩溃
@@ -3405,27 +3136,6 @@ function CleanedDataPreview({ datasetId, datasets }) {
     );
   }
 
-  // 针对机器预测性维护场景的特殊处理：确保转速数据的一致性
-  // 1. 原始数据注入异常值 99999
-  // 2. 清洗后数据修复为 1321
-  const isMachineScene = (currentDataset && currentDataset.sceneId === "machine_predictive_maintenance_clf") || (datasetId && datasetId.includes("machine"));
-  
-  // Clone data for rendering to avoid mutation issues
-  const renderRows = activeRows.slice(0, 10).map(r => ({...r}));
-  
-  if (isMachineScene && renderRows.length > 2) {
-    const keys = Object.keys(renderRows[0]);
-    const speedKey = keys.find(k => k.includes("speed") || k.includes("rpm")) || "Rotational speed [rpm]";
-    
-    if (renderRows[2]) {
-      if (currentDataset && currentDataset.version && currentDataset.version.includes("清洗后")) {
-        renderRows[2][speedKey] = 1321;
-      } else {
-        renderRows[2][speedKey] = 99999;
-      }
-    }
-  }
-
   return (
     <Card className="rounded-2xl">
       <CardHeader>
@@ -3447,7 +3157,7 @@ function CleanedDataPreview({ datasetId, datasets }) {
               </tr>
             </thead>
             <tbody>
-              {renderRows.map((row, i) => (
+              {activeRows.slice(0, 10).map((row, i) => (
                 <tr key={i} className="border-b last:border-0 hover:bg-muted/20 transition-colors">
                   <td className="p-3 text-muted-foreground font-mono text-xs">{i + 1}</td>
                   {activeSchema.map((col, idx) => (
@@ -3468,10 +3178,9 @@ function CleanedDataPreview({ datasetId, datasets }) {
   );
 }
 
-function CleanPanel({ datasetId, setDatasetId, notify, openModal, closeModal, datasets, setDatasets, sceneId }) {
+function CleanPanel({ datasetId, setDatasetId, notify, openModal, datasets, setDatasets, sceneId }) {
   const [generated, setGenerated] = useState(true);
   const [applying, setApplying] = useState(false);
-  const [genApplying, setGenApplying] = useState(false);
   const [hasCleaned, setHasCleaned] = useState(false);
   const cleaningRef = useRef(false);
 
@@ -3537,7 +3246,7 @@ function CleanPanel({ datasetId, setDatasetId, notify, openModal, closeModal, da
 
   const applyToV2 = () => {
     setApplying(true);
-    // notify("开始应用清洗", "正在生成新数据版本 v2（Mock）…");
+    notify("开始应用清洗", "正在生成新数据版本 v2（Mock）…");
     setTimeout(() => {
       setApplying(false);
 
@@ -3555,68 +3264,46 @@ function CleanPanel({ datasetId, setDatasetId, notify, openModal, closeModal, da
           newId = baseId + '_v2';
 
           const existing = datasets.find(d => d.id === newId);
-          
-          // 增强判断逻辑：不仅仅依赖 sceneId，还检查数据集名称
-          const isAirQuality = sceneId === "air_quality_prediction" || 
-                               (current.name && (current.name.includes("空气") || current.name.includes("Air") || current.name.includes("air")));
-          
-          let targetPreviewData = null;
-          if (isAirQuality) {
-            // 根据数据集名称或 ID 判断是测试集还是训练集
-            if ((current.name && current.name.includes("测试")) || current.id.includes("test")) {
-               targetPreviewData = AIR_TEST_PREVIEW;
-            } else {
-               targetPreviewData = AIR_CLEANED_PREVIEW;
-            }
-          }
-
           if (!existing) {
             // Mock cleaning logic: simple fill for preview data
-            let cleanedPreviewData = [];
-            
-            if (isAirQuality && targetPreviewData) {
-               cleanedPreviewData = targetPreviewData;
-            } else {
-              // 其他场景使用通用 Mock 填充逻辑
-              cleanedPreviewData = current.previewData ? current.previewData.map(row => {
-                const newRow = { ...row };
-                Object.keys(newRow).forEach(k => {
-                  // 清洗缺失值：将空值、null、undefined、NaN 填充为合理值
-                  const val = newRow[k];
-                  if (val === "" || val === null || val === undefined || val === "NaN" || val === "null") {
-                    // 根据字段类型填充不同的默认值
-                    if (k.includes("temperature") || k.includes("Temperature")) {
-                      newRow[k] = 300; // 温度默认值
-                    } else if (k.includes("speed") || k.includes("Speed") || k.includes("rpm")) {
-                      newRow[k] = 1400; // 转速默认值
-                    } else if (k.includes("Torque") || k.includes("扭矩")) {
-                      newRow[k] = 40; // 扭矩默认值
-                    } else if (k.includes("wear") || k.includes("Wear")) {
-                      newRow[k] = 100; // 磨损默认值
-                    } else if (k === "CO(GT)") {
-                      newRow[k] = 1.5; // 一氧化碳默认值
-                    } else if (k === "RH") {
-                      newRow[k] = 55; // 相对湿度默认值
-                    } else if (k.includes("PT08")) {
-                      newRow[k] = 1200; // 传感器默认值
-                    } else {
-                      newRow[k] = 0; // 其他默认填0
-                    }
+            const cleanedPreviewData = current.previewData ? current.previewData.map(row => {
+              const newRow = { ...row };
+              Object.keys(newRow).forEach(k => {
+                // 清洗缺失值：将空值、null、undefined、NaN 填充为合理值
+                const val = newRow[k];
+                if (val === "" || val === null || val === undefined || val === "NaN" || val === "null") {
+                  // 根据字段类型填充不同的默认值
+                  if (k.includes("temperature") || k.includes("Temperature")) {
+                    newRow[k] = 300; // 温度默认值
+                  } else if (k.includes("speed") || k.includes("Speed") || k.includes("rpm")) {
+                    newRow[k] = 1400; // 转速默认值
+                  } else if (k.includes("Torque") || k.includes("扭矩")) {
+                    newRow[k] = 40; // 扭矩默认值
+                  } else if (k.includes("wear") || k.includes("Wear")) {
+                    newRow[k] = 100; // 磨损默认值
+                  } else if (k === "CO(GT)") {
+                    newRow[k] = 1.5; // 一氧化碳默认值
+                  } else if (k === "RH") {
+                    newRow[k] = 55; // 相对湿度默认值
+                  } else if (k.includes("PT08")) {
+                    newRow[k] = 1200; // 传感器默认值
+                  } else {
+                    newRow[k] = 0; // 其他默认填0
                   }
-                  // 清洗异常值：将 9999 替换为合理值
-                  if (val === 9999) {
-                    if (k.includes("speed") || k.includes("Speed") || k.includes("rpm")) {
-                      newRow[k] = 1450; // 转速正常值
-                    } else if (k === "NMHC(GT)") {
-                      newRow[k] = 95; // 非甲烷烃正常值
-                    } else {
-                      newRow[k] = 100; // 其他异常值替换为100
-                    }
+                }
+                // 清洗异常值：将 9999 替换为合理值
+                if (val === 9999) {
+                  if (k.includes("speed") || k.includes("Speed") || k.includes("rpm")) {
+                    newRow[k] = 1450; // 转速正常值
+                  } else if (k === "NMHC(GT)") {
+                    newRow[k] = 95; // 非甲烷烃正常值
+                  } else {
+                    newRow[k] = 100; // 其他异常值替换为100
                   }
-                });
-                return newRow;
-              }) : [];
-            }
+                }
+              });
+              return newRow;
+            }) : [];
 
             const newDataset = {
               ...current,
@@ -3631,16 +3318,6 @@ function CleanPanel({ datasetId, setDatasetId, notify, openModal, closeModal, da
               newDataset.name = current.name + "_cleaned";
             }
             setDatasets(prev => [...prev, newDataset]);
-          } else {
-             // 如果已存在，且是空气质量场景，强制更新数据内容
-             if (isAirQuality && targetPreviewData) {
-                 setDatasets(prev => prev.map(d => {
-                     if (d.id === newId) {
-                         return { ...d, previewData: targetPreviewData };
-                     }
-                     return d;
-                 }));
-             }
           }
           setDatasetId(newId);
         }
@@ -3648,153 +3325,10 @@ function CleanPanel({ datasetId, setDatasetId, notify, openModal, closeModal, da
         setDatasetId("test_+5_v2");
       }
 
-      // notify("清洗完成", "已生成 v2（清洗后）。下一步：去任务页跑多任务 Run。")
+      notify("清洗完成", "已生成 v2（清洗后）。下一步：去任务页跑多任务 Run。")
       cleaningRef.current = true;
       setHasCleaned(true);
     }, 1100);
-  };
-
-  const handleGenerateData = () => {
-    // 1. 获取当前数据集
-    const current = datasets.find(d => d.id === datasetId);
-    if (!current) {
-      notify("生成失败", "未找到当前数据集");
-      return;
-    }
-
-    // 2. 提取所有可能的字段 (从 schema 或 previewData)
-    let columns = [];
-    if (current.schema) {
-      columns = current.schema.map(s => s.k);
-    } else if (current.previewData && current.previewData.length > 0) {
-      columns = Object.keys(current.previewData[0]);
-    }
-
-    const schema = current.schema || (sceneId === "machine_predictive_maintenance_clf" ? MOCK_SCHEMA_MACHINE : (sceneId === "sd_high_price_clf" ? MOCK_SCHEMA_CLF : (sceneId === "air_quality_prediction" ? MOCK_SCHEMA_AIR : MOCK_SCHEMA)));
-
-    // 3. 打开弹窗
-    openModal(
-      "数据生成配置",
-      <DataGenerationForm 
-        columns={columns} 
-        schema={schema}
-        onCancel={() => {
-          notify("已取消", "数据生成已取消");
-          closeModal();
-        }}
-        onConfirm={(selectedCols, rowCount) => {
-          closeModal();
-          
-          setGenApplying(true);
-          notify("开始生成数据", `正在基于 ${selectedCols.length} 个字段生成 ${rowCount} 行新数据…`);
-
-          setTimeout(() => {
-            setGenApplying(false);
-
-            const newId = current.id + "_gen_" + Date.now();
-
-            // Generate mock data based on current data
-            // Use rowCount to determine how many rows to generate? 
-            // Mock logic usually just maps existing preview rows. 
-            // For demo, we'll stick to mapping previewData but maybe duplicate if rowCount is large?
-            // Or just ignore rowCount for the preview data itself (since it's just a preview).
-            
-            const generatedData = current.previewData ? current.previewData.map(row => {
-              const newRow = {};
-              const isMachineScene = sceneId === "machine_predictive_maintenance_clf";
-  
-  // Use local state for filtering the heatmap in ReportPanel if not using the one from ResultsPanel
-  // Actually, ReportPanel seems to share state with ResultsPanel or define its own?
-  // Let's check where targetFilter comes from. It seems to be passed as prop or defined in parent?
-  // No, looking at previous context, ReportPanel is inside LimiPreview and uses props.
-  // Wait, the code I read above (lines 7350+) is INSIDE ReportPanel component definition?
-  // Let's check the function definition.
-
-  // Ah, the previous read showed `function ReportPanel`? No, it just showed lines.
-  // Let's find the component definition that contains "因果解释与决策建议".
-  
-  // Based on structure, it looks like it is inside `function ReportPanel`.
-  // Let's find the start of `ReportPanel`.
-
-              // 只复制选中的字段
-              selectedCols.forEach(k => {
-                if (row.hasOwnProperty(k)) {
-                  newRow[k] = row[k];
-                }
-              });
-
-              Object.keys(newRow).forEach(k => {
-                let val = newRow[k];
-                
-                // Handle missing values
-                if (val === "" || val === null || val === undefined || val === "NaN" || val === "null") {
-                   if (k.includes("temperature") || k.includes("Temperature") || k === "T") val = 300; 
-                   else if (k.includes("speed") || k.includes("Speed") || k.includes("rpm")) val = 1400;
-                   else if (k.includes("Torque") || k.includes("扭矩")) val = 40;
-                   else if (k.includes("wear") || k.includes("Wear")) val = 100;
-                   else if (k === "CO(GT)") val = 1.5;
-                   else if (k === "RH") val = 55;
-                   else if (k.includes("PT08")) val = 1000;
-                   else if (k === "NMHC(GT)") val = 100;
-                   else val = 0; 
-                   
-                   newRow[k] = val;
-                }
-
-                if (typeof newRow[k] === 'number') {
-                  // Special logic for Machine Scene to ensure data is not identical
-                  if (isMachineScene) {
-                    if (k === "Air temperature [K]") {
-                      newRow[k] = newRow[k] + (Math.random() - 0.5) * 5; // ±2.5K
-                    } else if (k === "Process temperature [K]") {
-                      newRow[k] = newRow[k] + (Math.random() - 0.5) * 5; // ±2.5K
-                    } else if (k === "Rotational speed [rpm]") {
-                      newRow[k] = newRow[k] + (Math.random() - 0.5) * 100; // ±50rpm
-                    } else if (k === "Torque [Nm]") {
-                      newRow[k] = newRow[k] + (Math.random() - 0.5) * 10; // ±5Nm
-                    } else if (k === "Tool wear [min]") {
-                      newRow[k] = newRow[k] + (Math.random() - 0.5) * 20; // ±10min
-                    } else if (k === "UDI") {
-                      newRow[k] = newRow[k] + Math.floor(Math.random() * 10000); // Random offset for ID
-                    } else {
-                      // Default noise for other numeric fields
-                      newRow[k] = newRow[k] * (0.95 + Math.random() * 0.1);
-                    }
-                  } else {
-                    // Default noise for other scenes
-                    newRow[k] = newRow[k] * (0.95 + Math.random() * 0.1);
-                  }
-
-                  if (Number.isInteger(val)) {
-                    newRow[k] = Math.round(newRow[k]);
-                  } else {
-                    newRow[k] = parseFloat(newRow[k].toFixed(2));
-                  }
-                }
-              });
-              return newRow;
-            }) : [];
-
-            const newDataset = {
-              ...current,
-              id: newId,
-              name: current.name.replace(/(\.csv|\.xlsx)$/, '') + "_生成数据.csv",
-              version: "v1 (生成)",
-              rows: parseInt(rowCount) || current.rows, // Update rows count
-              qualityScore: current.qualityScore,
-              previewData: generatedData,
-              isGenerated: true,
-              selectedColumns: selectedCols // 保存用户选择的字段
-            };
-
-            setDatasets(prev => [...prev, newDataset]);
-            setDatasetId(newId);
-            
-            notify("数据生成完成", "已生成新数据并自动切换。");
-          }, 3000);
-        }}
-      />
-    );
   };
 
   const dryRun = (rid) => {
@@ -3821,7 +3355,6 @@ function CleanPanel({ datasetId, setDatasetId, notify, openModal, closeModal, da
   };
 
   const isV2 = datasetId === "test_+5_v2" || (datasetId && datasetId.endsWith("v2"));
-  const isGenerated = datasetId && datasetId.includes("_gen_");
   const canApply = generated && !isV2;
 
   return (
@@ -3833,14 +3366,6 @@ function CleanPanel({ datasetId, setDatasetId, notify, openModal, closeModal, da
           <div className="flex items-center gap-2 flex-wrap justify-end">
             <Button className="rounded-2xl" onClick={applyToV2} disabled={!generated || applying || hasCleaned}>
               {applying ? "清洗中…" : hasCleaned ? "已清洗" : "一键清洗"}
-            </Button>
-            <Button className="rounded-2xl" variant="outline" onClick={handleGenerateData} disabled={applying || genApplying}>
-              {genApplying ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  生成中…
-                </>
-              ) : "数据生成"}
             </Button>
           </div>
         }
@@ -3882,7 +3407,7 @@ function CleanPanel({ datasetId, setDatasetId, notify, openModal, closeModal, da
 
       <div className="flex items-center gap-2">
         <Badge className="rounded-xl" variant={isV2 ? "secondary" : "outline"}>
-          当前数据：{isV2 ? "v2（清洗后）" : (isGenerated ? "v1 (生成)" : "v1")}
+          当前数据：{isV2 ? "v2（清洗后）" : "v1"}
         </Badge>
         {/* <Badge className="rounded-xl" variant={generated ? "secondary" : "outline"}>
           策略状态：{generated ? "已生成" : "未生成"}
@@ -3905,7 +3430,7 @@ function CleanPanel({ datasetId, setDatasetId, notify, openModal, closeModal, da
         </CardHeader>
       </Card>
 
-      {(hasCleaned || isV2 || isGenerated) ? (
+      {(hasCleaned || isV2) ? (
         <CleanedDataPreview datasetId={datasetId} datasets={datasets} />
       ) : (
         <Card className="rounded-2xl border-dashed">
@@ -4087,14 +3612,8 @@ function FeaturesPanel({ notify, openModal }) {
 
 function TaskProgressModal({ open, tasks, onClose, isFastForwarding }) {
   const getDurationDisplay = (durationStr) => {
-    // Input: "123s", "6.4s", "725.4s", "13min"
+    // Input: "123s", "6.4s", "725.4s"
     if (!durationStr || typeof durationStr !== 'string') return "-";
-    
-    // 如果已经包含"min"，直接返回（不需要转换）
-    if (durationStr.includes('min')) {
-      return durationStr;
-    }
-    
     const seconds = parseFloat(durationStr.replace('s', ''));
     if (isNaN(seconds)) return durationStr;
 
@@ -4199,17 +3718,8 @@ function TasksPanel({ quickMode, runs, setRuns, notify, sceneId, datasetId, setD
 
 
 
-  // 自动根据场景切换默认选中模型
-  useEffect(() => {
-    if (sceneId === "machine_predictive_maintenance_clf") {
-      setSelectedModels(["limix", "xgboost", "deepseek"]);
-    } else {
-      setSelectedModels(["limix", "patchtst", "deepseek"]);
-    }
-  }, [sceneId]);
-
-  const models = useMemo(() => {
-    const commonLimiX = {
+  const models = [
+    {
       id: "limix",
       name: "LimiX",
       badges: [
@@ -4218,9 +3728,18 @@ function TasksPanel({ quickMode, runs, setRuns, notify, sceneId, datasetId, setD
       desc: "LimiX自研结构化数据大模型，支持多种任务",
       meta: "大小: 78.9MB   支持任务: classification, regression, forecasting",
       tags: []
-    };
-
-    const commonDeepSeek = {
+    },
+    {
+      id: "patchtst",
+      name: "PatchTST",
+      badges: [
+        { text: "Transformer", variant: "secondary" }
+      ],
+      desc: "普林斯顿大学与 IBM 研究院联合研发的时序 Transformer 模型。",
+      meta: "大小: 120MB   支持任务: forecasting",
+      tags: []
+    },
+    {
       id: "deepseek",
       name: "DeepSeek",
       badges: [
@@ -4229,40 +3748,8 @@ function TasksPanel({ quickMode, runs, setRuns, notify, sceneId, datasetId, setD
       desc: "深度求索新一代大模型，具备强大的逻辑推理与代码能力",
       meta: "大小: 671B   支持任务: reasoning, extraction",
       tags: []
-    };
-
-    if (sceneId === "machine_predictive_maintenance_clf") {
-      return [
-        commonLimiX,
-        {
-          id: "xgboost",
-          name: "AutoGluon",
-          badges: [
-            { text: "AutoML", variant: "secondary" }
-          ],
-          desc: "亚马逊 AWS 团队主导开发的开源全自动机器学习（AutoML）框架",
-          meta: "大小: 50MB   支持任务: classification, regression",
-          tags: []
-        },
-        commonDeepSeek
-      ];
     }
-
-    return [
-      commonLimiX,
-      {
-        id: "patchtst",
-        name: "PatchTST",
-        badges: [
-          { text: "Transformer", variant: "secondary" }
-        ],
-        desc: "普林斯顿大学与 IBM 研究院联合研发的时序 Transformer 模型。",
-        meta: "大小: 120MB   支持任务: forecasting",
-        tags: []
-      },
-      commonDeepSeek
-    ];
-  }, [sceneId]);
+  ];
 
   const currentDataset = datasets?.find(d => d.id === datasetId);
 
@@ -4313,14 +3800,8 @@ function TasksPanel({ quickMode, runs, setRuns, notify, sceneId, datasetId, setD
   }, [targets, timeColumn, type]);
 
   const getDurationDisplay = (durationStr) => {
-    // Input: "123s", "6.4s", "725.4s", "13min"
+    // Input: "123s", "6.4s", "725.4s"
     if (!durationStr || typeof durationStr !== 'string') return "-";
-    
-    // 如果已经包含"min"，直接返回（不需要转换）
-    if (durationStr.includes('min')) {
-      return durationStr;
-    }
-    
     const seconds = parseFloat(durationStr.replace('s', ''));
     if (isNaN(seconds)) return durationStr;
 
@@ -4360,12 +3841,14 @@ function TasksPanel({ quickMode, runs, setRuns, notify, sceneId, datasetId, setD
         }
 
         // 3. Check if Fast Forward should end (after 2s duration)
-        let forceFinishAll = false;
+        let forceFinishPatchTST = false;
         if (fastForwardStartTimeRef.current) {
           const timeInFF = Date.now() - fastForwardStartTimeRef.current;
           if (timeInFF > 2000) {
-            forceFinishAll = true;
-            // 加速蒙层消失后，让所有进度条完成
+            forceFinishPatchTST = true;
+            // Note: We might want to keep the overlay until modal closes, 
+            // or hide it. User said "Fast forward 2s later PatchTST also finished".
+            // Let's hide it to show result.
             setIsFastForwarding(false);
           } else {
             // Keep showing FF
@@ -4376,31 +3859,20 @@ function TasksPanel({ quickMode, runs, setRuns, notify, sceneId, datasetId, setD
         const newTasks = prevTasks.map(task => {
           if (task.status === '已完成') return task;
 
-          // 根据预期耗时计算进度条增量（每100ms更新一次）
-          // 公式: increment = 100 / (预期耗时秒数 / 0.1)
           let increment = 0;
-          
-          // 如果加速结束，所有未完成的任务直接跳到100%
-          if (forceFinishAll) {
-            increment = 100; // 直接完成
-          } else {
-            if (task.modelId === 'limix') {
-              // LimiX: 1.2-1.8s，平均1.5s → increment约6.67
-              const expectedDuration = 1.5;
-              increment = (100 / (expectedDuration / 0.1)) + (Math.random() - 0.5) * 1;
-            } else if (task.modelId === 'deepseek') {
-              // DeepSeek: 8-15s，平均11.5s → increment约0.87
-              const expectedDuration = 11.5;
-              increment = (100 / (expectedDuration / 0.1)) + (Math.random() - 0.5) * 0.2;
-            } else if (task.modelId === 'xgboost') {
-              // XGBoost: 12-15分钟，平均13.5分钟=810s → increment约0.12
-              const expectedDuration = 13.5 * 60;
-              increment = (100 / (expectedDuration / 0.1)) + (Math.random() - 0.5) * 0.02;
-            } else if (task.modelId === 'patchtst') {
-              // PatchTST: 10-15分钟，平均12.5分钟=750s → increment约0.13
-              // 在加速触发前进度为0
-              const expectedDuration = 12.5 * 60;
-              increment = 0; // 等待加速触发
+          if (task.modelId === 'limix') increment = 6 + Math.random() * 2;
+          else if (task.modelId === 'deepseek') increment = 1.5 + Math.random() * 0.5;
+          else if (task.modelId === 'patchtst') {
+            // PatchTST Logic:
+            // - Wait until FF triggers
+            // - During FF, maybe increment slightly or just wait
+            // - If forceFinishPatchTST is true, jump to 100
+
+            if (forceFinishPatchTST) {
+              increment = 100; // Jump to finish
+            } else {
+              // Stall while waiting for LimiX + 2s + FF time
+              increment = 0;
             }
           }
 
@@ -4411,41 +3883,20 @@ function TasksPanel({ quickMode, runs, setRuns, notify, sceneId, datasetId, setD
 
             // 【Fix】: 强制覆盖展示时长以符合演示剧本
             let duration = "0.0s";
-            
-            // 时序预测任务使用固定耗时，与表格一致
-            if (task.taskType === '时序预测') {
-              if (task.modelId === 'limix') {
-                duration = "1.8s";
-              } else if (task.modelId === 'patchtst') {
-                duration = "13min";
-              } else if (task.modelId === 'deepseek') {
-                duration = "9s";
-              } else {
-                duration = ((Date.now() - task.startTime) / 1000).toFixed(1) + "s";
-              }
+            if (task.modelId === 'limix') {
+              // LimiX: < 2s
+              duration = (1.2 + Math.random() * 0.5).toFixed(1) + "s";
+            } else if (task.modelId === 'deepseek') {
+              // DeepSeek: 5s ~ 10s
+              duration = (5.0 + Math.random() * 4.0).toFixed(1) + "s";
+            } else if (task.modelId === 'patchtst') {
+              // PatchTST: 10min ~ 15min
+              // 随机生成 10~15 分钟的秒数 (600s ~ 900s)
+              const mins = 10 + Math.random() * 5;
+              const totalSecs = Math.floor(mins * 60);
+              duration = totalSecs + "s";
             } else {
-              // 非时序预测任务使用随机耗时
-              if (task.modelId === 'limix') {
-                // LimiX: < 2s
-                duration = (1.2 + Math.random() * 0.6).toFixed(1) + "s";
-              } else if (task.modelId === 'deepseek') {
-                // DeepSeek: 8s ~ 15s
-                duration = (8.0 + Math.random() * 7.0).toFixed(1) + "s";
-              } else if (task.modelId === 'xgboost') {
-                // XGBoost: 12min ~ 15min
-                // 随机生成 12~15 分钟的秒数 (720s ~ 900s)
-                const mins = 12 + Math.random() * 3;
-                const totalSecs = Math.floor(mins * 60);
-                duration = totalSecs + "s";
-              } else if (task.modelId === 'patchtst') {
-                // PatchTST: 10min ~ 15min
-                // 随机生成 10~15 分钟的秒数 (600s ~ 900s)
-                const mins = 10 + Math.random() * 5;
-                const totalSecs = Math.floor(mins * 60);
-                duration = totalSecs + "s";
-              } else {
-                duration = ((Date.now() - task.startTime) / 1000).toFixed(1) + "s";
-              }
+              duration = ((Date.now() - task.startTime) / 1000).toFixed(1) + "s";
             }
 
             return { ...task, progress: 100, status: '已完成', duration };
@@ -4715,8 +4166,6 @@ function TasksPanel({ quickMode, runs, setRuns, notify, sceneId, datasetId, setD
                         <Select.Option value="时序预测">时序预测</Select.Option>
                         <Select.Option value="分类">分类</Select.Option>
                         <Select.Option value="回归">回归</Select.Option>
-                        <Select.Option value="聚类">聚类</Select.Option>
-                        <Select.Option value="拓扑关系挖掘">拓扑关系挖掘</Select.Option>
                       </Select>
                     </div>
                   </div>
@@ -4873,7 +4322,7 @@ function TasksPanel({ quickMode, runs, setRuns, notify, sceneId, datasetId, setD
                         <td className="py-2 font-mono">
                           {r.version.includes("v2") ? "v2 (清洗后)" : "v1"}
                         </td>
-                        <td className="py-2 font-mono text-sm text-muted-foreground">2025-12-21</td>
+                        <td className="py-2 font-mono text-sm text-muted-foreground">{r.createTime}</td>
                         <td className="py-2 font-mono text-sm text-muted-foreground">{r.finishTime || "-"}</td>
                       </tr>
                     ))}
@@ -5051,33 +4500,14 @@ function ResultsPanel({ notify, openModal, sceneId, runs }) {
 
   const MACHINE_TARGETS = useMemo(() => ["机器故障", "工具磨损故障", "热耗散故障", "功率故障", "过应力故障", "随机故障"], []);
 
-  const isMachine = sceneId === "machine_predictive_maintenance_clf";
-
-  // Reset to "机器故障" when switching to machine scene
-  useEffect(() => {
-    if (isMachine) {
-      setTargetFilter("机器故障");
-    }
-  }, [isMachine]);
-
   // 映射回英文 Key 以便 filtering 数据
   const MACHINE_TARGET_MAP = {
-    "机器故障": "机器故障",
-    "工具磨损故障": "工具磨损故障",
-    "热耗散故障": "热耗散故障",
-    "功率故障": "功率故障",
-    "过应力故障": "过应力故障",
-    "随机故障": "随机故障"
-  };
-
-  // AUC值映射（针对不同预测目标）
-  const MACHINE_AUC_MAP = {
-    "机器故障": 0.950,
-    "工具磨损故障": 0.978,
-    "热耗散故障": 0.932,
-    "功率故障": 0.945,
-    "过应力故障": 0.928,
-    "随机故障": 0.915
+    "机器故障": "Machine failure",
+    "工具磨损故障": "TWF",
+    "热耗散故障": "HDF",
+    "功率故障": "PWF",
+    "过应力故障": "OSF",
+    "随机故障": "RNF"
   };
 
   const best = useMemo(() => {
@@ -5179,7 +4609,7 @@ function ResultsPanel({ notify, openModal, sceneId, runs }) {
     // 机器预测性维护场景 Mock
     else if (isMachineScene && (!runsHasMachine || base.length === 0)) {
       // 获取上次运行时间，如果没有则使用当前时间
-      // const lastRunTime = window.sessionStorage.getItem('lastMachineRunTime') || nowTimeStr();
+      const lastRunTime = window.sessionStorage.getItem('lastMachineRunTime') || nowTimeStr();
       base = MACHINE_TARGETS.map((tgt, i) => ({
         id: `run-MAC-${100 + i}`,
         taskName: `机器预测性维护分类_1`,
@@ -5187,8 +4617,8 @@ function ResultsPanel({ notify, openModal, sceneId, runs }) {
         target: tgt,
         status: "已完成",
         version: "data:v1 · seed:42 · mode:精",
-        createTime: "2025-12-25 10:16:58",
-        finishTime: "2025-12-25 10:18:58",
+        createTime: lastRunTime,
+        finishTime: lastRunTime,
         durationSec: (1.5 + Math.random()).toFixed(1),
         metrics: { AUC: (0.9 + Math.random() * 0.09).toFixed(3), F1: (0.85 + Math.random() * 0.1).toFixed(3), acc: (0.9 + Math.random() * 0.08).toFixed(3) }
       }));
@@ -5198,18 +4628,6 @@ function ResultsPanel({ notify, openModal, sceneId, runs }) {
       base = MOCK_RUNS_BASE;
     }
     // 否则使用 runs（即保留了用户生成任务，或默认 runs）
-
-    // Filter by scene to ensure clean view
-    if (isAirScene) {
-      base = base.filter(r => r.taskName.includes("空气") || r.id.includes("AIR") || r.target === "NOx(GT)");
-    } else if (isMachineScene) {
-      base = base.filter(r => r.taskName.includes("机器") || r.id.includes("MAC") || r.target === "Machine failure" || MACHINE_TARGETS.includes(r.target));
-    } else if (isClfScene) {
-      base = base.filter(r => r.taskName.includes("分类") || r.id.includes("CLF"));
-    } else {
-        // Price/Default scene
-        base = base.filter(r => !r.taskName.includes("空气") && !r.id.includes("AIR") && !r.taskName.includes("机器") && !r.id.includes("MAC") && !r.taskName.includes("分类") && !r.id.includes("CLF"));
-    }
 
     return base.filter(r => r.taskName !== "缺失值填补_RF");
   }, [sceneId, runs, MACHINE_TARGETS]);
@@ -5289,23 +4707,15 @@ function ResultsPanel({ notify, openModal, sceneId, runs }) {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
             <div>
               <div className="text-xs text-muted-foreground">任务名称</div>
-              <Select
-                className="w-full mt-0.5"
-                value={selectedRunId || undefined}
-                onChange={(value) => setSelectedRunId(value)}
-                placeholder="请选择任务"
-                triggerProps={{
-                  autoAlignPopupWidth: false,
-                  autoAlignPopupMinWidth: true,
-                  position: 'bl',
-                }}
+              <select
+                className="w-full mt-0.5 rounded-xl border border-input bg-background px-2 py-1 text-sm font-medium shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                value={selectedRunId || ""}
+                onChange={(e) => setSelectedRunId(e.target.value)}
               >
                 {availableRuns.map(run => (
-                  <Select.Option key={run.id} value={run.id} extra={run.createTime?.split(' ')[1]}>
-                    {run.taskName}
-                  </Select.Option>
+                  <option key={run.id} value={run.id}>{run.taskName}</option>
                 ))}
-              </Select>
+              </select>
             </div>
             <div>
               <div className="text-xs text-muted-foreground">任务ID</div>
@@ -5336,7 +4746,7 @@ function ResultsPanel({ notify, openModal, sceneId, runs }) {
 
             <div>
               <div className="text-xs text-muted-foreground">创建时间</div>
-              <div className="mt-0.5 font-mono text-muted-foreground">2025-12-21</div>
+              <div className="mt-0.5 font-mono text-muted-foreground">{currentRun.createTime}</div>
             </div>
           </div>
         </CardContent>
@@ -5447,7 +4857,7 @@ function ResultsPanel({ notify, openModal, sceneId, runs }) {
           <CardContent>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={getRocData(sceneId === "machine_predictive_maintenance_clf" ? targetFilter : (currentRun?.target || "Machine failure"), sceneId === "machine_predictive_maintenance_clf" ? (MACHINE_AUC_MAP[targetFilter] || 0.950) : null)} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
+                <LineChart data={getRocData(sceneId === "machine_predictive_maintenance_clf" ? targetFilter : (currentRun?.target || "Machine failure"))} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                   <XAxis
                     type="number"
@@ -5470,7 +4880,7 @@ function ResultsPanel({ notify, openModal, sceneId, runs }) {
                   />
                   <Legend verticalAlign="top" height={36} iconType="plainline" />
                   <Line type="linear" dataKey="random" name="随机猜测" stroke="#000000" strokeDasharray="3 3" dot={false} strokeWidth={1} />
-                  <Line type="linear" dataKey="tpr" name={`ROC曲线 (AUC = ${sceneId === "machine_predictive_maintenance_clf" ? (MACHINE_AUC_MAP[targetFilter] || 0.950) : (currentRun?.metrics?.AUC || 0.593)})`} stroke="#f97316" strokeWidth={2} dot={false} />
+                  <Line type="linear" dataKey="tpr" name={`ROC曲线 (AUC = ${currentRun?.metrics?.AUC || 0.593})`} stroke="#f97316" strokeWidth={2} dot={false} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -5598,34 +5008,26 @@ function ExplainPanel({ notify, openModal, sceneId, runs }) {
   // Create consistent delayed data for Air Quality scene (synced with ResultsPanel)
   const delayedAirData = useMemo(() => {
     if (!isAirScene) return [];
-    // Directly use the mock prediction data (which is now populated with real CSV data)
-    // No artificial delay or scaling needed as per user request
-    return MOCK_NOX_PREDICTION;
+    return MOCK_NOX_PREDICTION.map((item, i, arr) => {
+      const prevItem = i > 0 ? arr[i - 1] : item;
+      return {
+        ...item,
+        pred: prevItem.pred * 0.9,
+        upper: prevItem.upper * 0.9,
+        lower: prevItem.lower * 0.9
+      };
+    });
   }, [isAirScene]);
 
   const activeMachineData = useMemo(() => {
     return MOCK_MACHINE_EXPLAIN_DATA[targetFilter] || MOCK_MACHINE_EXPLAIN_DATA["Machine failure"];
   }, [targetFilter]);
 
-  const currentInfluenceFactors = useMemo(() => {
-    return isAirScene ? MOCK_INFLUENCE_FACTORS_AIR : (isMachine ? MOCK_INFLUENCE_FACTORS_MACHINE.filter(f => f !== targetFilter) : MOCK_INFLUENCE_FACTORS);
-  }, [isAirScene, isMachine, targetFilter]);
-  
-  const currentInfluenceScores = useMemo(() => {
-    return isAirScene ? MOCK_INFLUENCE_SCORES_AIR : (isMachine ? activeMachineData.scores : MOCK_INFLUENCE_SCORES);
-  }, [isAirScene, isMachine, activeMachineData]);
-  
-  const currentFeatureMeta = useMemo(() => {
-    return isAirScene ? MOCK_FEATURE_META_AIR : (isMachine ? MOCK_FEATURE_META_MACHINE : MOCK_FEATURE_META);
-  }, [isAirScene, isMachine]);
-  
-  const currentHeatmapDates = useMemo(() => {
-    return isAirScene ? MOCK_HEATMAP_DATES_AIR : (isMachine ? MOCK_HEATMAP_DATES_MACHINE : MOCK_HEATMAP_DATES);
-  }, [isAirScene, isMachine]);
-  
-  const currentHeatmapMatrix = useMemo(() => {
-    return isAirScene ? MOCK_HEATMAP_MATRIX_AIR : (isMachine ? activeMachineData.matrix : MOCK_HEATMAP_MATRIX);
-  }, [isAirScene, isMachine, activeMachineData]);
+  const currentInfluenceFactors = isAirScene ? MOCK_INFLUENCE_FACTORS_AIR : (isMachine ? MOCK_INFLUENCE_FACTORS_MACHINE.filter(f => f !== targetFilter) : MOCK_INFLUENCE_FACTORS);
+  const currentInfluenceScores = isAirScene ? MOCK_INFLUENCE_SCORES_AIR : (isMachine ? activeMachineData.scores : MOCK_INFLUENCE_SCORES);
+  const currentFeatureMeta = isAirScene ? MOCK_FEATURE_META_AIR : (isMachine ? MOCK_FEATURE_META_MACHINE : MOCK_FEATURE_META);
+  const currentHeatmapDates = isAirScene ? MOCK_HEATMAP_DATES_AIR : (isMachine ? MOCK_HEATMAP_DATES_MACHINE : MOCK_HEATMAP_DATES);
+  const currentHeatmapMatrix = isAirScene ? MOCK_HEATMAP_MATRIX_AIR : (isMachine ? activeMachineData.matrix : MOCK_HEATMAP_MATRIX);
 
   const availableRuns = useMemo(() => {
     let base = runs || [];
@@ -5643,7 +5045,7 @@ function ExplainPanel({ notify, openModal, sceneId, runs }) {
           {
             id: "run-AIR-001",
             taskName: "空气质量预测_1",
-            taskType: "时序预测",
+            taskType: "回归",
             target: "NOx(GT)",
             status: "已完成",
             version: "data:v1 · seed:42 · mode:精",
@@ -5696,8 +5098,8 @@ function ExplainPanel({ notify, openModal, sceneId, runs }) {
           target: tgt,
           status: "已完成",
           version: "data:v1 · seed:42 · mode:精",
-          createTime: "2025-12-25 10:16:58",
-          finishTime: "2025-12-25 10:18:58",
+          createTime: "2026-01-28 10:00:00",
+          finishTime: "2026-01-28 10:01:30",
           durationSec: (1.5 + Math.random()).toFixed(1),
           metrics: { AUC: (0.9 + Math.random() * 0.09).toFixed(3), F1: (0.85 + Math.random() * 0.1).toFixed(3), acc: (0.9 + Math.random() * 0.08).toFixed(3) }
         }));
@@ -5742,14 +5144,13 @@ function ExplainPanel({ notify, openModal, sceneId, runs }) {
 
 
   // Feature Selection State
-  const [selectedFactors, setSelectedFactors] = useState(() => currentInfluenceFactors || []);
-  const [activeFactors, setActiveFactors] = useState(() => currentInfluenceFactors || []);
+  const [selectedFactors, setSelectedFactors] = useState(currentInfluenceFactors);
+  const [activeFactors, setActiveFactors] = useState(currentInfluenceFactors);
 
-  // Update state when scene changes or factors change
+  // Update state when scene changes
   useEffect(() => {
-    const factors = currentInfluenceFactors || [];
-    setSelectedFactors(factors);
-    setActiveFactors(factors);
+    setSelectedFactors(currentInfluenceFactors);
+    setActiveFactors(currentInfluenceFactors);
     setFeatureConfigs({});
     setEditingFeature(null);
   }, [sceneId, currentInfluenceFactors]);
@@ -5929,7 +5330,7 @@ function ExplainPanel({ notify, openModal, sceneId, runs }) {
         { name: "Rotational speed [rpm]", value: 129.1 },
         { name: "Torque [Nm]", value: 28.4 },
         { name: "UDI", value: -29.7 },
-        { name: "Tool wear [min]", value: 35.4 },
+        { name: "Tool wear [min]", value: -35.4 },
         { name: "Air temperature [K]", value: -52.7 },
         { name: "Process temperature [K]", value: -67.3 },
         { name: "Type", value: -154.6 }
@@ -5940,24 +5341,13 @@ function ExplainPanel({ notify, openModal, sceneId, runs }) {
         { name: "Rotational speed [rpm]", value: 119.1 },
         { name: "Torque [Nm]", value: 42 },
         { name: "UDI", value: 0.1 },
-        { name: "Tool wear [min]", value: 14.7 },
+        { name: "Tool wear [min]", value: -14.7 },
         { name: "Air temperature [K]", value: -21.4 },
         { name: "Process temperature [K]", value: -49.3 },
         { name: "Type", value: -167.8 }
       ];
 
-      // 全选时的综合影响分数（使用英文字段名以匹配 activeFactors）
-      const allClassesScores = [
-        { name: "Rotational speed [rpm]", value: 128.60 },
-        { name: "Torque [Nm]", value: 29.00 },
-        { name: "UDI", value: -14.8 },
-        { name: "Tool wear [min]", value: 34.40 },
-        { name: "Air temperature [K]", value: -51.40 },
-        { name: "Process temperature [K]", value: -66.60 },
-        { name: "Type", value: -155.40 }
-      ];
-
-      const machineScoresData = isNormalOnly ? normalScores : (isFaultOnly ? faultScores : allClassesScores);
+      const machineScoresData = isNormalOnly ? normalScores : (isFaultOnly ? faultScores : MOCK_INFLUENCE_SCORES_MACHINE);
       const scores = machineScoresData.filter(s => activeFactors.includes(s.name));
       return scores.sort((a, b) => b.value - a.value);
     }
@@ -6017,23 +5407,15 @@ function ExplainPanel({ notify, openModal, sceneId, runs }) {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
             <div>
               <div className="text-xs text-muted-foreground">任务名称</div>
-              <Select
-                className="w-full mt-0.5"
-                value={selectedRunId || undefined}
-                onChange={(value) => setSelectedRunId(value)}
-                placeholder="请选择任务"
-                triggerProps={{
-                  autoAlignPopupWidth: false,
-                  autoAlignPopupMinWidth: true,
-                  position: 'bl',
-                }}
+              <select
+                className="w-full mt-0.5 rounded-xl border border-input bg-background px-2 py-1 text-sm font-medium shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                value={selectedRunId || ""}
+                onChange={(e) => setSelectedRunId(e.target.value)}
               >
                 {availableRuns.map(run => (
-                  <Select.Option key={run.id} value={run.id} extra={run.createTime?.split(' ')[1]}>
-                    {run.taskName}
-                  </Select.Option>
+                  <option key={run.id} value={run.id}>{run.taskName}</option>
                 ))}
-              </Select>
+              </select>
             </div>
             <div>
               <div className="text-xs text-muted-foreground">任务ID</div>
@@ -6058,7 +5440,7 @@ function ExplainPanel({ notify, openModal, sceneId, runs }) {
 
             <div>
               <div className="text-xs text-muted-foreground">创建时间</div>
-              <div className="mt-0.5 font-mono text-muted-foreground">2025-12-21</div>
+              <div className="mt-0.5 font-mono text-muted-foreground">{currentRun.createTime}</div>
             </div>
           </div>
         </CardContent>
@@ -6712,7 +6094,7 @@ function ExplainPanel({ notify, openModal, sceneId, runs }) {
               <ul className="list-disc pl-5 space-y-2">
                 <li>
                   <span className="font-semibold text-blue-700">主驱动因子 - 转速 [rpm]：</span>
-                  转速是设备运行强度的直接体现。高转速工况下，机械部件承受更大的离心力和惯性载荷，加速磨损和疲劳累积。模型识别出转速与故障概率呈<b>强正相关</b>。
+                  转速是设备运行强度的直接体现。高转速工况下，机械部件承受更大的离心力和惯性载荷，加速磨损和疲劳累积。模型识别出转速与故障概率呈<b>强正相关</b>，尤其在超过额定转速 80% 后，故障风险显著上升。
                 </li>
                 <li>
                   <span className="font-semibold text-blue-700">协同驱动因子 - 扭矩 [Nm]：</span>
@@ -6720,7 +6102,7 @@ function ExplainPanel({ notify, openModal, sceneId, runs }) {
                 </li>
                 <li>
                   <span className="font-semibold text-blue-700">缓解因子 - 类型 (Type)：</span>
-                  设备类型呈现负向影响，表明不同型号设备的故障阈值存在差异。L 型设备相比 H 型设备具有更低的故障基线，建议在运维策略中区分对待。
+                  设备类型呈现负向影响，表明不同型号设备的故障阈值存在差异。L 型设备（轻载型）相比 H 型设备（重载型）具有更低的故障基线，建议在运维策略中区分对待。
                 </li>
                 <li>
                   <span className="font-semibold text-blue-700">温度相关因子：</span>
@@ -6909,15 +6291,6 @@ function DeliverPanel({ notify, openModal }) {
 }
 
 function ExportReportPanel({ notify, datasets, runs, sceneId }) {
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 3000);
-    return () => clearTimeout(timer);
-  }, []);
-
   const currentScene = SCENES.find(s => s.id === sceneId);
   const trainDataset = datasets.find(d => d.sceneId === sceneId && d.id.includes("train")) || datasets.find(d => d.sceneId === sceneId) || datasets[0];
   const cleanedDataset = datasets.find(d => d.sceneId === sceneId && (d.version.includes("清洗后") || d.id.includes("v2")));
@@ -6925,24 +6298,13 @@ function ExportReportPanel({ notify, datasets, runs, sceneId }) {
   const isAirScene = sceneId === "air_quality_prediction";
   const isMachineScene = sceneId === "machine_predictive_maintenance_clf";
 
-  let healthData = HEALTH_V1;
-  if (isMachineScene) {
-    healthData = HEALTH_CLF;
-  }
-
   let currentInfluenceFactors = MOCK_INFLUENCE_FACTORS;
   let currentInfluenceScores = MOCK_INFLUENCE_SCORES;
   let currentHeatmapDates = MOCK_HEATMAP_DATES;
   let currentHeatmapMatrix = MOCK_HEATMAP_MATRIX;
 
-  const [targetFilter, setTargetFilter] = useState("机器故障");
-  const MACHINE_TARGETS = useMemo(() => ["机器故障", "工具磨损故障", "热耗散故障", "功率故障", "过应力故障", "随机故障"], []);
-
-  useEffect(() => {
-    if (isMachineScene) {
-      setTargetFilter("机器故障");
-    }
-  }, [isMachineScene]);
+  const [targetFilter, setTargetFilter] = useState("Machine failure");
+  const MACHINE_TARGETS = useMemo(() => ["Machine failure", "TWF", "HDF", "PWF", "OSF", "RNF"], []);
 
   const activeMachineData = useMemo(() => {
     return MOCK_MACHINE_EXPLAIN_DATA[targetFilter] || MOCK_MACHINE_EXPLAIN_DATA["Machine failure"];
@@ -6990,16 +6352,6 @@ function ExportReportPanel({ notify, datasets, runs, sceneId }) {
     }, 1500);
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full min-h-[600px]">
-        <Loader2 className="w-12 h-12 text-blue-600 animate-spin mb-4" />
-        <div className="text-slate-500 font-medium text-lg">正在生成全流程分析报告...</div>
-        <div className="text-slate-400 text-sm mt-2">正在汇总数据评估、治理、推理及决策结果</div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6 pb-10">
       <SectionTitle
@@ -7039,26 +6391,30 @@ function ExportReportPanel({ notify, datasets, runs, sceneId }) {
               <div className="text-xs text-muted-foreground">数据规模</div>
               <div className="font-medium text-sm">{formatNum(trainDataset?.rows)} 行, {trainDataset?.cols} 列</div>
             </div>
-            {/* <div className="space-y-1">
+            <div className="space-y-1">
               <div className="text-xs text-muted-foreground">初始质量评分</div>
               <div className="font-medium text-sm text-orange-600 font-bold">{trainDataset?.qualityScore || 65} 分</div>
-            </div> */}
+            </div>
           </div>
 
           <div className="bg-slate-50 rounded-xl p-4 border border-dashed">
             <div className="text-sm font-semibold mb-2">体检摘要</div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="flex flex-col">
-                <span className="text-xs text-muted-foreground">{healthData.summary[0].name}</span>
-                <span className="text-sm font-mono text-slate-700">{healthData.summary[0].value}{healthData.summary[0].unit}</span>
+                <span className="text-xs text-muted-foreground">缺失率</span>
+                <span className="text-sm font-mono text-slate-700">5.2%</span>
               </div>
               <div className="flex flex-col">
-                <span className="text-xs text-muted-foreground">{healthData.summary[1].name}</span>
-                <span className="text-sm font-mono text-slate-700">{healthData.summary[1].value}{healthData.summary[1].unit}</span>
+                <span className="text-xs text-muted-foreground">异常值</span>
+                <span className="text-sm font-mono text-slate-700">2.1%</span>
               </div>
               <div className="flex flex-col">
-                <span className="text-xs text-muted-foreground">{healthData.summary[2].name}</span>
-                <span className="text-sm font-mono text-slate-700">{healthData.summary[2].value}{healthData.summary[2].unit}</span>
+                <span className="text-xs text-muted-foreground">重复数据</span>
+                <span className="text-sm font-mono text-slate-700">1.5%</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs text-muted-foreground">主要问题</span>
+                <span className="text-sm text-slate-700">存在多列缺失，部分字段口径不统一</span>
               </div>
             </div>
           </div>
@@ -7081,34 +6437,47 @@ function ExportReportPanel({ notify, datasets, runs, sceneId }) {
         <CardContent className="p-5 space-y-4">
           {cleanedDataset ? (
             <>
-              {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-4"> */}
-                {/* <div className="space-y-1">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="space-y-1">
                   <div className="text-xs text-muted-foreground">治理后版本</div>
                   <div className="font-medium text-sm">{cleanedDataset.version}</div>
-                </div> */}
-                {/* <div className="space-y-1">
+                </div>
+                <div className="space-y-1">
                   <div className="text-xs text-muted-foreground">治理后评分</div>
                   <div className="font-medium text-sm text-green-600 font-bold">{cleanedDataset.qualityScore} 分</div>
-                </div> */}
+                </div>
+                <div className="space-y-1">
+                  <div className="text-xs text-muted-foreground">处理耗时</div>
+                  <div className="font-medium text-sm">45s</div>
+                </div>
+                <div className="space-y-1">
+                  <div className="text-xs text-muted-foreground">保留行数</div>
+                  <div className="font-medium text-sm">{formatNum(cleanedDataset.rows)} 行</div>
+                </div>
+              </div>
               <div className="border rounded-xl overflow-hidden">
                 <table className="w-full text-sm text-left">
                   <thead className="bg-slate-50 text-muted-foreground font-medium">
                     <tr>
                       <th className="px-4 py-2">应用规则</th>
+                      <th className="px-4 py-2">处理方式</th>
                       <th className="px-4 py-2">影响行数</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">
                     <tr>
                       <td className="px-4 py-2">R-1 数据去重</td>
+                      <td className="px-4 py-2">保留最新一条</td>
                       <td className="px-4 py-2 font-mono">120</td>
                     </tr>
                     <tr>
                       <td className="px-4 py-2">R-2 异常值处理</td>
+                      <td className="px-4 py-2">3σ原则剔除</td>
                       <td className="px-4 py-2 font-mono">45</td>
                     </tr>
                     <tr>
                       <td className="px-4 py-2">R-3 缺失值填补</td>
+                      <td className="px-4 py-2">随机森林插值</td>
                       <td className="px-4 py-2 font-mono">850</td>
                     </tr>
                   </tbody>
@@ -7125,87 +6494,36 @@ function ExportReportPanel({ notify, datasets, runs, sceneId }) {
       <Card className="rounded-2xl shadow-sm print:shadow-none">
         <CardHeader className="border-b bg-slate-50/50 pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-base flex gap-2 flex-col">
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xs font-bold">3</div>
-                推理分析报告
-              </div>
-              
-              {/* <div className="mb-1 flex items-center gap-2 bg-slate-50 p-2 rounded-xl border border-dashed border-slate-300">
-                <span className="text-sm font-medium text-slate-600 pl-2">切换预测目标：</span>
-                <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-                  {MACHINE_TARGETS.map(t => (
-                    <Button
-                      key={t}
-                      variant={targetFilter === t ? "default" : "outline"}
-                      size="sm"
-                      className={`rounded-lg h-7 text-xs ${targetFilter === t ? "bg-blue-600 hover:bg-blue-700" : "bg-white hover:bg-slate-100"}`}
-                      onClick={() => setTargetFilter(t)}
-                    >
-                      {t}
-                    </Button>
-                  ))}
-                </div>
-              </div> */}
+            <CardTitle className="text-base flex items-center gap-2">
+              <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xs font-bold">3</div>
+              推理分析报告
             </CardTitle>
             <Badge variant="outline" className="bg-white">Status: 完成</Badge>
           </div>
         </CardHeader>
         <CardContent className="p-5 space-y-4">
-          {/* Removed best model performance header */}
+          <div className="flex items-center justify-between">
+            <div className="text-sm font-semibold text-slate-700">最佳模型表现 ({bestRun?.model || "LimiX"})</div>
+            <div className="text-xs text-muted-foreground">Task ID: {bestRun?.id}</div>
+          </div>
 
-          {isMachineScene && (
-            <div className="flex items-center gap-2 bg-slate-50 p-1 rounded-lg border border-slate-200 mb-4 w-fit">
-              <span className="text-xs font-medium text-slate-500 pl-2">目标:</span>
-              <div className="flex gap-1">
-                {MACHINE_TARGETS.map(t => (
-                  <Button
-                    key={t}
-                    variant={targetFilter === t ? "default" : "ghost"}
-                    size="sm"
-                    className={`rounded-md h-6 text-[10px] px-2 ${targetFilter === t ? "bg-blue-600 text-white" : "text-slate-600 hover:bg-slate-200"}`}
-                    onClick={() => setTargetFilter(t)}
-                  >
-                    {t}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             {bestRun?.taskType === "分类" || sceneId.includes("clf") ? (
               <>
-                {/* <MetricPill label="AUC" value={bestRun?.metrics?.AUC || 0.88} unit="" />
+                <MetricPill label="AUC" value={bestRun?.metrics?.AUC || 0.88} unit="" />
                 <MetricPill label="Accuracy" value={bestRun?.metrics?.acc || 0.85} unit="" />
-                <MetricPill label="F1-Score" value={bestRun?.metrics?.F1 || 0.82} unit="" /> */}
-                <MetricPill label="AUC" value={0.950} unit="" />
-                <MetricPill label="Accuracy" value={0.946} unit="" />
-                <MetricPill label="F1-Score" value={0.945} unit="" />
-                <MetricPill label="Recall" value={0.942} unit="" />
-                <MetricPill label="Precision" value={0.948} unit="" />
+                <MetricPill label="F1-Score" value={bestRun?.metrics?.F1 || 0.82} unit="" />
               </>
             ) : (
               <>
-                {isAirScene ? (
-                  <>
-                    <MetricPill label="MSE" value={279.8577} unit="" />
-                    <MetricPill label="RMSE" value={16.7289} unit="" />
-                    <MetricPill label="MAE" value={13.0150} unit="" />
-                    <MetricPill label="MAPE" value={0.1450} unit="" />
-                  </>
-                ) : (
-                  <>
-                    <MetricPill label="RMSE" value={bestRun?.metrics?.RMSE || 2.57} unit="" />
-                    <MetricPill label="MAPE" value={bestRun?.metrics?.MAPE || 0.03} unit="" />
-                    <MetricPill label="R2" value={bestRun?.metrics?.R2 || 0.92} unit="" />
-                  </>
-                )}
+                <MetricPill label="RMSE" value={bestRun?.metrics?.RMSE || 2.57} unit="" />
+                <MetricPill label="MAPE" value={bestRun?.metrics?.MAPE || 0.03} unit="" />
+                <MetricPill label="R2" value={bestRun?.metrics?.R2 || 0.92} unit="" />
               </>
             )}
           </div>
 
-          {/* <div className="border rounded-xl p-4 bg-slate-50">
+          <div className="border rounded-xl p-4 bg-slate-50">
             <div className="text-sm font-semibold mb-2">模型参数配置</div>
             <div className="grid grid-cols-2 gap-y-2 text-xs">
               <div className="flex justify-between border-b border-dashed pb-1">
@@ -7225,9 +6543,9 @@ function ExportReportPanel({ notify, datasets, runs, sceneId }) {
                 <span>12</span>
               </div>
             </div>
-          </div> */}
+          </div>
 
-          {/* <div className="border rounded-xl p-4 bg-white shadow-sm">
+          <div className="border rounded-xl p-4 bg-white shadow-sm">
             <div className="text-sm font-semibold mb-3">历史任务记录 (Top 5)</div>
             <div className="overflow-auto">
               <table className="w-full text-xs text-left">
@@ -7258,13 +6576,13 @@ function ExportReportPanel({ notify, datasets, runs, sceneId }) {
                         {r.taskType === "分类" ? `AUC: ${r.metrics?.AUC || '-'}` : `RMSE: ${r.metrics?.RMSE || '-'}`}
                       </td>
                       <td className="py-2 text-muted-foreground">{r.durationSec ? `${r.durationSec}s` : '-'}</td>
-                      <td className="py-2 text-muted-foreground">2025-12-21 10:23:08</td>
+                      <td className="py-2 text-muted-foreground">{r.createTime}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-          </div> */}
+          </div>
 
           <div>
             <div className="text-sm font-semibold mb-3">核心结果可视化</div>
@@ -7292,7 +6610,7 @@ function ExportReportPanel({ notify, datasets, runs, sceneId }) {
                           <Tooltip contentStyle={{ borderRadius: "8px", fontSize: "12px" }} />
                           <Legend verticalAlign="top" height={20} iconType="plainline" wrapperStyle={{ fontSize: "10px" }} />
                           <Line type="linear" dataKey="random" name="随机猜测" stroke="#cbd5e1" strokeDasharray="3 3" dot={false} strokeWidth={1} />
-                          <Line type="linear" dataKey="tpr" name="AUC = 0.95" stroke="#f97316" strokeWidth={2} dot={false} />
+                          <Line type="linear" dataKey="tpr" name={`AUC = ${bestRun?.metrics?.AUC || 0.94}`} stroke="#f97316" strokeWidth={2} dot={false} />
                         </LineChart>
                       </ResponsiveContainer>
                     </div>
@@ -7400,6 +6718,24 @@ function ExportReportPanel({ notify, datasets, runs, sceneId }) {
           <div>
             <div className="flex items-center justify-between mb-3">
               <div className="text-sm font-semibold">影响因子热力图</div>
+              {isMachineScene && (
+                <div className="flex items-center gap-2 bg-slate-50 p-1 rounded-lg border border-slate-200">
+                  <span className="text-xs font-medium text-slate-500 pl-2">目标:</span>
+                  <div className="flex gap-1">
+                    {MACHINE_TARGETS.map(t => (
+                      <Button
+                        key={t}
+                        variant={targetFilter === t ? "default" : "ghost"}
+                        size="sm"
+                        className={`rounded-md h-6 text-[10px] px-2 ${targetFilter === t ? "bg-blue-600 text-white" : "text-slate-600 hover:bg-slate-200"}`}
+                        onClick={() => setTargetFilter(t)}
+                      >
+                        {t}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
             <div className="border rounded-xl p-4 bg-slate-50 overflow-hidden">
               <DivergingHeatGrid rows={currentHeatmapDates} cols={currentInfluenceFactors} matrix={currentHeatmapMatrix} />
@@ -7413,46 +6749,25 @@ function ExportReportPanel({ notify, datasets, runs, sceneId }) {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   layout="vertical"
-                  data={(isAirScene || isMachineScene) ? [...currentInfluenceScores].sort((a, b) => b.value - a.value) : [...currentInfluenceScores].sort((a, b) => Math.abs(b.value) - Math.abs(a.value))}
-                  margin={{ top: 5, right: 50, left: 0, bottom: 5 }}
+                  data={[...currentInfluenceScores].sort((a, b) => Math.abs(b.value) - Math.abs(a.value))}
+                  margin={{ top: 5, right: 60, left: 0, bottom: 5 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={true} />
                   <XAxis
                     type="number"
-                    domain={(() => {
-                      if (!currentInfluenceScores.length) return [-100, 100];
-                      const max = Math.max(...currentInfluenceScores.map(s => Math.abs(s.value)));
-                      // 缓冲 15%，按 50 取整，确保刻度美观
-                      const rawLimit = max * 1.15;
-                      const limit = Math.ceil(rawLimit / 50) * 50 || 100;
-                      return [-limit, limit];
-                    })()}
-                    tickCount={5} // Ensure center (0) and nice intervals
-                    tickFormatter={(value) => value.toFixed(0)}
-                  />
-                  <YAxis
-                    dataKey="name"
-                    type="category"
-                    width={250}
-                    tick={{ fontSize: 11 }}
+                    domain={['auto', 'auto']}
                     interval={0}
-                    tickMargin={12}
-                    tickFormatter={(val) => {
-                      const name = FIELD_NAME_MAP[val] || val;
-                      // Truncate if too long to prevent overlap
-                      return name.length > 18 ? name.substring(0, 18) + '...' : name;
-                    }}
                   />
+                  <YAxis dataKey="name" type="category" width={180} tick={{ fontSize: 10 }} interval={0} tickMargin={5} />
                   <Tooltip
                     cursor={{ fill: 'transparent' }}
                     contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)" }}
-                    labelFormatter={(label) => FIELD_NAME_MAP[label] || label}
                   />
                   <Bar dataKey="value" name="影响分数">
-                    {((isAirScene || isMachineScene) ? [...currentInfluenceScores].sort((a, b) => b.value - a.value) : [...currentInfluenceScores].sort((a, b) => Math.abs(b.value) - Math.abs(a.value))).map((entry, index) => (
+                    {[...currentInfluenceScores].sort((a, b) => Math.abs(b.value) - Math.abs(a.value)).map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.value > 0 ? '#ef4444' : '#3b82f6'} />
                     ))}
-                    <LabelList dataKey="value" position="right" fontSize={10} formatter={(v) => v.toFixed(2)} />
+                    <LabelList dataKey="value" content={<CustomScoreBarLabel />} />
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
@@ -7464,60 +6779,58 @@ function ExportReportPanel({ notify, datasets, runs, sceneId }) {
             <div className="text-sm font-semibold mb-3">智能决策与详细行动方案</div>
             {isAirScene ? (
               <div className="p-4 rounded-xl bg-blue-50 border border-blue-100 text-sm text-blue-800 leading-relaxed">
-              <div className="font-bold mb-2 text-base">核心发现：PT08.S3(NOx) 是预测 NOx 浓度的决定性因子</div>
-              <div className="mb-3">
-                模型因果分析表明，在复杂的空气质量预测中，<b>PT08.S3(NOx)</b>（氮氧化物传感器阻值）对目标变量 <b>NOx(GT)</b> 的贡献度最高（0.92，负向），其次是 <b>NO2(GT)</b>（0.88，正向）。
-              </div>
+                <div className="font-bold mb-2 text-base">核心建议：重点管控“{currentInfluenceScores[0]?.name || "CO(GT)"}”排放源</div>
+                <div className="mb-3">
+                  基于因果推演仿真，若该污染物浓度降低 15%，预计 NOx 峰值浓度将下降 10.5%。建议优先关注交通晚高峰时段的排放控制。
+                </div>
 
-              <div className="font-bold mb-2 mt-4">因果机制详解：</div>
-              <ul className="list-disc pl-5 space-y-2">
-                <li>
-                  <span className="font-semibold text-blue-700">关键驱动机制 (传感器原理)：</span>
-                  <span className="font-mono font-bold mx-1">PT08.S3(NOx)</span>
-                  作为金属氧化物半导体传感器，其电阻值与目标气体浓度呈非线性反比关系。因此，热力图中该特征的深蓝色（负值）区域，实际上对应着现实世界中的<b>高 NOx 浓度</b>时段（如早晚交通高峰）。这验证了模型正确捕获了物理传感器的响应特性，而非虚假相关。
-                </li>
-                <li>
-                  <span className="font-semibold text-blue-700">同源排放特征 (红涨)：</span>
-                  <span className="font-mono font-bold mx-1">NO2(GT)</span>、<span className="font-mono font-bold mx-1">CO(GT)</span>、<span className="font-mono font-bold mx-1">NMHC(GT)</span>
-                  呈现高度一致的红色正向贡献。这符合大气污染的<b>“同源性”</b>特征——即它们主要共同来源于机动车尾气排放。当交通流量增加时，这些污染物浓度同步上升，共同推高 NOx 的预测值。
-                </li>
-                <li>
-                  <span className="font-semibold text-blue-700">光化学滴定效应 (蓝跌)：</span>
-                  <span className="font-mono font-bold mx-1">PT08.S5(O3)</span>
-                  在午后强光照时段对 NOx 预测呈现负向贡献。这揭示了经典的<b>“NO-O3 滴定效应”</b>（NO + O3 → NO2 + O2）：在光化学反应活跃的午后，高浓度的臭氧往往伴随着前体物（NOx）的快速消耗。模型敏锐地捕捉到了这种“此消彼长”的化学动力学负相关。
-                </li>
-              </ul>
-            </div>
+                <div className="font-bold mb-2 mt-4">详细行动计划：</div>
+                <ul className="list-disc pl-5 space-y-2">
+                  <li>
+                    <span className="font-semibold">交通限行升级：</span>
+                    针对 CO 和 NOx 高相关性，建议在预测污染指数超过 150 的前 6 小时启动单双号限行措施。
+                  </li>
+                  <li>
+                    <span className="font-semibold">工业错峰生产：</span>
+                    对重点排放企业（如化工厂、喷涂厂）实施错峰生产，在气象条件不利于扩散的时段（AH &gt; 1.2）停止排放。
+                  </li>
+                  <li>
+                    <span className="font-semibold">模型持续校准：</span>
+                    鉴于湿度（RH）对传感器读数的显著负向影响，建议每 2 周进行一次基准线校准，以消除环境漂移。
+                  </li>
+                  <li>
+                    <span className="font-semibold">公众健康预警：</span>
+                    当预测未来 3 小时 NOx 浓度持续上升时，自动通过短信和 App 推送健康防护建议（减少户外运动）。
+                  </li>
+                </ul>
+              </div>
             ) : isMachineScene ? (
               <div className="p-4 rounded-xl bg-blue-50 border border-blue-100 text-sm text-blue-800 leading-relaxed">
-              <div className="font-bold mb-2 text-base">核心发现：转速与扭矩是机器故障预测的关键驱动因子</div>
-              <div className="mb-3">
-                模型因果分析表明，在机器预测性维护场景中，<b>转速 [rpm]</b> 和 <b>扭矩 [Nm]</b> 对机器故障预测具有最强的正向影响，是判断设备健康状态的核心指标。
+                <div className="font-bold mb-2 text-base">核心建议： 重点关注“Type”磨损指标</div>
+                <div className="mb-3">
+                  基于因果推演仿真，若将刀具磨损阈值降低 10%，预计非计划停机率将下降 15%。建议在刀具磨损达到 200min 时提前介入。
+                </div>
+
+                <div className="font-bold mb-2 mt-4">详细行动计划：</div>
+                <ul className="list-disc pl-5 space-y-2">
+                  <li>
+                    <span className="font-semibold">预防性维护策略：</span>
+                    针对高风险设备，建议将巡检周期从“每日一次”调整为“每班次一次”，重点检查 Torque 和 Tool wear 指标。
+                  </li>
+                  <li>
+                    <span className="font-semibold">工艺参数优化：</span>
+                    在加工高硬度材料时，建议适当降低 Rotational speed，以减少 Tool wear 的积累速度，延长设备寿命。
+                  </li>
+                  <li>
+                    <span className="font-semibold">备件库存联动：</span>
+                    当预测未来 24 小时故障概率超过 70% 时，自动触发备件调拨请求，确保维修备件在 2 小时内到位。
+                  </li>
+                  <li>
+                    <span className="font-semibold">操作员辅助系统：</span>
+                    将实时故障风险指数集成到操作台屏幕，当风险 &gt; 0.6 时，强制弹窗提醒操作员关注异常震动。
+                  </li>
+                </ul>
               </div>
-
-              <div className="font-bold mb-2 mt-4">因果机制详解：</div>
-              <ul className="list-disc pl-5 space-y-2">
-                <li>
-                  <span className="font-semibold text-blue-700">主驱动因子 - 转速 [rpm]：</span>
-                  转速是设备运行强度的直接体现。高转速工况下，机械部件承受更大的离心力和惯性载荷，加速磨损和疲劳累积。模型识别出转速与故障概率呈<b>强正相关</b>。
-                </li>
-                <li>
-                  <span className="font-semibold text-blue-700">协同驱动因子 - 扭矩 [Nm]：</span>
-                  扭矩反映设备的负载强度。高扭矩意味着传动系统承受更大的机械应力，容易引发过载故障（OSF）和功率故障（PWF）。扭矩与转速的<b>交互效应</b>更值得关注——当两者同时处于高位时，故障概率呈指数级上升。
-                </li>
-                <li>
-                  <span className="font-semibold text-blue-700">缓解因子 - 类型 (Type)：</span>
-                  设备类型呈现负向影响，表明不同型号设备的故障阈值存在差异。L 型设备相比 H 型设备具有更低的故障基线，建议在运维策略中区分对待。
-                </li>
-                <li>
-                  <span className="font-semibold text-blue-700">温度相关因子：</span>
-                  <span className="font-mono font-bold mx-1">过程温度 [K]</span> 和 <span className="font-mono font-bold mx-1">空气温度 [K]</span>
-                  呈现负向影响，说明在当前数据集中，温度升高反而与故障概率降低相关。这可能反映了设备在正常运行时的热稳态特征——持续稳定运行的设备温度较高，而频繁启停或异常状态下温度波动较大。
-                </li>
-              </ul>
-
-
-            </div>
             ) : (
               <div className="p-4 rounded-xl bg-blue-50 border border-blue-100 text-sm text-blue-800 leading-relaxed">
                 <div className="font-bold mb-2 text-base">核心建议：将“{currentInfluenceScores[0]?.name || "影响因子"}”作为关键调控抓手</div>
@@ -7550,11 +6863,8 @@ function ExportReportPanel({ notify, datasets, runs, sceneId }) {
         </CardContent>
       </Card>
 
-      <div className="text-center pt-6 pb-2">
-        {/* <div className="text-xs text-slate-400 font-medium">Generated by LimiX Analytics Platform</div> */}
-        {/* <div className="text-[10px] text-slate-300 mt-1 cursor-pointer hover:text-blue-500 transition-colors" onClick={() => notify("升级提示", "邀请 1 位好友即可去除水印并解锁 PDF 导出")}>
-          Free Plan · Invite friends to remove watermark
-        </div> */}
+      <div className="text-center text-xs text-muted-foreground pt-4">
+        Generated by LimiX Analytics Platform · {nowTimeStr()}
       </div>
     </div>
   );
@@ -7571,7 +6881,7 @@ function ComparePanel({ notify, openModal, sceneId, runs }) {
     let base = runs || [];
 
     // Check if runs contain tasks relevant to the current scene
-    const runsHasAir = base.some(r => r.taskName.includes("NOx") || r.id.includes("AIR"));
+    const runsHasAir = base.some(r => r.taskName.includes("空气质量") || r.id.includes("AIR") || r.target === "NOx(GT)");
     const runsHasClf = base.some(r => r.taskName.includes("分类") || r.id.includes("CLF"));
     const runsHasMachine = base.some(r => r.taskName.includes("机器") || r.id.includes("MAC"));
 
@@ -7579,7 +6889,7 @@ function ComparePanel({ notify, openModal, sceneId, runs }) {
       base = [{
         id: "run-AIR-001",
         taskName: "空气质量预测_1",
-        taskType: "时序预测",
+        taskType: "回归",
         target: "NOx(GT)",
         status: "已完成",
         version: "data:v1 · seed:42 · mode:精",
@@ -7605,28 +6915,15 @@ function ComparePanel({ notify, openModal, sceneId, runs }) {
         taskType: "分类",
         target: tgt,
         status: "已完成",
-          version: "data:v1 · seed:42 · mode:精",
-          createTime: "2025-12-25 10:16:58",
-          finishTime: "2025-12-25 10:18:58",
-          durationSec: (1.5 + Math.random()).toFixed(1),
+        version: "data:v1 · seed:42 · mode:精",
+        createTime: "2026-01-28 10:00:00",
+        finishTime: "2026-01-28 10:01:30",
+        durationSec: (1.5 + Math.random()).toFixed(1),
         metrics: { AUC: (0.9 + Math.random() * 0.09).toFixed(3), F1: (0.85 + Math.random() * 0.1).toFixed(3), acc: (0.9 + Math.random() * 0.08).toFixed(3) }
       }));
     } else if (base.length === 0) {
       base = MOCK_RUNS_BASE;
     }
-
-    // Filter by scene to ensure clean view
-    if (isAir) {
-      base = base.filter(r => r.taskName.includes("空气") || r.id.includes("AIR") || r.target === "NOx(GT)");
-    } else if (isMachine) {
-      base = base.filter(r => r.taskName.includes("机器") || r.id.includes("MAC") || r.target === "Machine failure" || MACHINE_TARGETS.includes(r.target));
-    } else if (isClf) {
-      base = base.filter(r => r.taskName.includes("分类") || r.id.includes("CLF"));
-    } else {
-        // Price/Default scene
-        base = base.filter(r => !r.taskName.includes("空气") && !r.id.includes("AIR") && !r.taskName.includes("机器") && !r.id.includes("MAC") && !r.taskName.includes("分类") && !r.id.includes("CLF"));
-    }
-
     return base.filter(r => r.taskName !== "缺失值填补_RF");
   }, [sceneId, runs, isMachine, MACHINE_TARGETS]);
 
@@ -7667,23 +6964,15 @@ function ComparePanel({ notify, openModal, sceneId, runs }) {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
             <div>
               <div className="text-xs text-muted-foreground">任务名称</div>
-              <Select
-                className="w-full mt-0.5"
-                value={selectedRunId || undefined}
-                onChange={(value) => setSelectedRunId(value)}
-                placeholder="请选择任务"
-                triggerProps={{
-                  autoAlignPopupWidth: false,
-                  autoAlignPopupMinWidth: true,
-                  position: 'bl',
-                }}
+              <select
+                className="w-full mt-0.5 rounded-xl border border-input bg-background px-2 py-1 text-sm font-medium shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                value={selectedRunId || ""}
+                onChange={(e) => setSelectedRunId(e.target.value)}
               >
                 {availableRuns.map(run => (
-                  <Select.Option key={run.id} value={run.id} extra={run.createTime?.split(' ')[1]}>
-                    {run.taskName}
-                  </Select.Option>
+                  <option key={run.id} value={run.id}>{run.taskName}</option>
                 ))}
-              </Select>
+              </select>
             </div>
             <div>
               <div className="text-xs text-muted-foreground">任务ID</div>
@@ -7708,7 +6997,7 @@ function ComparePanel({ notify, openModal, sceneId, runs }) {
 
             <div>
               <div className="text-xs text-muted-foreground">创建时间</div>
-              <div className="mt-0.5 font-mono text-muted-foreground">2025-12-21</div>
+              <div className="mt-0.5 font-mono text-muted-foreground">{currentRun.createTime}</div>
             </div>
           </div>
         </CardContent>
@@ -7725,9 +7014,9 @@ function ComparePanel({ notify, openModal, sceneId, runs }) {
                     <>
                       <th className="py-3 px-4 text-left font-medium text-slate-600">AUC</th>
                       <th className="py-3 px-4 text-left font-medium text-slate-600">ACC (准确率)</th>
+                      <th className="py-3 px-4 text-left font-medium text-slate-600">F1</th>
                       <th className="py-3 px-4 text-left font-medium text-slate-600">Recall (召回率)</th>
                       <th className="py-3 px-4 text-left font-medium text-slate-600">Precision (精确率)</th>
-                      <th className="py-3 px-4 text-left font-medium text-slate-600">F1</th>
                     </>
                   ) : (
                     <>
@@ -7749,15 +7038,15 @@ function ComparePanel({ notify, openModal, sceneId, runs }) {
                         <td className="py-3 px-4 font-semibold text-blue-700 flex items-center gap-2">
                           LimiX <Badge className="text-[10px] h-5 px-1 bg-blue-100 text-blue-700 border-none">本任务</Badge>
                         </td>
-                        <td className="py-3 px-4 font-mono text-slate-700">0.950</td>
-                        <td className="py-3 px-4 font-mono text-slate-700">0.946</td>
-                        <td className="py-3 px-4 font-mono text-slate-700">0.942</td>
-                        <td className="py-3 px-4 font-mono text-slate-700">0.948</td>
-                        <td className="py-3 px-4 font-mono text-slate-700">0.945</td>
+                        <td className="py-3 px-4 font-mono text-slate-700">0.856</td>
+                        <td className="py-3 px-4 font-mono text-slate-700">0.852</td>
+                        <td className="py-3 px-4 font-mono text-slate-700">0.849</td>
+                        <td className="py-3 px-4 font-mono text-slate-700">0.853</td>
+                        <td className="py-3 px-4 font-mono text-slate-700">0.0.851</td>
                         <td className="py-3 px-4 font-mono text-slate-700">1.5s</td>
                       </tr>
                       <tr className="hover:bg-slate-50/50 transition-colors">
-                        <td className="py-3 px-4 font-medium text-slate-700">AutoGluon</td>
+                        <td className="py-3 px-4 font-medium text-slate-700">PatchTST</td>
                         <td className="py-3 px-4 font-mono text-slate-600">0.792</td>
                         <td className="py-3 px-4 font-mono text-slate-600">0.788</td>
                         <td className="py-3 px-4 font-mono text-slate-600">0.781</td>
@@ -7772,8 +7061,8 @@ function ComparePanel({ notify, openModal, sceneId, runs }) {
                         <td className="py-3 px-4 font-mono text-slate-600">0.554</td>
                         <td className="py-3 px-4 font-mono text-slate-600">0.565</td>
                         <td className="py-3 px-4 font-mono text-slate-600">0.559</td>
-                        <td className="py-3 px-4 font-mono text-slate-600">10s</td>
-                  </tr>
+                        <td className="py-3 px-4 font-mono text-slate-600">7.9s</td>
+                      </tr>
                     </>
                   ) : (
                     // Existing classification logic for other scenes
@@ -7796,27 +7085,27 @@ function ComparePanel({ notify, openModal, sceneId, runs }) {
                       <td className="py-3 px-4 font-semibold text-blue-700 flex items-center gap-2">
                         LimiX <Badge className="text-[10px] h-5 px-1 bg-blue-100 text-blue-700 border-none">本任务</Badge>
                       </td>
-                      <td className="py-3 px-4 font-mono text-slate-700">279.8577</td>
-                      <td className="py-3 px-4 font-mono text-slate-700">16.7289</td>
-                      <td className="py-3 px-4 font-mono text-slate-700">13.0150</td>
-                      <td className="py-3 px-4 font-mono text-slate-700">0.1450</td>
-                      <td className="py-3 px-4 font-mono text-slate-700">1.8s</td>
+                      <td className="py-3 px-4 font-mono text-slate-700">{currentRun?.metrics?.MSE || 6.59}</td>
+                      <td className="py-3 px-4 font-mono text-slate-700">{currentRun?.metrics?.RMSE || 2.57}</td>
+                      <td className="py-3 px-4 font-mono text-slate-700">{currentRun?.metrics?.MAE || 2.26}</td>
+                      <td className="py-3 px-4 font-mono text-slate-700">{currentRun?.metrics?.MAPE || 0.08}</td>
+                      <td className="py-3 px-4 font-mono text-slate-700">11s</td>
                     </tr>
                     <tr className="hover:bg-slate-50/50 transition-colors">
                       <td className="py-3 px-4 font-medium text-slate-700">PatchTST</td>
-                      <td className="py-3 px-4 font-mono text-slate-600">492.7812</td>
-                      <td className="py-3 px-4 font-mono text-slate-600">22.1986</td>
-                      <td className="py-3 px-4 font-mono text-slate-600">18.6235</td>
-                      <td className="py-3 px-4 font-mono text-slate-600">0.2138</td>
-                      <td className="py-3 px-4 font-mono text-slate-600">13min</td>
+                      <td className="py-3 px-4 font-mono text-slate-600">{(parseFloat(currentRun?.metrics?.MSE || 6.59) * 1.7).toFixed(2)}</td>
+                      <td className="py-3 px-4 font-mono text-slate-600">{(parseFloat(currentRun?.metrics?.RMSE || 2.57) * 1.3).toFixed(2)}</td>
+                      <td className="py-3 px-4 font-mono text-slate-600">{(parseFloat(currentRun?.metrics?.MAE || 2.26) * 1.7).toFixed(2)}</td>
+                      <td className="py-3 px-4 font-mono text-slate-600">{(parseFloat(currentRun?.metrics?.MAPE || 0.08) * 1.7).toFixed(2)}</td>
+                      <td className="py-3 px-4 font-mono text-slate-600">28s</td>
                     </tr>
                     <tr className="hover:bg-slate-50/50 transition-colors">
                       <td className="py-3 px-4 font-medium text-slate-700">DeepSeek</td>
-                      <td className="py-3 px-4 font-mono text-slate-600">1562.4891</td>
-                      <td className="py-3 px-4 font-mono text-slate-600">39.5283</td>
-                      <td className="py-3 px-4 font-mono text-slate-600">41.5287</td>
-                      <td className="py-3 px-4 font-mono text-slate-600">0.4926</td>
-                      <td className="py-3 px-4 font-mono text-slate-600">9s</td>
+                      <td className="py-3 px-4 font-mono text-slate-600">{(parseFloat(currentRun?.metrics?.MSE || 6.59) * 3.5).toFixed(2)}</td>
+                      <td className="py-3 px-4 font-mono text-slate-600">{(parseFloat(currentRun?.metrics?.RMSE || 2.57) * 1.9).toFixed(2)}</td>
+                      <td className="py-3 px-4 font-mono text-slate-600">{(parseFloat(currentRun?.metrics?.MAE || 2.26) * 3.0).toFixed(2)}</td>
+                      <td className="py-3 px-4 font-mono text-slate-600">{(parseFloat(currentRun?.metrics?.MAPE || 0.08) * 3.0).toFixed(2)}</td>
+                      <td className="py-3 px-4 font-mono text-slate-600">39s</td>
                     </tr>
                   </>
                 )}
@@ -7836,24 +7125,24 @@ function ComparePanel({ notify, openModal, sceneId, runs }) {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={[
-                    { metric: 'AUC', LimiX: 0.950, AutoGluon: 0.792, DeepSeek: 0.560 },
-                    { metric: 'ACC', LimiX: 0.946, AutoGluon: 0.788, DeepSeek: 0.557 },
-                    { metric: 'F1', LimiX: 0.942, AutoGluon: 0.781, DeepSeek: 0.554 },
-                    { metric: 'Recall', LimiX: 0.948, AutoGluon: 0.787, DeepSeek: 0.565 },
-                    { metric: 'Precision', LimiX: 0.945, AutoGluon: 0.784, DeepSeek: 0.559 },
+                    { metric: 'AUC', LimiX: 0.972, PatchTST: 0.958, DeepSeek: 0.942 },
+                    { metric: 'ACC', LimiX: 0.965, PatchTST: 0.951, DeepSeek: 0.936 },
+                    { metric: 'F1', LimiX: 0.962, PatchTST: 0.945, DeepSeek: 0.932 },
+                    { metric: 'Recall', LimiX: 0.960, PatchTST: 0.940, DeepSeek: 0.925 },
+                    { metric: 'Precision', LimiX: 0.968, PatchTST: 0.952, DeepSeek: 0.938 },
                   ]}
                   margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                   <XAxis dataKey="metric" tick={{ fontSize: 12, fill: "#64748b" }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11, fill: "#64748b" }} axisLine={false} tickLine={false} domain={[0, 1]} />
+                  <YAxis tick={{ fontSize: 11, fill: "#64748b" }} axisLine={false} tickLine={false} domain={[0.9, 1]} />
                   <Tooltip
                     cursor={{ fill: 'transparent' }}
                     contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)" }}
                   />
                   <Legend wrapperStyle={{ paddingTop: '10px' }} iconType="circle" />
                   <Bar dataKey="LimiX" fill="#93c5fd" radius={[4, 4, 0, 0]} name="LimiX" />
-                  <Bar dataKey="AutoGluon" fill="#fcd34d" radius={[4, 4, 0, 0]} name="AutoGluon" />
+                  <Bar dataKey="PatchTST" fill="#fcd34d" radius={[4, 4, 0, 0]} name="PatchTST" />
                   <Bar dataKey="DeepSeek" fill="#d8b4fe" radius={[4, 4, 0, 0]} name="DeepSeek" />
                 </BarChart>
               </ResponsiveContainer>
@@ -7946,7 +7235,7 @@ function ComparePanel({ notify, openModal, sceneId, runs }) {
                         tickLine={false}
                         axisLine={false}
                         width={40}
-                        domain={isAir ? ['auto', 340] : ['auto', 'auto']}
+                        domain={['auto', 'auto']}
                       />
                       <Tooltip
                         contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)" }}
@@ -8181,7 +7470,7 @@ export default function LimixDemoMockPreview() {
     setToasts((prev) => [{ id, title, desc }, ...prev].slice(0, 4));
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 1500);
+    }, 3600);
   };
 
   const dismissToast = (id) => setToasts((prev) => prev.filter((t) => t.id !== id));
@@ -8230,17 +7519,7 @@ export default function LimixDemoMockPreview() {
           backgroundPosition: '0 0, 12px 12px'
         }}></div>
 
-        <TopBar 
-          sceneId={sceneId} 
-          setSceneId={setSceneId} 
-          quickMode={quickMode} 
-          setQuickMode={setQuickMode} 
-          datasetId={datasetId} 
-          setDatasetId={setDatasetId} 
-          datasets={datasets}
-          notify={notify}
-          openModal={openModal}
-        />
+        <TopBar sceneId={sceneId} setSceneId={setSceneId} quickMode={quickMode} setQuickMode={setQuickMode} datasetId={datasetId} setDatasetId={setDatasetId} datasets={datasets} />
 
         <Modal open={modal.open} title={modal.title} onClose={closeModal}>
           {modal.content}
@@ -8256,7 +7535,7 @@ export default function LimixDemoMockPreview() {
               <div className="space-y-4 pb-8">
                 {active === "datasets" && <DatasetsPanel datasetId={datasetId} setDatasetId={setDatasetId} notify={notify} openModal={openModal} closeModal={closeModal} datasets={datasets} setDatasets={setDatasets} sceneId={sceneId} />}
                 {active === "health" && <HealthPanel datasetId={datasetId} notify={notify} openModal={openModal} setActive={setActive} datasets={datasets} setDatasetId={setDatasetId} sceneId={sceneId} />}
-                {active === "clean" && <CleanPanel datasetId={datasetId} setDatasetId={setDatasetId} notify={notify} openModal={openModal} closeModal={closeModal} datasets={datasets} setDatasets={setDatasets} sceneId={sceneId} />}
+                {active === "clean" && <CleanPanel datasetId={datasetId} setDatasetId={setDatasetId} notify={notify} openModal={openModal} datasets={datasets} setDatasets={setDatasets} sceneId={sceneId} />}
                 {(active === "tasks" || active === "results" || active === "compare") && (
                   <TasksPanel
                     quickMode={quickMode}
