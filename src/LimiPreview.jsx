@@ -4417,7 +4417,7 @@ function TasksPanel({ quickMode, runs, setRuns, notify, sceneId, datasetId, setD
               if (task.modelId === 'limix') {
                 duration = "1.8s";
               } else if (task.modelId === 'patchtst') {
-                duration = "13min";
+                duration = "23min";
               } else if (task.modelId === 'deepseek') {
                 duration = "9s";
               } else {
@@ -7808,7 +7808,7 @@ function ComparePanel({ notify, openModal, sceneId, runs }) {
                       <td className="py-3 px-4 font-mono text-slate-600">22.1986</td>
                       <td className="py-3 px-4 font-mono text-slate-600">18.6235</td>
                       <td className="py-3 px-4 font-mono text-slate-600">0.2138</td>
-                      <td className="py-3 px-4 font-mono text-slate-600">13min</td>
+                      <td className="py-3 px-4 font-mono text-slate-600">23min</td>
                     </tr>
                     <tr className="hover:bg-slate-50/50 transition-colors">
                       <td className="py-3 px-4 font-medium text-slate-700">DeepSeek</td>
