@@ -2008,12 +2008,12 @@ function TopBar({ sceneId, setSceneId, quickMode, setQuickMode, datasetId, setDa
       <div className="w-full px-6 py-3 flex items-center justify-between gap-3">
         <div className="flex items-center">
           <div className="h-14 flex items-center justify-center">
-            <img src="./stable_ai_logo.png" alt="Stable AI Logo" className="h-14 object-contain" />
+            <img src={`${import.meta.env.BASE_URL}stable_ai_logo.png`} alt="Stable AI Logo" className="h-14 object-contain" />
           </div>
           <div className="w-px h-6 bg-slate-200 ml-2 -mr-[6px] relative z-10"></div>
           <div className="flex items-center gap-0.5">
             <div className="h-12 flex items-center justify-center">
-              <img src="./limix_logo.png" alt="LimiX Logo" className="h-12 object-contain" />
+              <img src={`${import.meta.env.BASE_URL}limix_logo.png`} alt="LimiX Logo" className="h-12 object-contain" />
             </div>
             <div className="pt-[3px]">
               <div className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700 leading-8">通用数据分析平台</div>
