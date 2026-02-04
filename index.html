@@ -29,49 +29,64 @@
     <link rel="stylesheet" crossorigin href="/limix-pipeline-demo1218/assets/index-CIngLjGO.css">
   </head>
   <body>
-    <div id="root"></div>
-    
-    <!-- Static Content for Crawler/AI Accessibility -->
-    <noscript>
-      <article>
-        <h1>通用数据分析平台 (LimiX Pipeline)</h1>
-        <p>集数据资产管理、自动化评估治理、智能推理分析、因果解释与决策推演于一体的现代化分析工具。</p>
+    <!-- 
+      Strategy: Pre-rendering Content in #root
+      This content is visible to crawlers/bots immediately.
+      React will hydration-replace this with the App upon load.
+    -->
+    <div id="root">
+      <div style="font-family: system-ui, -apple-system, sans-serif; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 20px; color: #333;">
+        <header style="border-bottom: 1px solid #eee; padding-bottom: 20px; margin-bottom: 30px;">
+          <h1 style="color: #1a1a1a; font-size: 2.5em; margin-bottom: 10px;">通用数据分析平台 (LimiX Pipeline)</h1>
+          <p style="font-size: 1.2em; color: #666;">集数据资产管理、自动化评估治理、智能推理分析、因果解释与决策推演于一体的现代化分析工具。</p>
+        </header>
         
-        <section>
-          <h2>核心功能模块</h2>
-          <ul>
-            <li>
-              <h3>1. 数据资产 (Data Assets)</h3>
-              <p>多源数据接入（CSV/Excel/DB），自动解析 Schema（字段名、类型、描述），支持版本管理。</p>
-            </li>
-            <li>
-              <h3>2. 数据评估 (Data Health)</h3>
-              <p>自动生成数据体检报告。核心指标包括健康分 (0-100)、缺失率、重复率、异常值统计。</p>
-            </li>
-            <li>
-              <h3>3. 数据治理 (Data Governance)</h3>
-              <p>提供“一键清洗”策略（均值填充、删除异常、去重）和“数据增强”（基于 GAN 生成仿真数据）。</p>
-            </li>
-            <li>
-              <h3>4. 推理分析 (Inference Analysis)</h3>
-              <p>创建建模任务，集成 LimiX、XGBoost、LightGBM、Prophet 等多种算法。支持混淆矩阵、ROC 曲线、AUC 值、预测值 vs 真实值曲线可视化。</p>
-            </li>
-            <li>
-              <h3>5. 因果解释 (Causal Explanation)</h3>
-              <p>基于 SHAP 值进行模型解释。提供全局特征重要性、时序归因分析、单样本归因力导图。</p>
-            </li>
-            <li>
-              <h3>6. 推演决策 (Simulation & Decision)</h3>
-              <p>反事实推演 (What-If Analysis)。通过仿真面板拖动滑块，实时计算预测结果变化。支持智能反向求解最优参数。</p>
-            </li>
-            <li>
-              <h3>7. 导出报告 (Export Report)</h3>
-              <p>自动聚合分析结论，生成 PDF/Word 报告。</p>
-            </li>
-          </ul>
-        </section>
-      </article>
-    </noscript>
+        <main>
+          <section style="margin-bottom: 40px;">
+            <h2 style="color: #2563eb; border-left: 4px solid #2563eb; padding-left: 10px;">核心功能模块</h2>
+            
+            <div style="margin-bottom: 30px;">
+              <h3 style="font-size: 1.4em; margin-bottom: 10px;">1. 数据资产 (Data Assets)</h3>
+              <p>支持 CSV/Excel/DB 等多源数据接入。系统自动解析 Schema（包含字段名、类型推断、统计描述），并提供版本管理功能（支持 v1-原始版、v2-清洗版等多版本切换）。</p>
+            </div>
 
+            <div style="margin-bottom: 30px;">
+              <h3 style="font-size: 1.4em; margin-bottom: 10px;">2. 数据评估 (Data Health)</h3>
+              <p>一键生成数据体检报告。核心指标包含：健康分 (0-100)、缺失率、重复率、异常值统计。提供字段级分布直方图与相关性热力图可视化。</p>
+            </div>
+
+            <div style="margin-bottom: 30px;">
+              <h3 style="font-size: 1.4em; margin-bottom: 10px;">3. 数据治理 (Data Governance)</h3>
+              <p>可视化清洗工作台。内置“一键清洗”策略（均值/中位数填充、3-Sigma 异常剔除、去重）和“数据增强”功能（基于 GAN/CTGAN 生成仿真数据以扩充样本）。</p>
+            </div>
+
+            <div style="margin-bottom: 30px;">
+              <h3 style="font-size: 1.4em; margin-bottom: 10px;">4. 推理分析 (Inference Analysis)</h3>
+              <p>AutoML 建模引擎。集成 LimiX（自研）、XGBoost、LightGBM、Prophet 等算法。提供混淆矩阵、ROC 曲线、AUC 值、残差分布等专业评估图表。支持多模型性能对比（Leaderboard）。</p>
+            </div>
+
+            <div style="margin-bottom: 30px;">
+              <h3 style="font-size: 1.4em; margin-bottom: 10px;">5. 因果解释 (Causal Explanation)</h3>
+              <p>基于 SHAP 值的可解释性分析 (XAI)。提供全局特征重要性排行 (Feature Importance)、时序归因分析 (Time-series Attribution) 以及单样本的局部归因力导图 (Force Plot)。</p>
+            </div>
+
+            <div style="margin-bottom: 30px;">
+              <h3 style="font-size: 1.4em; margin-bottom: 10px;">6. 推演决策 (Simulation & Decision)</h3>
+              <p>反事实推演 (Counterfactual Analysis)。用户可通过仿真面板拖动“可控因子”（如温度、压力）滑块，实时观察预测结果（如故障率）的变化。系统支持反向求解，自动推荐最优参数组合。</p>
+            </div>
+
+            <div style="margin-bottom: 30px;">
+              <h3 style="font-size: 1.4em; margin-bottom: 10px;">7. 导出报告 (Export Report)</h3>
+              <p>全案报告自动生成。将数据质量摘要、模型评估结论、关键归因因子及决策建议聚合成 PDF/Word 文档，辅助管理层汇报。</p>
+            </div>
+          </section>
+
+          <footer style="margin-top: 50px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; color: #999;">
+            <p>Powered by LimiX Pipeline Engine | &copy; 2025</p>
+          </footer>
+        </main>
+      </div>
+    </div>
+    
   </body>
 </html>
