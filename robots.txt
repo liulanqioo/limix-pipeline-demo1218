@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://liulanqioo.github.io/limix-pipeline-demo1218/sitemap.xml
